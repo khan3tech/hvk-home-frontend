@@ -1,5 +1,8 @@
 # Research: Candidate Portal Integration
 
+> **Decisions (owner, 2026-10-14)**: D1 = keep college/place · D2 = (A) backend httpOnly cookie ·
+> D3 = include the TA dashboard in this feature.
+
 ## D1. College and place fields — owner decision
 - **Options**: (a) keep both, which needs a backend change (B2); (b) drop both from the form.
 - **Recommendation**: (a) keep them, because they are useful to the TA team. Both are optional in
@@ -16,9 +19,13 @@
   trusted, and trusting it lets direct callers spoof their IP.
 - **(C) localStorage**: any XSS can steal a 30-day refresh token. Rejected by Constitution III.
 
-## D3. TA / admin dashboard — owner decision
-- **Recommendation**: defer it to feature **003-ta-dashboard**, because it has a different audience,
-  roles and design. Feature 002 stays candidate-only.
+## D3. TA / admin dashboard — owner decision: **included**
+- The `/admin/**` area lives in its own route group `(admin)` with a role guard (`ta` and `admin`)
+  and a compact table layout reusing `components/ui`.
+- **Backend gap**: assigning a lead needs a staff picker, so add `GET /api/v1/admin/staff`
+  (id, fullName, role; `ta`/`admin` only) as backend change **B4**.
+- Status menus offer only the transitions in the backend's `LEAD_TRANSITIONS` /
+  `FOLLOW_UP_TRANSITIONS` (mirrored in `lib/ta.ts`, with tests that keep them in sync with the contract).
 
 ## R1. Payment UX: Razorpay Checkout
 - **Decision**: load `https://checkout.razorpay.com/v1/checkout.js` on `/payment` only (via

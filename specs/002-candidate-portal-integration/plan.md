@@ -41,7 +41,7 @@ cookie (decision D2)
 |---|---|---|
 | I. Backend is source of truth | Every protected page loads `/onboarding/status` and routes by step; no client-side state machine beyond display | PASS |
 | II. Typed single API client | `lib/api/client.ts` + per-domain modules; envelope and error mapping in one place | PASS |
-| III. Secure sessions | Access token in memory; refresh in an httpOnly cookie (D2); payment confirmed only by API | PASS (depends on D2) |
+| III. Secure sessions | Access token in memory; refresh in a backend httpOnly cookie (D2 = A, change B1); payment confirmed only by API | PASS |
 | IV. Home page out of scope | No edits under `app/page.tsx`, `components/tech/**`; CI check guards it | PASS |
 | V. Test-backed | Vitest + MSW per story; Playwright journey; CI gates | PASS |
 | VI. Accessible & consistent | Reuse `components/ui`, form a11y patterns, dark mode | PASS |
@@ -69,6 +69,7 @@ app/
     ├── registration/callback/                # → redirect to /dashboard (legacy)
     ├── exam/access/[token]/                  # → redirect to /login (legacy)
     ├── login/ · forgot-password/ · reset-password/
+    ├── (admin)/admin/                        # TA dashboard (role ta/admin): leads, leads/[id], follow-ups
     └── (portal)/                             # route group behind <RequireSession>
         ├── layout.tsx                        # session guard + step router
         ├── dashboard/ · onboarding/ · payment/ · exam/
@@ -104,17 +105,19 @@ tests/  unit/ · components/ · e2e/ · msw/handlers.ts
 | F4 | Dashboard + demo video | US3, US4 | routing tests for every step |
 | F5 | Payment via Razorpay Checkout | US5 | checkout success/failure/verify-pending tests |
 | F6 | Exam, feedback, thank-you, result, profile; retire legacy routes | US6, US7 | E2E journey green |
+| F6b | TA dashboard: role guard, leads list/detail/update, follow-ups | US8 | TA E2E + RBAC tests green |
 | F7 | Polish: a11y pass, Lighthouse, README, quickstart validation against the real backend | all | SC-001…SC-005 |
 
 ## Backend change request (raised in hvk-home-backend spec 001)
 
-Required for this feature (depends on the decisions):
+Required for this feature (decisions D1 = keep, D2 = A, D3 = include → B1–B4 all needed):
 
 | # | Change | Needed when |
 |---|---|---|
 | B1 | Web session cookie: `register/login/otp/refresh` also set an httpOnly `refresh_token` cookie (`SameSite=Lax`, `Secure` in prod, `Path=/api/v1/auth`); `refresh`/`logout` accept the cookie when the body has no token; CORS `credentials: true` | D2 = A (recommended) |
 | B2 | Optional `college` (2–150) and `place` (2–100) on register/profile/DTO/TA summary | D1 = keep |
 | B3 | Docs: local `PORT=4000`, `CORS_ORIGINS=http://localhost:3000`, `PASSWORD_RESET_URL=http://localhost:3000/reset-password` | always |
+| B4 | `GET /admin/staff` → `[{ id, fullName, role }]` for the lead-assignment picker (role ta/admin, audited) | D3 = include |
 
 ## Complexity Tracking
 

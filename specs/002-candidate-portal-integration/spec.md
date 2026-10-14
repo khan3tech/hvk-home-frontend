@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-14
 
-**Status**: Draft (awaiting owner approval before implementation)
+**Status**: Clarified 2026-10-14 (D1 keep college/place · D2 backend httpOnly cookie · D3 TA dashboard included). Implementation waits for the owner's WIP commit.
 
 **Input**: User description: "Update the frontend (`hvk-landing-page-frontend`) according to the
 backend (`hvk-home-backend`, spec 001), except the home page."
@@ -161,6 +161,38 @@ edit their name, city, state and PIN code.
 2. **When** the profile is saved with valid values, **Then** `PATCH /candidates/me` is called and
    the updated values appear.
 
+---
+
+### User Story 8 - TA / admin dashboard (Priority: P2)
+
+Staff users (role `ta` or `admin`, created with the backend `seed:admin` script) sign in on the
+same `/login` page and land on `/admin`. They can list Talent Acquisition leads (filter by status
+and date, paginated), open a lead to see the candidate's details (name, email, phone, city,
+state, college, place, onboarding step), change its status (only allowed transitions are offered),
+assign it to themselves or another staff member, set the next action date, and add notes. They
+also work through the list of unpaid-payment follow-ups (mark in progress or done with an outcome).
+
+**Why this priority**: TA's daily tool for converting registrations into paid candidates.
+
+**Independent Test**: With a mocked API, sign in as `ta`, list and filter leads, update one, and
+add a note; confirm a candidate account cannot open `/admin` and staff cannot open candidate pages.
+
+**Acceptance Scenarios**:
+
+1. **Given** a `ta` user signs in, **Then** they land on `/admin/leads`; **given** a candidate
+   opens `/admin`, **Then** they are redirected to `/dashboard`.
+2. **When** filtering by status or date range or changing page, **Then** the list calls
+   `GET /admin/ta-leads` with matching query parameters and shows the total.
+3. **Given** a lead in status `new`, **Then** the status menu offers only `queued`, `assigned` and
+   `closed`. **When** saved, **Then** `PATCH /admin/ta-leads/:id` is called and the timeline shows
+   the change and any note.
+4. **When** "Assign to me" or a staff member from the list (`GET /admin/staff`) is chosen,
+   **Then** the lead shows that assignee.
+5. **Given** the follow-ups tab, **Then** open follow-ups are listed oldest first; **when** one is
+   marked done with an outcome, **Then** it leaves the open list.
+6. **Given** the API returns `INVALID_STATE` (a concurrent edit), **Then** the UI reloads the lead
+   and shows "This lead was updated by someone else."
+
 ### Edge Cases
 
 - The access token expires mid-session: the client refreshes once and retries; if refresh fails
@@ -198,16 +230,14 @@ edit their name, city, state and PIN code.
 - **FR-011**: The home page (`app/page.tsx`, `components/tech/**`) MUST remain unchanged.
 - **FR-012**: Configuration MUST come from env: `NEXT_PUBLIC_API_BASE_URL` and
   `NEXT_PUBLIC_DEMO_VIDEO_URL`; the Razorpay key id comes from the order response.
-- **FR-013**: College and place fields [NEEDS CLARIFICATION: the current form collects "College"
-  and "Place (locality)" but the backend does not store them. Keep them (requires a backend
-  change) or remove them?]
-- **FR-014**: Refresh-token storage [NEEDS CLARIFICATION: (A) backend sets an httpOnly refresh
-  cookie for web clients (small backend change, most secure, recommended); (B) a Next.js
-  route-handler proxy keeps the cookie (no backend change, but every login appears to come from
-  one IP, which weakens the backend's per-IP rate limits); (C) localStorage (simplest, exposed to
-  XSS, not recommended)].
-- **FR-015**: TA/admin screens [NEEDS CLARIFICATION: the backend has TA lead and follow-up APIs.
-  Build a TA dashboard in this feature, or defer it to a separate feature 003?]
+- **FR-013**: The registration form MUST keep College (2–150) and Place/locality (2–100) and send
+  them to the API (stored by backend change B2; optional in the API, required in this form).
+- **FR-014**: The refresh token MUST be an httpOnly cookie set by the backend (change B1); the
+  frontend calls auth endpoints with `credentials: 'include'` and keeps the access token in memory only.
+- **FR-015**: The app MUST provide a TA/admin dashboard (`/admin/**`) for roles `ta` and `admin`:
+  lead list (filters, pagination), lead detail (status transitions per the backend table, assign,
+  next action, notes) and follow-ups list/update (US8). Candidates MUST NOT reach `/admin/**`, and
+  staff are routed to `/admin` after sign-in.
 
 ### Key Entities (client side)
 
@@ -215,6 +245,7 @@ edit their name, city, state and PIN code.
   httpOnly cookie (see FR-014).
 - **Candidate profile**: mirrors `CandidateDTO`.
 - **Journey step**: `onboardingStep` from the API → route and primary action.
+- **TA lead / follow-up**: mirrors `TaLeadDTO` / `FollowUpDTO`, including the allowed status transitions.
 - **Checkout order**: `{ keyId, orderId, amount, currency, name, prefill }` from the API.
 
 ## Success Criteria *(mandatory)*

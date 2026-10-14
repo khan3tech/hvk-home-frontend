@@ -5,19 +5,22 @@ live Swagger at `{API}/api/docs`. Base: `${NEXT_PUBLIC_API_BASE_URL}/api/v1`.
 
 | Screen | Call | Notes |
 |---|---|---|
-| Registration | `POST /auth/register` | body: fullName, email, phone (`+91…`), city, state, pincode, password, acceptTerms (+ college, place if D1 = keep) |
+| Registration | `POST /auth/register` | body: fullName, email, phone (`+91…`), city, state, pincode, college, place, password, acceptTerms |
 | Login | `POST /auth/login` | `{ emailOrPhone, password }` |
 | Login (OTP) | `POST /auth/otp/request` → `POST /auth/otp/verify` | 60 s resend cooldown; `challengeId` from the request call |
 | Session restore | `POST /auth/refresh` | with cookie (D2 = A); returns new access token + candidate |
 | Sign out | `POST /auth/logout` | clears cookie (D2 = A) |
 | Forgot / reset | `POST /auth/password/forgot`, `POST /auth/password/reset` | reset link: `/reset-password?token=…` |
-| Profile | `GET /candidates/me`, `PATCH /candidates/me` | editable: fullName, city, state, pincode |
+| Profile | `GET /candidates/me`, `PATCH /candidates/me` | editable: fullName, city, state, pincode, college, place (after B2) |
 | Journey | `GET /onboarding/status` | `{ step, demoAction, nextStep }` |
 | Demo | `POST /onboarding/demo/complete` · `/demo/skip` | idempotent |
 | Payment | `POST /payments/orders` → Checkout → `POST /payments/verify`; `GET /payments/me` | fee shown from `checkout.amount` / `currency` |
 | Exam | `GET /exams/current`, `POST /exams/attempts/:id/complete` | complete = claim only |
 | Feedback | `POST /exams/attempts/:id/feedback` | `{ rating 1–5, answers?, comments? }` |
 | Result | `GET /results/me` | `null` / `pending` / `published` |
+| TA leads | `GET /admin/ta-leads?status&from&to&page&limit`, `GET/PATCH /admin/ta-leads/:id` | PATCH: status, assignedTo, nextActionAt, note |
+| TA follow-ups | `GET /admin/payments/pending-follow-up?status&page&limit`, `PATCH /admin/follow-ups/:id` | status, outcome, assignedTo |
+| TA staff picker | `GET /admin/staff` | **new (backend B4)** |
 
 ## Error code → message
 
