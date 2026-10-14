@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { HeaderAuth } from "@/components/layout/header-auth";
 import { NAV_LINKS, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -69,6 +70,8 @@ export function Header() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
 
+          <HeaderAuth variant="desktop" />
+
           <Link
             href="/registration#registration"
             className={cn(buttonVariants({ variant: "primary" }), "hidden lg:inline-flex")}
@@ -111,6 +114,7 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          <HeaderAuth variant="mobile" onNavigate={() => setMobileOpen(false)} />
           <Link
             href="/registration#registration"
             onClick={() => setMobileOpen(false)}

@@ -22,16 +22,16 @@ Format: `- [ ] T### [P?] [US#?] Description with file path`
 
 ## Phase 2: Foundation (F2) — blocks all stories
 
-- [ ] T010 API types mirroring backend DTOs and envelope in types/api.ts
-- [ ] T011 `apiFetch` (envelope, `ApiError{status,code,message,fieldErrors}`, NETWORK_ERROR, refresh-once on 401 with de-duplicated refresh) in lib/api/client.ts
-- [ ] T012 [P] Error-code → message map from contracts/api-consumed.md in lib/api/errors.ts
-- [ ] T013 [P] Domain modules lib/api/{auth,candidate,onboarding,payments,exams,results}.ts
-- [ ] T014 SessionProvider (in-memory access token, restore via refresh on load, sign-in/out, cross-tab logout via BroadcastChannel) in lib/session/session-provider.tsx
-- [ ] T015 Journey table step → route/action in lib/journey.ts
-- [ ] T016 `proxy.ts` optimistic redirect for portal paths (cookie presence) at repo root
-- [ ] T017 `(portal)` layout with SessionGate + step router in app/(infotech)/(portal)/layout.tsx
-- [ ] T018 Header: Sign in / Dashboard / Sign out states in components/layout/header.tsx
-- [ ] T019 [P] Tests: client (envelope, field errors, refresh-once, network), journey table, session restore/logout in tests/unit/
+- [x] T010 API types mirroring backend DTOs and envelope in types/api.ts
+- [x] T011 `apiFetch` (envelope, `ApiError{status,code,message,fieldErrors}`, NETWORK_ERROR, refresh-once on 401 with de-duplicated refresh) in lib/api/client.ts
+- [x] T012 [P] Error-code → message map from contracts/api-consumed.md in lib/api/errors.ts
+- [x] T013 [P] Domain modules lib/api/{auth,candidate,onboarding,payments,exams,results}.ts
+- [x] T014 SessionProvider (in-memory access token, restore via refresh on load, sign-in/out, cross-tab logout via BroadcastChannel) in lib/session/session-provider.tsx
+- [x] T015 Journey table step → route/action in lib/journey.ts
+- [x] T016 `proxy.ts` optimistic redirect for portal paths at repo root (uses the frontend-set `hvk_signed_in` hint cookie; the API's refresh cookie is path-scoped to `/api/v1/auth` and never reaches pages)
+- [x] T017 `(portal)` layout with SessionGate + step router in app/(infotech)/(portal)/layout.tsx
+- [x] T018 Header: Sign in / Dashboard / Sign out states in components/layout/header.tsx
+- [x] T019 [P] Tests: client (envelope, field errors, refresh-once, network), journey table, session restore/logout in tests/unit/
 
 ## Phase 3: US1 Register (P1, F3)
 

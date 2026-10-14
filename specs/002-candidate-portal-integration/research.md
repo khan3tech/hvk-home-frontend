@@ -42,6 +42,12 @@
   redirects to the step's route if needed. The API remains the real authority (401/422).
 - **Rationale**: Next docs advise using Proxy for optimistic checks only, not full authorization.
 
+- **Amendment (F2)**: the API's `refresh_token` cookie is scoped to `Path=/api/v1/auth` on the
+  API host, so it is never sent to Next.js pages. After sign-in the frontend sets a non-secret
+  `hvk_signed_in=1` hint cookie (cleared on sign-out/expiry) for `proxy.ts`. Refreshes are serialized
+  across tabs with the Web Locks API, because the backend revokes a session family when a rotated
+  refresh token is reused.
+
 ## R3. API client
 - **Decision**: `apiFetch<T>(path, { method, body, auth })` returns `data`, or throws
   `ApiError { status, code, message, fieldErrors }`. On 401 with `auth: true` it calls
