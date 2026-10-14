@@ -80,7 +80,7 @@ Format: `- [ ] T### [P?] [US#?] Description with file path`
 ## Phase 8: Polish (F7)
 
 - [x] T039 [P] Accessibility pass (labels, aria-live errors, focus management on step changes); Lighthouse ≥ 95 on key pages — axe (WCAG 2.1 AA) in E2E on desktop + mobile; Lighthouse a11y: registration 97, login 99, forgot-password 98
-- [ ] T040 [P] README: setup with backend, env, scripts, architecture
+- [x] T040 [P] README: setup with backend, env, scripts, architecture
 - [ ] T041 Run quickstart.md Q1–Q8 against the real backend in Razorpay test mode
 
 ## Dependencies
