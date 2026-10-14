@@ -39,6 +39,22 @@ describe("Dashboard (US3)", () => {
   });
 });
 
+describe("PortalGate after a step change (regression)", () => {
+  it("does not bounce back using the previous page's step after navigating", async () => {
+    const { rerender, statusCalls } = renderPortal(<p>page</p>, { pathname: "/onboarding", step: "demo_pending" });
+    await screen.findByText("page");
+
+    // Candidate skipped the demo: the API is now at fee_pending and the app navigates to /payment.
+    statusCalls.step = "fee_pending";
+    nav.pathname = "/payment";
+    rerender(<p>page</p>);
+
+    await screen.findByText("page");
+    expect(nav.replace).not.toHaveBeenCalledWith("/onboarding");
+    expect(nav.replace).not.toHaveBeenCalled();
+  });
+});
+
 describe("Demo video (US4)", () => {
   it("Next is disabled until the video ends, then completes the demo and goes to payment", async () => {
     let called = "";

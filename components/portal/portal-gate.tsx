@@ -31,12 +31,14 @@ export function PortalGate({ area, children }: { area: "candidate" | "admin"; ch
   const { status: session, candidate } = useSession();
   const pathname = usePathname();
   const router = useRouter();
-  const [journey, setJourney] = React.useState<OnboardingStatus | null>(null);
+  // The status is tagged with the path it was loaded for: after a client-side navigation the old
+  // step must not drive redirects for the new page (that caused a redirect ping-pong).
+  const [journey, setJourney] = React.useState<{ status: OnboardingStatus; path: string } | null>(null);
   const [loadError, setLoadError] = React.useState<string | null>(null);
 
   const reload = React.useCallback(async () => {
     const next = await portalApi.onboardingStatus();
-    setJourney(next);
+    setJourney({ status: next, path: window.location.pathname });
     return next;
   }, []);
 
@@ -55,7 +57,7 @@ export function PortalGate({ area, children }: { area: "candidate" | "admin"; ch
       .onboardingStatus()
       .then((next) => {
         if (cancelled) return;
-        setJourney(next);
+        setJourney({ status: next, path: pathname });
         setLoadError(null);
       })
       .catch((err: unknown) => {
@@ -66,12 +68,13 @@ export function PortalGate({ area, children }: { area: "candidate" | "admin"; ch
     };
   }, [area, session, staff, pathname]);
 
-  const target = area === "candidate" && journey ? redirectForStep(pathname, journey.step) : null;
+  const fresh = journey && journey.path === pathname ? journey.status : null;
+  const target = area === "candidate" && fresh ? redirectForStep(pathname, fresh.step) : null;
   React.useEffect(() => {
     if (target) router.replace(target);
   }, [target, router]);
 
-  const value = React.useMemo(() => (journey ? { status: journey, reload } : null), [journey, reload]);
+  const value = React.useMemo(() => (fresh ? { status: fresh, reload } : null), [fresh, reload]);
 
   if (loadError) {
     return (

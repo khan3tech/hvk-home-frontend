@@ -13,7 +13,8 @@ export function PageHeading({ children, className }: { children: React.ReactNode
     ref.current?.focus({ preventScroll: true });
   }, []);
   return (
-    <h1 ref={ref} tabIndex={-1} className={cn("outline-none", className)}>
+    // Not interactive: no focus ring (the global :focus-visible outline would otherwise draw a box).
+    <h1 ref={ref} tabIndex={-1} className={cn(className)} style={{ outline: "none" }}>
       {children}
     </h1>
   );

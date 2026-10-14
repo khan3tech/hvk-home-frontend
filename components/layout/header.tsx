@@ -7,12 +7,15 @@ import { Menu, X } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { HeaderAuth } from "@/components/layout/header-auth";
+import { useSession } from "@/lib/session/session-provider";
 import { NAV_LINKS, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 export function Header() {
   const [scrolled, setScrolled] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  // Signed-in users already have an account: hide "Register Now" (it also overflowed the header).
+  const showRegister = useSession().status !== "authenticated";
 
   React.useEffect(() => {
     function handleScroll() {
@@ -72,13 +75,15 @@ export function Header() {
 
           <HeaderAuth variant="desktop" />
 
-          <Link
-            href="/registration#registration"
-            className={cn(buttonVariants({ variant: "primary" }), "hidden lg:inline-flex")}
-          >
-            Register Now
-            <span aria-hidden="true">→</span>
-          </Link>
+          {showRegister ? (
+            <Link
+              href="/registration#registration"
+              className={cn(buttonVariants({ variant: "primary" }), "hidden lg:inline-flex")}
+            >
+              Register Now
+              <span aria-hidden="true">→</span>
+            </Link>
+          ) : null}
 
           <button
             type="button"
@@ -115,13 +120,15 @@ export function Header() {
             </Link>
           ))}
           <HeaderAuth variant="mobile" onNavigate={() => setMobileOpen(false)} />
-          <Link
-            href="/registration#registration"
-            onClick={() => setMobileOpen(false)}
-            className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-bright-blue px-5 py-3 text-sm font-semibold text-white hover:bg-primary-blue"
-          >
-            Register Now →
-          </Link>
+          {showRegister ? (
+            <Link
+              href="/registration#registration"
+              onClick={() => setMobileOpen(false)}
+              className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-bright-blue px-5 py-3 text-sm font-semibold text-white hover:bg-primary-blue"
+            >
+              Register Now →
+            </Link>
+          ) : null}
         </nav>
       </div>
     </header>

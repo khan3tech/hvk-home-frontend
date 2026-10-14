@@ -95,6 +95,26 @@ describe("Payment (US5)", () => {
     await waitFor(() => expect(nav.push).toHaveBeenCalledWith("/exam"));
   });
 
+  it("regression: simultaneous mounts share one order request", async () => {
+    let calls = 0;
+    server.use(
+      http.post(`${API}/payments/orders`, async () => {
+        calls += 1;
+        await new Promise((r) => setTimeout(r, 30));
+        return ok(ORDER, 201);
+      }),
+    );
+    renderPortal(
+      <>
+        <PaymentPage />
+        <PaymentPage />
+      </>,
+      { pathname: "/payment", step: "fee_pending" },
+    );
+    expect(await screen.findAllByRole("button", { name: "Pay ₹499.00" })).toHaveLength(2);
+    expect(calls).toBe(1);
+  });
+
   it("closing Checkout keeps the candidate on the page with a notice", async () => {
     withOrder();
     const user = userEvent.setup();

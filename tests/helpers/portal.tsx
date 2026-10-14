@@ -27,10 +27,13 @@ export function renderPortal(
       return ok({ step: statusCalls.step, demoAction: null, nextStep: null });
     }),
   );
-  const utils = render(
+  const wrap = (node: React.ReactElement) => (
     <SessionProvider>
-      <PortalGate area={opts.area ?? "candidate"}>{ui}</PortalGate>
-    </SessionProvider>,
+      <PortalGate area={opts.area ?? "candidate"}>{node}</PortalGate>
+    </SessionProvider>
   );
-  return { ...utils, statusCalls };
+  const utils = render(wrap(ui));
+  /** Re-renders the same provider tree (e.g. after changing nav.pathname). */
+  const rerender = (node: React.ReactElement) => utils.rerender(wrap(node));
+  return { ...utils, rerender, statusCalls };
 }

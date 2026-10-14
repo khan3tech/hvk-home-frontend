@@ -81,7 +81,10 @@ Format: `- [ ] T### [P?] [US#?] Description with file path`
 
 - [x] T039 [P] Accessibility pass (labels, aria-live errors, focus management on step changes); Lighthouse ≥ 95 on key pages — axe (WCAG 2.1 AA) in E2E on desktop + mobile; Lighthouse a11y: registration 97, login 99, forgot-password 98
 - [x] T040 [P] README: setup with backend, env, scripts, architecture
-- [ ] T041 Run quickstart.md Q1–Q8 against the real backend in Razorpay test mode
+- [x] T041 Run quickstart.md Q1–Q8 against the real backend in Razorpay test mode — 2026-10-14, backend 628a9c0 on :4000 (in-memory DB) + frontend dev on :3000:
+  - Q1 register ✓ · Q2 reload keeps session, refresh token not readable by JS ✓ · Q3 real Razorpay **test** order + Checkout iframe opened ✓; card/UPI entry not possible in the embedded test browser, so payment confirmed via a signed `payment.captured` webhook ✓ → already-paid redirect /payment → /exam ✓ · Q4 signed exam callback → page auto-moved to /feedback ✓ · Q5 feedback → thank-you → result pending → finalized 84/Passed ✓ · Q6 sign-out revokes server session (refresh 401) and guards pages ✓ · TA: staff login → leads, assign to me, staff picker, college/place ✓ · Q7 (reset email) needs the worker + Redis — not run.
+  - Bugs found and fixed: backend duplicate Razorpay orders under concurrent requests (a94e492); gate redirect ping-pong after a step change; duplicate order requests on remount; signed-in header overflow; focus box on step headings.
+  - Owner to do: complete one real test-mode card/UPI payment in a normal browser (Q3).
 
 ## Dependencies
 - Phase 0 → everything. Phase 1 → Phase 2 → stories. US8 needs Phase 2 + backend B4.

@@ -64,6 +64,9 @@ test("session survives a reload; sign-out protects portal pages", async ({ page,
 
   await page.goto("/dashboard");
   await expect(page.getByRole("link", { name: /Pay registration fee/ })).toBeVisible();
+  // Regression: the signed-in header used to overflow the page horizontally.
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await expect(page.getByRole("link", { name: /Register Now/ })).toHaveCount(0);
   await page.reload();
   await expect(page.getByRole("link", { name: /Pay registration fee/ })).toBeVisible();
 

@@ -23,6 +23,15 @@ type State =
   | { kind: "success" }
   | { kind: "error"; message: string; retry: "order" | "checkout" | "none" };
 
+/** Concurrent mounts (React StrictMode, route remounts) share one in-flight order request. */
+let inflightOrder: Promise<CreateOrderResult> | null = null;
+function createOrderOnce(): Promise<CreateOrderResult> {
+  inflightOrder ??= portalApi.createOrder().finally(() => {
+    inflightOrder = null;
+  });
+  return inflightOrder;
+}
+
 /** How long to keep checking for a webhook-confirmed payment after verification failed. */
 export const CONFIRM_POLL_MS = 3_000;
 export const CONFIRM_TIMEOUT_MS = 60_000;
@@ -62,8 +71,7 @@ export function Payment({
   const { reload } = journey;
   React.useEffect(() => {
     let cancelled = false;
-    portalApi
-      .createOrder()
+    createOrderOnce()
       .then((o) => {
         if (cancelled) return;
         setOrder(o);
