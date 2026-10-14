@@ -35,16 +35,16 @@ Format: `- [ ] T### [P?] [US#?] Description with file path`
 
 ## Phase 3: US1 Register (P1, F3)
 
-- [ ] T020 [P] [US1] Zod schema mirroring the API (name 2–100, email, 10-digit mobile → +91, city/state 2–100, PIN `^[1-9][0-9]{5}$`, password 8–128 + confirm, acceptTerms true; college 2–150, place 2–100) in lib/validations.ts
-- [ ] T021 [US1] Rewire components/home/registration-form.tsx: new fields, `POST /auth/register`, `setError` from fieldErrors, ACCOUNT_EXISTS → sign-in link, redirect to /onboarding
-- [ ] T022 [P] [US1] Component tests: client validation, payload shape (+91), field errors, ACCOUNT_EXISTS, success redirect in tests/components/registration-form.test.tsx
+- [x] T020 [P] [US1] Zod schema mirroring the API (name 2–100, email, 10-digit mobile → +91, city/state 2–100, PIN `^[1-9][0-9]{5}$`, password 8–128 + confirm, acceptTerms true; college 2–150, place 2–100) in lib/validations.ts
+- [x] T021 [US1] Rewire components/home/registration-form.tsx: new fields, `POST /auth/register`, `setError` from fieldErrors, ACCOUNT_EXISTS → sign-in link, redirect to /onboarding
+- [x] T022 [P] [US1] Component tests: client validation, payload shape (+91), field errors, ACCOUNT_EXISTS, success redirect in tests/components/registration-form.test.tsx
 
 ## Phase 4: US2 Sign in / reset (P1, F3)
 
-- [ ] T023 [P] [US2] /login page with Password and OTP tabs, `?next=` support in app/(infotech)/login/
-- [ ] T024 [P] [US2] OTP form (request, 6-digit input, 60 s resend countdown) in components/portal/otp-form.tsx
-- [ ] T025 [P] [US2] /forgot-password and /reset-password pages in app/(infotech)/
-- [ ] T026 [P] [US2] Tests: login success/generic error/429, OTP flow + cooldown, forgot (same message), reset success/INVALID_TOKEN in tests/components/auth.test.tsx
+- [x] T023 [P] [US2] /login page with Password and OTP tabs, `?next=` support in app/(infotech)/login/
+- [x] T024 [P] [US2] OTP form (request, 6-digit input, 60 s resend countdown) in components/portal/otp-form.tsx
+- [x] T025 [P] [US2] /forgot-password and /reset-password pages in app/(infotech)/
+- [x] T026 [P] [US2] Tests: login success/generic error/429, OTP flow + cooldown, forgot (same message), reset success/INVALID_TOKEN in tests/components/auth.test.tsx
 
 ## Phase 5: US3 Dashboard + US4 Demo (F4)
 

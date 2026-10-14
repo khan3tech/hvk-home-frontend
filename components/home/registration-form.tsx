@@ -1,11 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { useForm, Controller } from "react-hook-form";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm, Controller, type Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  ArrowRight,
   Building2,
-  CreditCard,
   GraduationCap,
   Lock,
   Mail,
@@ -17,30 +19,45 @@ import {
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { SearchableSelect } from "@/components/ui/select";
+import { buttonVariants } from "@/components/ui/button";
+import { FieldLabel, FormMessage, PasswordInput } from "@/components/portal/form-field";
 import { INDIAN_STATES } from "@/lib/constants";
 import {
   candidateRegistrationSchema,
+  toE164India,
   type CandidateRegistrationInput,
 } from "@/lib/validations";
-import { ApiError, createPaymentLink, registerCandidate } from "@/lib/api";
+import { authApi } from "@/lib/api/auth";
+import { ApiError, errorMessage } from "@/lib/api/client";
+import { STEP_ROUTE } from "@/lib/journey";
+import { useSession } from "@/lib/session/session-provider";
+import { cn } from "@/lib/utils";
 
-type RegistrationStatus = "idle" | "registering" | "redirecting" | "error";
-
-const STATUS_LABEL: Record<RegistrationStatus, string> = {
-  idle: "Register & Pay Registration Fee",
-  registering: "Registering...",
-  redirecting: "Redirecting to secure payment...",
-  error: "Register & Pay Registration Fee",
+/** API field names → form field names. */
+const FIELD_MAP: Record<string, Path<CandidateRegistrationInput>> = {
+  fullName: "fullName",
+  email: "email",
+  phone: "contactNumber",
+  college: "college",
+  place: "place",
+  city: "city",
+  state: "state",
+  pincode: "pincode",
+  password: "password",
+  acceptTerms: "acceptTerms",
 };
 
 export function RegistrationForm() {
-  const [status, setStatus] = React.useState<RegistrationStatus>("idle");
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const router = useRouter();
+  const session = useSession();
+  const [submitting, setSubmitting] = React.useState(false);
+  const [formError, setFormError] = React.useState<React.ReactNode>(null);
 
   const {
     register,
     handleSubmit,
     control,
+    setError,
     formState: { errors },
   } = useForm<CandidateRegistrationInput>({
     resolver: zodResolver(candidateRegistrationSchema),
@@ -53,40 +70,52 @@ export function RegistrationForm() {
       city: "",
       state: "",
       pincode: "",
+      password: "",
+      confirmPassword: "",
+      acceptTerms: false,
     },
   });
 
   async function onSubmit(data: CandidateRegistrationInput) {
-    setErrorMessage(null);
-    setStatus("registering");
+    setFormError(null);
+    setSubmitting(true);
     try {
-      const { candidateId } = await registerCandidate({
-        name: data.fullName,
+      const result = await authApi.register({
+        fullName: data.fullName,
         email: data.email,
-        phone: data.contactNumber,
+        phone: toE164India(data.contactNumber),
         college: data.college,
         place: data.place,
         city: data.city,
         state: data.state,
         pincode: data.pincode,
+        password: data.password,
+        acceptTerms: true,
       });
-
-      setStatus("redirecting");
-      const { paymentLinkUrl } = await createPaymentLink(candidateId);
-
-      // Full-page redirect to Razorpay's hosted checkout — the frontend never loads
-      // Razorpay's SDK or sees a Razorpay key. Razorpay redirects back to
-      // /registration/callback once the customer finishes paying.
-      window.location.assign(paymentLinkUrl);
+      session.signIn(result);
+      router.push(STEP_ROUTE[result.candidate.onboardingStep]);
     } catch (err) {
-      setStatus("error");
-      setErrorMessage(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again."
-      );
+      setSubmitting(false);
+      if (err instanceof ApiError && err.code === "ACCOUNT_EXISTS") {
+        setFormError(
+          <>
+            {err.message}{" "}
+            <Link href="/login" className="underline">
+              Sign in
+            </Link>
+          </>,
+        );
+        return;
+      }
+      if (err instanceof ApiError) {
+        for (const [field, message] of Object.entries(err.fieldErrors)) {
+          const target = FIELD_MAP[field];
+          if (target) setError(target, { message });
+        }
+      }
+      setFormError(errorMessage(err));
     }
   }
-
-  const isBusy = status === "registering" || status === "redirecting";
 
   return (
     <section id="registration" className="relative bg-app-bg py-14 dark:bg-dark-bg sm:py-16 lg:py-20">
@@ -139,92 +168,49 @@ export function RegistrationForm() {
               </span>
             </div>
 
+            {session.status === "authenticated" ? (
+              <div className="mt-6 rounded-lg border border-light-blue bg-light-blue/40 p-5 dark:border-white/10 dark:bg-dark-surface-alt">
+                <p className="text-sm font-semibold text-navy dark:text-white">
+                  You&apos;re signed in as {session.candidate?.fullName}.
+                </p>
+                <Link href="/dashboard" className={cn(buttonVariants({ variant: "primary" }), "mt-4")}>
+                  Continue to your dashboard <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </div>
+            ) : (
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="mt-6 space-y-5"
               noValidate
+              aria-label="Candidate registration"
             >
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="fullName" className="mb-1.5 block text-sm font-semibold text-ink dark:text-slate-200">
-                    Full Name <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    id="fullName"
-                    icon={User}
-                    placeholder="Enter your full name"
-                    error={errors.fullName?.message}
-                    {...register("fullName")}
-                  />
+                  <FieldLabel htmlFor="fullName">Full Name</FieldLabel>
+                  <Input id="fullName" icon={User} autoComplete="name" placeholder="Enter your full name" error={errors.fullName?.message} {...register("fullName")} />
                 </div>
                 <div>
-                  <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-ink dark:text-slate-200">
-                    Email Address <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    id="email"
-                    type="email"
-                    icon={Mail}
-                    placeholder="Enter your email address"
-                    error={errors.email?.message}
-                    {...register("email")}
-                  />
+                  <FieldLabel htmlFor="email">Email Address</FieldLabel>
+                  <Input id="email" type="email" icon={Mail} autoComplete="email" placeholder="Enter your email address" error={errors.email?.message} {...register("email")} />
                 </div>
                 <div>
-                  <label htmlFor="contactNumber" className="mb-1.5 block text-sm font-semibold text-ink dark:text-slate-200">
-                    Contact Number <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    id="contactNumber"
-                    type="tel"
-                    inputMode="numeric"
-                    icon={Phone}
-                    placeholder="Enter 10 digit mobile number"
-                    maxLength={10}
-                    error={errors.contactNumber?.message}
-                    {...register("contactNumber")}
-                  />
+                  <FieldLabel htmlFor="contactNumber">Contact Number</FieldLabel>
+                  <Input id="contactNumber" type="tel" inputMode="numeric" icon={Phone} autoComplete="tel-national" placeholder="Enter 10 digit mobile number" maxLength={10} error={errors.contactNumber?.message} {...register("contactNumber")} />
                 </div>
                 <div>
-                  <label htmlFor="college" className="mb-1.5 block text-sm font-semibold text-ink dark:text-slate-200">
-                    College / University <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    id="college"
-                    icon={GraduationCap}
-                    placeholder="Enter your college name"
-                    error={errors.college?.message}
-                    {...register("college")}
-                  />
+                  <FieldLabel htmlFor="college">College / University</FieldLabel>
+                  <Input id="college" icon={GraduationCap} placeholder="Enter your college name" error={errors.college?.message} {...register("college")} />
                 </div>
                 <div>
-                  <label htmlFor="place" className="mb-1.5 block text-sm font-semibold text-ink dark:text-slate-200">
-                    Place / Locality <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    id="place"
-                    icon={MapPinned}
-                    placeholder="Enter your area or locality"
-                    error={errors.place?.message}
-                    {...register("place")}
-                  />
+                  <FieldLabel htmlFor="place">Place / Locality</FieldLabel>
+                  <Input id="place" icon={MapPinned} placeholder="Enter your area or locality" error={errors.place?.message} {...register("place")} />
                 </div>
                 <div>
-                  <label htmlFor="city" className="mb-1.5 block text-sm font-semibold text-ink dark:text-slate-200">
-                    City <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    id="city"
-                    icon={Building2}
-                    placeholder="Enter your city"
-                    error={errors.city?.message}
-                    {...register("city")}
-                  />
+                  <FieldLabel htmlFor="city">City</FieldLabel>
+                  <Input id="city" icon={Building2} autoComplete="address-level2" placeholder="Enter your city" error={errors.city?.message} {...register("city")} />
                 </div>
                 <div>
-                  <label htmlFor="state" className="mb-1.5 block text-sm font-semibold text-ink dark:text-slate-200">
-                    State <span className="text-red-500">*</span>
-                  </label>
+                  <FieldLabel htmlFor="state">State</FieldLabel>
                   <Controller
                     control={control}
                     name="state"
@@ -243,45 +229,64 @@ export function RegistrationForm() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="pincode" className="mb-1.5 block text-sm font-semibold text-ink dark:text-slate-200">
-                    Pincode <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    id="pincode"
-                    type="text"
-                    inputMode="numeric"
-                    icon={Lock}
-                    placeholder="Enter 6 digit pincode"
-                    maxLength={6}
-                    error={errors.pincode?.message}
-                    {...register("pincode")}
-                  />
+                  <FieldLabel htmlFor="pincode">Pincode</FieldLabel>
+                  <Input id="pincode" type="text" inputMode="numeric" icon={Lock} autoComplete="postal-code" placeholder="Enter 6 digit pincode" maxLength={6} error={errors.pincode?.message} {...register("pincode")} />
                 </div>
+                <div>
+                  <FieldLabel htmlFor="password">Create Password</FieldLabel>
+                  <PasswordInput id="password" autoComplete="new-password" placeholder="At least 8 characters" error={errors.password?.message} {...register("password")} />
+                </div>
+                <div>
+                  <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
+                  <PasswordInput id="confirmPassword" autoComplete="new-password" placeholder="Re-enter your password" error={errors.confirmPassword?.message} {...register("confirmPassword")} />
+                </div>
+              </div>
+
+              <div>
+                <label className="flex items-start gap-3 text-sm text-ink dark:text-slate-200">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 h-4 w-4 rounded border-slate-300 text-bright-blue focus:ring-bright-blue"
+                    aria-invalid={!!errors.acceptTerms}
+                    aria-describedby={errors.acceptTerms ? "acceptTerms-error" : undefined}
+                    {...register("acceptTerms")}
+                  />
+                  <span>
+                    I agree to the{" "}
+                    <Link href="/terms" className="font-semibold text-primary-blue underline dark:text-bright-blue">Terms &amp; Conditions</Link>{" "}
+                    and{" "}
+                    <Link href="/privacy-policy" className="font-semibold text-primary-blue underline dark:text-bright-blue">Privacy Policy</Link>
+                  </span>
+                </label>
+                {errors.acceptTerms ? (
+                  <p id="acceptTerms-error" className="mt-1.5 text-xs font-medium text-red-500">{errors.acceptTerms.message}</p>
+                ) : null}
               </div>
 
               <button
                 type="submit"
-                disabled={isBusy}
+                disabled={submitting}
                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-bright-blue px-6 py-4 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary-blue disabled:cursor-not-allowed disabled:opacity-70"
               >
-                <CreditCard className="h-4 w-4" aria-hidden="true" />
-                {STATUS_LABEL[status]}
+                {submitting ? "Creating your account..." : "Create Account & Continue"}
                 <span aria-hidden="true">→</span>
               </button>
+
+              <p className="text-center text-sm text-muted dark:text-slate-400">
+                Already registered?{" "}
+                <Link href="/login" className="font-semibold text-primary-blue underline dark:text-bright-blue">Sign in</Link>
+              </p>
 
               <p className="flex items-center justify-center gap-1.5 text-xs text-muted dark:text-slate-400">
                 <Lock className="h-3.5 w-3.5" aria-hidden="true" />
                 Your information is safe and secure with us.
               </p>
 
-              <div role="status" aria-live="polite" className="text-center text-sm">
-                {status === "error" && errorMessage ? (
-                  <p className="font-semibold text-red-500 dark:text-red-400">
-                    {errorMessage}
-                  </p>
-                ) : null}
+              <div className="text-center">
+                <FormMessage>{formError}</FormMessage>
               </div>
             </form>
+            )}
           </div>
         </motion.div>
       </div>
