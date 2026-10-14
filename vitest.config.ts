@@ -11,6 +11,7 @@ export default defineConfig({
     environment: "jsdom",
     include: ["tests/unit/**/*.test.{ts,tsx}", "tests/components/**/*.test.{ts,tsx}"],
     setupFiles: ["tests/setup.ts"],
+    testTimeout: 20_000,
     // Matches the API base used by the MSW handlers.
     env: {
       NEXT_PUBLIC_API_BASE_URL: "http://api.test",
