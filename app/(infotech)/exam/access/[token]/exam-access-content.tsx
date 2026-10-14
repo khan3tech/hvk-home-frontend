@@ -66,7 +66,7 @@ export function ExamAccessContent({ token }: { token: string }) {
               <p className="mt-2 text-sm leading-relaxed text-muted dark:text-slate-400">
                 {message}
               </p>
-              <Link href="/" className={cn(buttonVariants({ variant: "primary" }), "mt-6")}>
+              <Link href="/registration" className={cn(buttonVariants({ variant: "primary" }), "mt-6")}>
                 Back to Home
               </Link>
             </>

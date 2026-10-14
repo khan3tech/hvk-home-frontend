@@ -41,7 +41,7 @@ export function Footer() {
     <footer className="bg-light-blue text-ink dark:bg-navy dark:text-white" id="contact">
       <div className="container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
         <div className="sm:col-span-2 lg:col-span-1">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/registration" className="flex items-center gap-3">
             <Image
               src="/images/hvk-logo.png"
               alt="HVK Infotech logo"

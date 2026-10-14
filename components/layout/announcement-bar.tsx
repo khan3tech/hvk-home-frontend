@@ -30,7 +30,7 @@ export function AnnouncementBar() {
           </ul>
           <span className="hidden h-4 w-px bg-navy/15 dark:bg-white/20 md:block" aria-hidden="true" />
           <Link
-            href="/#contact"
+            href="#contact"
             className="hidden items-center gap-1.5 text-muted transition-colors hover:text-primary-blue dark:text-white/80 dark:hover:text-bright-blue lg:flex"
           >
             <HelpCircle className="h-3.5 w-3.5" aria-hidden="true" />

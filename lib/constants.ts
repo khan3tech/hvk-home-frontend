@@ -35,11 +35,11 @@ export const ABOUT_IMAGES: string[] = [
 ];
 
 export const NAV_LINKS: NavLink[] = [
-  { label: "Home", href: "/" },
-  { label: "About", href: "/#about" },
-  { label: "Services", href: "/#services" },
-  { label: "Testimonials", href: "/#testimonials" },
-  { label: "Contact", href: "/#contact" },
+  { label: "Home", href: "/registration" },
+  { label: "About", href: "/registration#about" },
+  { label: "Services", href: "/registration#services" },
+  { label: "Testimonials", href: "/registration#testimonials" },
+  { label: "Contact", href: "#contact" },
 ];
 
 export const SOCIAL_LINKS: SocialLink[] = [
@@ -59,7 +59,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     description:
       "Practical learning, real-world projects and career opportunities to help you become industry ready.",
     ctaLabel: "Explore Opportunities",
-    ctaHref: "/#services",
+    ctaHref: "/registration#services",
     image: "/images/hero/hero-1.jpg",
   },
   {
@@ -71,7 +71,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     description:
       "Gain practical learning and real-world project experience designed by industry experts to accelerate your career.",
     ctaLabel: "Explore Programs",
-    ctaHref: "/#services",
+    ctaHref: "/registration#services",
     image: "/images/hero/hero-2.jpg",
   },
   {
@@ -83,7 +83,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     description:
       "Get access to internships, dedicated placement support and career guidance from experienced mentors.",
     ctaLabel: "Register Now",
-    ctaHref: "/#registration",
+    ctaHref: "/registration#registration",
     image: "/images/hero/hero-3.jpg",
   },
 ];
@@ -173,16 +173,16 @@ export const TESTIMONIALS: TestimonialItem[] = [
 ];
 
 export const QUICK_LINKS: NavLink[] = [
-  { label: "Home", href: "/" },
-  { label: "About Us", href: "/#about" },
-  { label: "Services", href: "/#services" },
-  { label: "Testimonials", href: "/#testimonials" },
-  { label: "Contact", href: "/#contact" },
+  { label: "Home", href: "/registration" },
+  { label: "About Us", href: "/registration#about" },
+  { label: "Services", href: "/registration#services" },
+  { label: "Testimonials", href: "/registration#testimonials" },
+  { label: "Contact", href: "#contact" },
 ];
 
 export const FOOTER_SERVICE_LINKS: NavLink[] = SERVICES.map((service) => ({
   label: service.title,
-  href: `/#services`,
+  href: "/registration#services",
 }));
 
 export const FOOTER_LINK_GROUPS: FooterLinkGroupData[] = [

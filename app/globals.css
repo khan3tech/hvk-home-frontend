@@ -6,6 +6,12 @@ html {
   scroll-behavior: smooth;
 }
 
+@layer components {
+  .tech-container {
+    @apply mx-auto w-[min(1200px,calc(100%-30px))] sm:w-[min(1200px,calc(100%-40px))];
+  }
+}
+
 .embla {
   overflow: hidden;
 }

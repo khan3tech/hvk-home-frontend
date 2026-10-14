@@ -101,7 +101,7 @@ export function CallbackContent() {
                 confirmation and exam access details.
               </p>
               <Link
-                href="/"
+                href="/registration"
                 className={cn(buttonVariants({ variant: "primary" }), "mt-6")}
               >
                 Back to Home
@@ -121,7 +121,7 @@ export function CallbackContent() {
                   : message}
               </p>
               <Link
-                href="/#registration"
+                href="/registration#registration"
                 className={cn(buttonVariants({ variant: "primary" }), "mt-6")}
               >
                 Back to Registration
