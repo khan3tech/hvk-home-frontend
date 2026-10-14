@@ -60,12 +60,12 @@ Format: `- [ ] T### [P?] [US#?] Description with file path`
 
 ## Phase 7: US6 Exam, feedback, thank-you + US7 Result, profile (F6)
 
-- [ ] T033 [US6] /exam page: start link (new tab), "I've finished" claim, waiting state polling status in app/(infotech)/(portal)/exam/page.tsx
-- [ ] T034 [US6] /feedback (star rating, comments ≤ 2000) and /thank-you pages
-- [ ] T035 [US7] /result (pending/published) and /profile (edit name, city, state, PIN) pages
-- [ ] T036 Retire legacy pages: /registration/callback → /dashboard, /exam/access/[token] → /login?next=/exam; remove payment-link/magic-link client code and old types
-- [ ] T037 [P] [US6][US7] Tests: exam claim + polling, feedback once (FEEDBACK_EXISTS), result states, profile save in tests/components/
-- [ ] T038 E2E: full journey register → demo skip → pay → exam → feedback → thank-you → result, plus sign-out guard, in tests/e2e/journey.spec.ts
+- [x] T033 [US6] /exam page: start link (new tab), "I've finished" claim, waiting state polling status in app/(infotech)/(portal)/exam/page.tsx
+- [x] T034 [US6] /feedback (star rating, comments ≤ 2000) and /thank-you pages
+- [x] T035 [US7] /result (pending/published) and /profile (edit name, city, state, PIN) pages
+- [x] T036 Retire legacy pages: /registration/callback → /dashboard, /exam/access/[token] → /login?next=/exam; remove payment-link/magic-link client code and old types
+- [x] T037 [P] [US6][US7] Tests: exam claim + polling, feedback once (FEEDBACK_EXISTS), result states, profile save in tests/components/
+- [x] T038 E2E: full journey register → demo skip → pay → exam → feedback → thank-you → result, plus sign-out guard, in tests/e2e/journey.spec.ts
 
 ## Phase 7b: US8 TA / admin dashboard (P2, F6b)
 
