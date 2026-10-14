@@ -9,7 +9,7 @@ Format: `- [ ] T### [P?] [US#?] Description with file path`
 
 - [x] T001 Owner decides D1 (college/place), D2 (session storage), D3 (TA dashboard scope); record in research.md and resolve FR-013–FR-015 in spec.md — **D1 keep · D2 backend cookie · D3 include**
 - [x] T002 Owner commits (or approves committing) the existing WIP: `(infotech)` route group, `components/tech/**`, layout/header/constants changes
-- [ ] T003 Owner creates a dedicated GitHub repo for the frontend; fix `origin` (currently the backend repo)
+- [x] T003 Owner creates a dedicated GitHub repo for the frontend; fix `origin` (currently the backend repo) — origin = https://github.com/khan3tech/hvk-home-frontend.git (2026-10-14)
 - [x] T004 Backend change request in hvk-home-backend: B1 httpOnly refresh cookie + CORS credentials, B2 optional college/place, B3 local port/CORS/reset-URL docs, B4 `GET /admin/staff`; merged with tests — done in backend commit 628a9c0 (branch 001-candidate-platform-api, pushed)
 
 ## Phase 1: Setup (F1)
