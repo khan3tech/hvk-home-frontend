@@ -118,8 +118,9 @@ assert that `/payments/verify` is called and the success UI appears.
 
 **Acceptance Scenarios**:
 
-1. **When** "Pay ₹499" is clicked, **Then** `POST /payments/orders` is called and Checkout opens
-   with the returned `keyId`, `orderId`, `amount`, `currency` and `prefill`.
+1. **When** `/payment` opens, **Then** `POST /payments/orders` is called (the API reuses an open
+   order) and the fee from the response is shown on the button ("Pay ₹499.00"). **When** it is
+   clicked, Checkout opens with the returned `keyId`, `orderId`, `amount`, `currency` and `prefill`.
 2. **Given** Checkout succeeds, **Then** `POST /payments/verify` is called with the three
    `razorpay_*` fields. On success the candidate is shown "Payment successful" and taken to `/exam`.
 3. **Given** the candidate closes Checkout or the payment fails, **Then** a retry option is shown

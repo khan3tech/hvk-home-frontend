@@ -100,14 +100,22 @@ export async function apiFetch<T>(path: string, opts: ApiOptions = {}): Promise<
   const useAuth = opts.auth ?? true;
   let response = await send(path, opts, useAuth ? (bridge?.getAccessToken() ?? null) : null);
 
-  if (response.status === 401 && useAuth && bridge) {
+  if (response.status === 401) {
+    const err = await toApiError(response);
+    // Only an expired/missing session triggers a refresh. Other 401s (e.g. INVALID_SIGNATURE on
+    // payment verification, INVALID_CREDENTIALS) are business errors and must not sign the user out.
+    if (err.code !== "UNAUTHENTICATED" || !useAuth || !bridge) throw err;
     const fresh = await bridge.refresh();
     if (!fresh) {
       bridge.onUnauthenticated();
-      throw await toApiError(response);
+      throw err;
     }
     response = await send(path, opts, fresh);
-    if (response.status === 401) bridge.onUnauthenticated();
+    if (response.status === 401) {
+      const retryErr = await toApiError(response);
+      if (retryErr.code === "UNAUTHENTICATED") bridge.onUnauthenticated();
+      throw retryErr;
+    }
   }
 
   if (!response.ok) throw await toApiError(response);

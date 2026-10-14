@@ -123,6 +123,18 @@ describe("apiFetch with a session", () => {
     expect(onUnauthenticated).toHaveBeenCalledOnce();
   });
 
+  it("a business 401 (e.g. INVALID_SIGNATURE) neither refreshes nor signs out", async () => {
+    server.use(http.post(`${API}/payments/verify`, () => fail(401, "INVALID_SIGNATURE")));
+    const refresh = vi.fn();
+    const onUnauthenticated = vi.fn();
+    registerSessionBridge({ getAccessToken: () => "tok", refresh, onUnauthenticated });
+    await expect(apiFetch("/payments/verify", { method: "POST", body: {} })).rejects.toMatchObject({
+      code: "INVALID_SIGNATURE",
+    });
+    expect(refresh).not.toHaveBeenCalled();
+    expect(onUnauthenticated).not.toHaveBeenCalled();
+  });
+
   it("does not refresh for unauthenticated calls", async () => {
     server.use(http.post(`${API}/auth/login`, () => fail(401, "INVALID_CREDENTIALS")));
     const refresh = vi.fn();

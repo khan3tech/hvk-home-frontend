@@ -48,15 +48,15 @@ Format: `- [ ] T### [P?] [US#?] Description with file path`
 
 ## Phase 5: US3 Dashboard + US4 Demo (F4)
 
-- [ ] T027 [US3] Journey stepper + primary action in components/portal/journey-stepper.tsx and app/(infotech)/(portal)/dashboard/page.tsx
-- [ ] T028 [US4] Demo video page (Next enabled on `ended`, Skip always) in app/(infotech)/(portal)/onboarding/page.tsx
-- [ ] T029 [P] [US3][US4] Tests: action per step, out-of-order redirect, complete/skip calls in tests/components/journey.test.tsx
+- [x] T027 [US3] Journey stepper + primary action in components/portal/journey-stepper.tsx and app/(infotech)/(portal)/dashboard/page.tsx
+- [x] T028 [US4] Demo video page (Next enabled on `ended`, Skip always) in app/(infotech)/(portal)/onboarding/page.tsx
+- [x] T029 [P] [US3][US4] Tests: action per step, out-of-order redirect, complete/skip calls in tests/components/journey.test.tsx
 
 ## Phase 6: US5 Payment (P1, F5)
 
-- [ ] T030 [US5] Razorpay loader + typed `openCheckout()` in lib/razorpay.ts
-- [ ] T031 [US5] /payment page: fee from order, open Checkout, verify, dismissed/failed retry, verify-pending polling of `/payments/me`, already-paid redirect in app/(infotech)/(portal)/payment/page.tsx
-- [ ] T032 [P] [US5] Tests with mocked `window.Razorpay`: success → verify → /exam; dismiss; payment.failed; INVALID_SIGNATURE → polling → paid; script load failure in tests/components/payment.test.tsx
+- [x] T030 [US5] Razorpay loader + typed `openCheckout()` in lib/razorpay.ts
+- [x] T031 [US5] /payment page: fee from order, open Checkout, verify, dismissed/failed retry, verify-pending polling of `/payments/me`, already-paid redirect in app/(infotech)/(portal)/payment/page.tsx
+- [x] T032 [P] [US5] Tests with mocked `window.Razorpay`: success → verify → /exam; dismiss; payment.failed; INVALID_SIGNATURE → polling → paid; script load failure in tests/components/payment.test.tsx
 
 ## Phase 7: US6 Exam, feedback, thank-you + US7 Result, profile (F6)
 
