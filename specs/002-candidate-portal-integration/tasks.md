@@ -69,13 +69,13 @@ Format: `- [ ] T### [P?] [US#?] Description with file path`
 
 ## Phase 7b: US8 TA / admin dashboard (P2, F6b)
 
-- [ ] T042 [US8] Role-aware routing: staff → /admin after sign-in; `(admin)` layout guard (ta/admin) and candidate-route guard for staff in app/(infotech)/(admin)/layout.tsx, lib/journey.ts
-- [ ] T043 [P] [US8] TA API module + transition tables mirroring the backend (`LEAD_TRANSITIONS`, `FOLLOW_UP_TRANSITIONS`) in lib/api/admin.ts, lib/ta.ts
-- [ ] T044 [US8] Leads list: status/date filters, pagination, total; URL query state in app/(infotech)/(admin)/admin/leads/page.tsx
-- [ ] T045 [US8] Lead detail: candidate panel (incl. city, state, college, place), allowed-status menu, assign (me / staff picker via `GET /admin/staff`), next action date, notes timeline, INVALID_STATE reload in app/(infotech)/(admin)/admin/leads/[id]/page.tsx
-- [ ] T046 [US8] Follow-ups list + update (in progress / done with outcome / cancelled) in app/(infotech)/(admin)/admin/follow-ups/page.tsx
-- [ ] T047 [P] [US8] Tests: RBAC redirects both ways, filters → query params, allowed transitions only, assign, note, concurrent-edit handling, follow-up done in tests/components/admin.test.tsx
-- [ ] T048 [US8] E2E: TA signs in → filters leads → assigns + contacts a lead → completes a follow-up in tests/e2e/admin.spec.ts
+- [x] T042 [US8] Role-aware routing: staff → /admin after sign-in; `(admin)` layout guard (ta/admin) and candidate-route guard for staff in app/(infotech)/(admin)/layout.tsx, lib/journey.ts
+- [x] T043 [P] [US8] TA API module + transition tables mirroring the backend (`LEAD_TRANSITIONS`, `FOLLOW_UP_TRANSITIONS`) in lib/api/admin.ts, lib/ta.ts
+- [x] T044 [US8] Leads list: status/date filters, pagination, total; URL query state in app/(infotech)/(admin)/admin/leads/page.tsx
+- [x] T045 [US8] Lead detail: candidate panel (incl. city, state, college, place), allowed-status menu, assign (me / staff picker via `GET /admin/staff`), next action date, notes timeline, INVALID_STATE reload in app/(infotech)/(admin)/admin/leads/[id]/page.tsx
+- [x] T046 [US8] Follow-ups list + update (in progress / done with outcome / cancelled) in app/(infotech)/(admin)/admin/follow-ups/page.tsx
+- [x] T047 [P] [US8] Tests: RBAC redirects both ways, filters → query params, allowed transitions only, assign, note, concurrent-edit handling, follow-up done in tests/components/admin.test.tsx
+- [x] T048 [US8] E2E: TA signs in → filters leads → assigns + contacts a lead → completes a follow-up in tests/e2e/admin.spec.ts
 
 ## Phase 8: Polish (F7)
 
