@@ -8,17 +8,17 @@ Format: `- [ ] T### [P?] [US#?] Description with file path`
 ## Phase 0: Prerequisites (F0) — owner + backend
 
 - [x] T001 Owner decides D1 (college/place), D2 (session storage), D3 (TA dashboard scope); record in research.md and resolve FR-013–FR-015 in spec.md — **D1 keep · D2 backend cookie · D3 include**
-- [ ] T002 Owner commits (or approves committing) the existing WIP: `(infotech)` route group, `components/tech/**`, layout/header/constants changes
+- [x] T002 Owner commits (or approves committing) the existing WIP: `(infotech)` route group, `components/tech/**`, layout/header/constants changes
 - [ ] T003 Owner creates a dedicated GitHub repo for the frontend; fix `origin` (currently the backend repo)
 - [ ] T004 Backend change request in hvk-home-backend: B1 httpOnly refresh cookie + CORS credentials, B2 optional college/place, B3 local port/CORS/reset-URL docs, B4 `GET /admin/staff`; merged with tests
 
 ## Phase 1: Setup (F1)
 
-- [ ] T005 Scripts: `typecheck`, `lint` (`eslint . --max-warnings 0`), `test`, `test:e2e`, `format:check` in package.json
-- [ ] T006 [P] Vitest + jsdom + Testing Library + MSW config (vitest.config.ts, tests/setup.ts, tests/msw/handlers.ts)
-- [ ] T007 [P] Playwright config + base fixture with API route mocking (playwright.config.ts, tests/e2e/fixtures.ts)
-- [ ] T008 [P] `.env.local.example`: `NEXT_PUBLIC_API_BASE_URL=http://localhost:4000`, `NEXT_PUBLIC_DEMO_VIDEO_URL`
-- [ ] T009 [P] CI workflow: typecheck, lint, unit, build, e2e, plus a guard that home files are unchanged (.github/workflows/ci.yml)
+- [x] T005 Scripts: `typecheck`, `lint` (`eslint . --max-warnings 0`), `test`, `test:e2e`, `format:check` in package.json
+- [x] T006 [P] Vitest + jsdom + Testing Library + MSW config (vitest.config.ts, tests/setup.ts, tests/msw/handlers.ts)
+- [x] T007 [P] Playwright config + base fixture with API route mocking (playwright.config.ts, tests/e2e/fixtures.ts)
+- [x] T008 [P] `.env.local.example`: `NEXT_PUBLIC_API_BASE_URL=http://localhost:4000`, `NEXT_PUBLIC_DEMO_VIDEO_URL`
+- [x] T009 [P] CI workflow: typecheck, lint, unit, build, e2e, plus a guard that home files are unchanged (.github/workflows/ci.yml)
 
 ## Phase 2: Foundation (F2) — blocks all stories
 
