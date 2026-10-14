@@ -40,14 +40,14 @@ export function AboutSection() {
 
           <dl className="mt-8 grid grid-cols-3 gap-4">
             {ABOUT_STATS.map((stat) => (
-              <div key={stat.label} className="text-left">
-                <dt className="sr-only">{stat.label}</dt>
+              <div key={stat.label} className="flex flex-col-reverse text-left">
+                {/* Label is the <dt>; column-reverse keeps the value visually first. */}
+                <dt className="mt-1 text-xs font-medium text-muted dark:text-slate-400 sm:text-sm">
+                  {stat.label}
+                </dt>
                 <dd className="text-lg font-extrabold text-navy dark:text-white sm:text-xl">
                   {stat.value}
                 </dd>
-                <p className="mt-1 text-xs font-medium text-muted dark:text-slate-400 sm:text-sm">
-                  {stat.label}
-                </p>
               </div>
             ))}
           </dl>

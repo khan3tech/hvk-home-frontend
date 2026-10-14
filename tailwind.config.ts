@@ -16,13 +16,30 @@ const config: Config = {
         "light-blue": "#EAF3FF",
         "app-bg": "#F7FAFF",
         ink: "#10213D",
-        muted: "#62718A",
+        muted: "#5C6B84", // WCAG AA (≥4.5:1) on white and light-blue surfaces
         "dark-bg": "#050B18",
         "dark-surface": "#0C1B36",
         "dark-surface-alt": "#132447",
+        gold: "#d9b47e",
+        "gold-light": "#f0d3a2",
+        "gold-deep": "#b8864f",
+        cream: "#efe9df",
+        "tech-bg": "#0a0a0a",
+        "tech-panel": "#121212",
+        "tech-panel-alt": "#171717",
+        "tech-text": "#f5f2ec",
+        "tech-soft": "#d9d4ca",
+        "tech-muted": "#a8a39a",
       },
       fontFamily: {
         sans: [
+          "var(--font-inter)",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
+        display: [
+          "var(--font-outfit)",
           "var(--font-inter)",
           "ui-sans-serif",
           "system-ui",
@@ -45,9 +62,14 @@ const config: Config = {
           "0%": { opacity: "0", transform: "translateY(16px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.6s ease-out forwards",
+        marquee: "marquee 40s linear infinite",
       },
       container: {
         center: true,
