@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { PageHeading } from "@/components/portal/page-heading";
 
 const TABS = [
   { href: "/admin/leads", label: "Leads" },
@@ -16,7 +17,7 @@ export function AdminShell({ title, children }: { title: string; children: React
     <section className="bg-app-bg py-10 dark:bg-dark-bg">
       <div className="container">
         <span className="text-xs font-bold uppercase tracking-[0.15em] text-primary-blue dark:text-bright-blue">TA dashboard</span>
-        <h1 className="mt-2 text-2xl font-extrabold text-navy dark:text-white">{title}</h1>
+        <PageHeading className="mt-2 text-2xl font-extrabold text-navy dark:text-white">{title}</PageHeading>
         <nav aria-label="TA sections" className="mt-4 flex gap-2 border-b border-slate-200 dark:border-white/10">
           {TABS.map((t) => {
             const active = pathname.startsWith(t.href);

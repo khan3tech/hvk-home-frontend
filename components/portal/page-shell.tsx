@@ -1,4 +1,5 @@
 import * as React from "react";
+import { PageHeading } from "./page-heading";
 
 /** Standard portal page frame: heading, optional intro, content card. */
 export function PageShell({
@@ -20,7 +21,7 @@ export function PageShell({
         {eyebrow ? (
           <span className="text-xs font-bold uppercase tracking-[0.15em] text-primary-blue dark:text-bright-blue">{eyebrow}</span>
         ) : null}
-        <h1 className="mt-2 text-2xl font-extrabold text-navy dark:text-white sm:text-3xl">{title}</h1>
+        <PageHeading className="mt-2 text-2xl font-extrabold text-navy dark:text-white sm:text-3xl">{title}</PageHeading>
         {intro ? <div className="mt-2 text-sm leading-relaxed text-muted dark:text-slate-400">{intro}</div> : null}
         <div className="mt-6 rounded-xl2 border border-slate-100 bg-white p-6 shadow-card-hover dark:border-white/10 dark:bg-dark-surface sm:p-8">
           {children}

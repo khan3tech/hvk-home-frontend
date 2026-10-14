@@ -10,7 +10,7 @@ Format: `- [ ] T### [P?] [US#?] Description with file path`
 - [x] T001 Owner decides D1 (college/place), D2 (session storage), D3 (TA dashboard scope); record in research.md and resolve FR-013–FR-015 in spec.md — **D1 keep · D2 backend cookie · D3 include**
 - [x] T002 Owner commits (or approves committing) the existing WIP: `(infotech)` route group, `components/tech/**`, layout/header/constants changes
 - [ ] T003 Owner creates a dedicated GitHub repo for the frontend; fix `origin` (currently the backend repo)
-- [ ] T004 Backend change request in hvk-home-backend: B1 httpOnly refresh cookie + CORS credentials, B2 optional college/place, B3 local port/CORS/reset-URL docs, B4 `GET /admin/staff`; merged with tests
+- [x] T004 Backend change request in hvk-home-backend: B1 httpOnly refresh cookie + CORS credentials, B2 optional college/place, B3 local port/CORS/reset-URL docs, B4 `GET /admin/staff`; merged with tests — done in backend commit 628a9c0 (branch 001-candidate-platform-api, pushed)
 
 ## Phase 1: Setup (F1)
 
@@ -79,7 +79,7 @@ Format: `- [ ] T### [P?] [US#?] Description with file path`
 
 ## Phase 8: Polish (F7)
 
-- [ ] T039 [P] Accessibility pass (labels, aria-live errors, focus management on step changes); Lighthouse ≥ 95 on key pages
+- [x] T039 [P] Accessibility pass (labels, aria-live errors, focus management on step changes); Lighthouse ≥ 95 on key pages — axe (WCAG 2.1 AA) in E2E on desktop + mobile; Lighthouse a11y: registration 97, login 99, forgot-password 98
 - [ ] T040 [P] README: setup with backend, env, scripts, architecture
 - [ ] T041 Run quickstart.md Q1–Q8 against the real backend in Razorpay test mode
 

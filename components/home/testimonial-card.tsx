@@ -26,7 +26,7 @@ export function TestimonialCard({
         <div>
           <p className="text-sm font-bold text-navy dark:text-white">{name}</p>
           <p className="text-xs text-muted dark:text-slate-400">{education}</p>
-          <div className="mt-1 flex items-center gap-0.5" aria-label={`${rating} out of 5 stars`}>
+          <div className="mt-1 flex items-center gap-0.5" role="img" aria-label={`${rating} out of 5 stars`}>
             {Array.from({ length: 5 }).map((_, index) => (
               <Star
                 key={index}

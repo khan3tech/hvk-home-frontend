@@ -70,6 +70,8 @@ export function HeroCarousel() {
               aria-roledescription="slide"
               aria-label={`${index + 1} of ${HERO_SLIDES.length}`}
               aria-hidden={selectedIndex !== index}
+              // Off-screen slides must not be reachable by keyboard (WCAG aria-hidden-focus).
+              inert={selectedIndex !== index}
             >
               <Image
                 src={slide.image}

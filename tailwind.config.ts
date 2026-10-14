@@ -16,7 +16,7 @@ const config: Config = {
         "light-blue": "#EAF3FF",
         "app-bg": "#F7FAFF",
         ink: "#10213D",
-        muted: "#62718A",
+        muted: "#5C6B84", // WCAG AA (≥4.5:1) on white and light-blue surfaces
         "dark-bg": "#050B18",
         "dark-surface": "#0C1B36",
         "dark-surface-alt": "#132447",
