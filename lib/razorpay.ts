@@ -55,9 +55,28 @@ export interface CheckoutHandlers {
   onDismiss(): void;
 }
 
+/**
+ * UPI first: QR code to scan (desktop), the installed UPI app on phones (Google Pay, PhonePe, Paytm…)
+ * and UPI ID. Cards, net banking and wallets stay available below it.
+ * https://razorpay.com/docs/payments/payment-gateway/web-integration/standard/configure-payment-methods/
+ */
+export const UPI_FIRST_DISPLAY = {
+  display: {
+    blocks: {
+      upi: {
+        name: "Pay with UPI (Google Pay, PhonePe, Paytm or QR)",
+        instruments: [{ method: "upi", flows: ["qr", "intent", "collect"], apps: ["google_pay", "phonepe", "paytm"] }],
+      },
+    },
+    sequence: ["block.upi"],
+    preferences: { show_default_blocks: true },
+  },
+} as const;
+
 /** Opens Checkout for a server-created order. The key id is publishable; the secret never leaves the API. */
 export function openCheckout(Razorpay: RazorpayConstructor, order: CheckoutOptions, handlers: CheckoutHandlers): void {
   const rzp = new Razorpay({
+    config: UPI_FIRST_DISPLAY,
     key: order.keyId,
     order_id: order.orderId,
     amount: order.amount,
