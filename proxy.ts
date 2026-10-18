@@ -16,7 +16,7 @@ export const config = {
     "/dashboard",
     "/onboarding",
     "/payment",
-    "/exam",
+    "/exam/:path*",
     "/feedback",
     "/thank-you",
     "/result",

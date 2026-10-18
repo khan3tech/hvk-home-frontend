@@ -100,6 +100,50 @@ export interface Exam {
   completedAt: string | null;
 }
 
+export interface ManagedExamInvite {
+  id: string;
+  title: string;
+  description: string;
+  scheduledDate: string;
+  durationMinutes: number;
+  status: "published";
+  questionCount: number;
+  resultPublished: boolean;
+  inviteId: string;
+  inviteStatus: "invited" | "started" | "submitted" | "expired" | "revoked";
+}
+
+export interface ManagedExamQuestion {
+  id: string;
+  prompt: string;
+  marks: number;
+  options: { id: string; label: string }[];
+}
+
+export interface ManagedExamAttempt {
+  id: string;
+  examId: string;
+  state: "in_progress" | "submitted" | "expired";
+  startedAt: string;
+  deadlineAt: string;
+  completedAt: string | null;
+  finalizationReason: "manual" | "deadline" | null;
+  answers: Record<string, string>;
+  version: number;
+  warningCount: number;
+  score: number | null;
+  totalMarks: number | null;
+  resultPublished: boolean;
+  sessionId?: string;
+  questions: ManagedExamQuestion[];
+}
+
+export interface ManagedExamAnswerSave {
+  serverRevision: number;
+  savedAt: string;
+  attemptState: string;
+}
+
 export interface VerifyPaymentResult {
   payment: Payment;
   exam: Exam;

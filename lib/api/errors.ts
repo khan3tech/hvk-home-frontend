@@ -15,6 +15,11 @@ export const ERROR_MESSAGES: Record<string, string> = {
   RATE_LIMITED: "Too many attempts. Please wait a moment and try again.",
   INTERNAL_ERROR: "Something went wrong on our side. Please try again.",
   NETWORK_ERROR: "Could not reach the server. Check your connection and try again.",
+  INVITE_EXPIRED: "This exam invitation is no longer active.",
+  INVITE_USER_MISMATCH: "This invitation belongs to a different account.",
+  ACTIVE_SESSION_EXISTS: "This examination is already open in another tab or device.",
+  ATTEMPT_NOT_IN_PROGRESS: "This examination is no longer accepting answers.",
+  STALE_ANSWER_VERSION: "Your answer changed in another request. Please try again.",
 };
 
 export const FALLBACK_MESSAGE = "Something went wrong. Please try again.";
