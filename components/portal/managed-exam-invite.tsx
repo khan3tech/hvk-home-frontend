@@ -145,7 +145,7 @@ export function ManagedExamInvite() {
   async function submit() {
     if (!attempt || !sessionId) return;
     setSubmitting(true);
-    try { setAttempt(await portalApi.submitManagedExam(attempt.id, sessionId, clientInstanceId)); setConfirmSubmit(false); }
+    try { setAttempt(await portalApi.submitManagedExam(attempt.id, sessionId, clientInstanceId)); if (document.fullscreenElement && document.exitFullscreen) await document.exitFullscreen().catch(() => undefined); setConfirmSubmit(false); }
     catch (err) { setError(errorMessage(err)); }
     finally { setSubmitting(false); }
   }
