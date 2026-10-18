@@ -6,6 +6,9 @@ import type {
   Payment,
   Result,
   VerifyPaymentResult,
+  ManagedExamInvite,
+  ManagedExamAttempt,
+  ManagedExamAnswerSave,
 } from "@/types/api";
 import { apiFetch } from "./client";
 
@@ -44,4 +47,11 @@ export const portalApi = {
     apiFetch<{ id: string }>(`/exams/attempts/${encodeURIComponent(attemptId)}/feedback`, { method: "POST", body: payload }),
 
   myResult: () => apiFetch<Result | null>("/results/me"),
+
+  managedExamInvite: (token: string) => apiFetch<ManagedExamInvite>(`/exams/invites/${encodeURIComponent(token)}`),
+  startManagedExam: (token: string, clientInstanceId: string) => apiFetch<ManagedExamAttempt>(`/exams/invites/${encodeURIComponent(token)}/start`, { method: "POST", headers: { "X-Exam-Client-Id": clientInstanceId } }),
+  managedExamAttempt: (attemptId: string, sessionId: string, clientInstanceId: string) => apiFetch<ManagedExamAttempt>(`/exams/attempts/${encodeURIComponent(attemptId)}`, { headers: { "X-Exam-Session": sessionId, "X-Exam-Client-Id": clientInstanceId } }),
+  saveManagedExamAnswer: (attemptId: string, questionId: string, selectedOptionId: string, sessionId: string, clientInstanceId: string, clientRevision: number) => apiFetch<ManagedExamAnswerSave>(`/exams/attempts/${encodeURIComponent(attemptId)}/answers/${encodeURIComponent(questionId)}`, { method: "PUT", headers: { "X-Exam-Session": sessionId, "X-Exam-Client-Id": clientInstanceId }, body: { selectedOptionId, clientRevision } }),
+  submitManagedExam: (attemptId: string, sessionId: string, clientInstanceId: string) => apiFetch<ManagedExamAttempt>(`/exams/attempts/${encodeURIComponent(attemptId)}/submit`, { method: "POST", headers: { "X-Exam-Session": sessionId, "X-Exam-Client-Id": clientInstanceId } }),
+  recordManagedExamMonitoring: (attemptId: string, type: "MULTIPLE_FACE" | "NO_FACE" | "CAMERA_LOST" | "TAB_HIDDEN" | "FULLSCREEN_EXIT", sessionId: string, clientInstanceId: string) => apiFetch<{ warningCount: number; state: string }>(`/exams/attempts/${encodeURIComponent(attemptId)}/monitoring-events`, { method: "POST", headers: { "X-Exam-Session": sessionId, "X-Exam-Client-Id": clientInstanceId }, body: { type } }),
 };

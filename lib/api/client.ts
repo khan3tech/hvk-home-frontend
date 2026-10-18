@@ -45,6 +45,7 @@ export interface ApiOptions {
   /** Web session mode: send/receive the httpOnly refresh cookie (auth endpoints). */
   session?: boolean;
   signal?: AbortSignal;
+  headers?: Record<string, string>;
 }
 
 function buildUrl(path: string, query?: ApiOptions["query"]): string {
@@ -77,7 +78,7 @@ async function toApiError(response: Response): Promise<ApiError> {
 }
 
 async function send(path: string, opts: ApiOptions, token: string | null): Promise<Response> {
-  const headers: Record<string, string> = { Accept: "application/json" };
+  const headers: Record<string, string> = { Accept: "application/json", ...(opts.headers ?? {}) };
   if (opts.body !== undefined) headers["Content-Type"] = "application/json";
   if (token) headers.Authorization = `Bearer ${token}`;
   if (opts.session) headers["X-Session-Mode"] = "cookie";
