@@ -149,6 +149,7 @@ describe("Payment (US5)", () => {
     const user = userEvent.setup();
     renderPortal(<PaymentPage confirmPollMs={30} confirmTimeoutMs={2_000} />, { pathname: "/payment", step: "fee_pending" });
     await user.click(await screen.findByRole("button", { name: /Pay/ }));
+    await waitFor(() => expect(FakeRazorpay.last?.options).toBeDefined());
     act(() => FakeRazorpay.last!.options.handler(SUCCESS));
     expect(await screen.findByText(/We're confirming your payment/)).toBeInTheDocument();
     expect(await screen.findByRole("heading", { name: "Payment successful" })).toBeInTheDocument();

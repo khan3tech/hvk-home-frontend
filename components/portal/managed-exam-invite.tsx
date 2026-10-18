@@ -8,6 +8,7 @@ import { portalApi } from "@/lib/api/portal";
 import type { ManagedExamAttempt, ManagedExamInvite } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { monitoringSignal } from "@/lib/exam/monitoring";
+import { exitExamFullscreen } from "@/lib/exam/fullscreen";
 
 function clientIdFor(token: string): string {
   const key = `hvk-exam-client:${token}`;
@@ -40,6 +41,9 @@ export function ManagedExamInvite() {
   const [cameraMessage, setCameraMessage] = React.useState("Camera permission is required before starting.");
   const [monitoringDialog, setMonitoringDialog] = React.useState<"NO_FACE" | "MULTIPLE_FACE" | null>(null);
   const sessionId = attempt?.sessionId ?? null;
+  const attemptId = attempt?.id ?? null;
+  const attemptState = attempt?.state ?? null;
+  const deadlineAt = attempt?.deadlineAt ?? null;
   const clientInstanceId = React.useMemo(() => (typeof window === "undefined" ? "" : clientIdFor(token)), [token]);
   const onCameraReady = React.useCallback(() => setCameraReady(true), []);
   const onCameraMessage = React.useCallback((message: string) => setCameraMessage(message), []);
@@ -53,33 +57,32 @@ export function ManagedExamInvite() {
 
   React.useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     portalApi.managedExamInvite(token).then((data) => { if (!cancelled) setInvite(data); }).catch((err: unknown) => { if (!cancelled) setError(errorMessage(err)); }).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [token]);
 
   React.useEffect(() => {
-    if (!attempt || attempt.state !== "in_progress") return;
-    const tick = () => setRemaining(Math.max(0, Date.parse(attempt.deadlineAt) - Date.now()));
+    if (!deadlineAt || attemptState !== "in_progress") return;
+    const tick = () => setRemaining(Math.max(0, Date.parse(deadlineAt) - Date.now()));
     tick();
     const id = window.setInterval(tick, 1000);
     const beforeUnload = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = "Your examination is still in progress."; };
     window.addEventListener("beforeunload", beforeUnload);
     return () => { window.clearInterval(id); window.removeEventListener("beforeunload", beforeUnload); };
-  }, [attempt]);
+  }, [attemptState, deadlineAt]);
 
   React.useEffect(() => {
-    if (!attempt || attempt.state !== "in_progress" || !sessionId) return;
-    const record = (type: "TAB_HIDDEN" | "FULLSCREEN_EXIT") => { void portalApi.recordManagedExamMonitoring(attempt.id, type, sessionId, clientInstanceId).then((result) => setAttempt((current) => current ? { ...current, warningCount: result.warningCount } : current)).catch(() => undefined); };
+    if (!attemptId || attemptState !== "in_progress" || !sessionId) return;
+    const record = (type: "TAB_HIDDEN" | "FULLSCREEN_EXIT") => { void portalApi.recordManagedExamMonitoring(attemptId, type, sessionId, clientInstanceId).then((result) => setAttempt((current) => current ? { ...current, warningCount: result.warningCount } : current)).catch(() => undefined); };
     const onVisibility = () => { if (document.visibilityState === "hidden") record("TAB_HIDDEN"); };
     const onFullscreen = () => { if (!document.fullscreenElement) record("FULLSCREEN_EXIT"); };
     document.addEventListener("visibilitychange", onVisibility);
     document.addEventListener("fullscreenchange", onFullscreen);
     return () => { document.removeEventListener("visibilitychange", onVisibility); document.removeEventListener("fullscreenchange", onFullscreen); };
-  }, [attempt, clientInstanceId, sessionId]);
+  }, [attemptId, attemptState, clientInstanceId, sessionId]);
 
   React.useEffect(() => {
-    if (!attempt || attempt.state !== "in_progress") return;
+    if (!attemptId || attemptState !== "in_progress") return;
     let cancelled = false;
     let stream: MediaStream | null = null;
     let timer: number | undefined;
@@ -118,7 +121,7 @@ export function ManagedExamInvite() {
     }
     void monitor();
     return () => { cancelled = true; if (timer) window.clearInterval(timer); stream?.getTracks().forEach((track) => track.stop()); video = null; };
-  }, [attempt?.id, attempt?.state, onCameraWarning]);
+  }, [attemptId, attemptState, onCameraWarning]);
 
   async function start() {
     setError(null); setStarting(true);
@@ -145,7 +148,7 @@ export function ManagedExamInvite() {
   async function submit() {
     if (!attempt || !sessionId) return;
     setSubmitting(true);
-    try { setAttempt(await portalApi.submitManagedExam(attempt.id, sessionId, clientInstanceId)); setConfirmSubmit(false); }
+    try { const submitted = await portalApi.submitManagedExam(attempt.id, sessionId, clientInstanceId); await exitExamFullscreen(); setAttempt(submitted); setConfirmSubmit(false); }
     catch (err) { setError(errorMessage(err)); }
     finally { setSubmitting(false); }
   }

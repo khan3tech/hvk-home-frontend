@@ -29,6 +29,8 @@ Reuse the existing HVK session provider, authenticated API client, portal layout
 9. Show a custom confirmation dialog before manual submission.
 10. Show result pending until admin publication.
 
+After a successful manual submission, the frontend exits fullscreen. Fullscreen is retained when submission fails or while the attempt is still active.
+
 ## Active-session conflict
 
 When the backend returns `409 ACTIVE_SESSION_EXISTS`, navigate to the active-session state and show:
