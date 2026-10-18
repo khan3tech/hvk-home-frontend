@@ -45,6 +45,7 @@ Keep the existing exam behavior:
 
 - Camera permission is mandatory.
 - No camera video or images are uploaded.
+- BlazeFace runs locally in the browser to detect `NO_FACE` and `MULTIPLE_FACE`; only the minimized event type is sent to the backend.
 - Multiple face, no face, camera lost, tab hidden and fullscreen exit are audit events.
 - Monitoring warnings are capped at five.
 - Warnings do not auto-submit or auto-fail the attempt.
@@ -83,6 +84,7 @@ Do not display raw backend codes such as `ACTIVE_SESSION_EXISTS` to candidates.
 - Camera and fullscreen requests happen after a user gesture.
 - Tab switch and fullscreen exit display custom warnings.
 - Warning count displays `x/5`.
+- No-face and multiple-face detections display an accessible security dialog.
 - Answers autosave and recover after reconnect.
 - Submit confirmation is required and manual submission works.
 - Timeout shows expired/not-submitted state.
