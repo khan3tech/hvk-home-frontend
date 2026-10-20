@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PortalGate } from "@/components/portal/portal-gate";
 
 export const metadata: Metadata = {
-  title: "TA dashboard | HVK Infotech",
+  title: "TA dashboard | HVK Tech Inovations",
   robots: { index: false, follow: false },
 };
 
