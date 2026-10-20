@@ -14,12 +14,17 @@ export function ManagedExamList() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
-  const load = React.useCallback(() => {
-    setLoading(true);
+  const fetchExams = React.useCallback(() => {
     portalApi.managedExamInvites().then(setExams).catch((err: unknown) => setError(errorMessage(err))).finally(() => setLoading(false));
   }, []);
 
-  React.useEffect(() => { load(); }, [load]);
+  const load = React.useCallback(() => {
+    setLoading(true);
+    setError(null);
+    fetchExams();
+  }, [fetchExams]);
+
+  React.useEffect(() => { fetchExams(); }, [fetchExams]);
 
   return <main className="min-h-screen bg-slate-50 px-5 py-10 dark:bg-dark-surface"><div className="mx-auto max-w-5xl">
     <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-bold tracking-[0.18em] text-primary-blue">CANDIDATE PORTAL</p><h1 className="mt-2 text-3xl font-bold text-navy dark:text-white">My examinations</h1><p className="mt-2 text-sm text-muted">Exams assigned to your HVK account appear here.</p></div><Button variant="outline" onClick={load} disabled={loading}>Refresh</Button></div>

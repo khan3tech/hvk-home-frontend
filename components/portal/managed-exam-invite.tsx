@@ -93,8 +93,11 @@ export function ManagedExamInvite({ examId }: { examId?: string } = {}) {
     let cancelled = false;
     const cached = readExamCache(inviteReference);
     if (cached?.invite) {
-      setInvite(cached.invite);
-      if (cached.attempt) { setAttempt(cached.attempt); serverRevision.current = cached.attempt.version; }
+      queueMicrotask(() => {
+        if (cancelled) return;
+        setInvite(cached.invite);
+        if (cached.attempt) { setAttempt(cached.attempt); serverRevision.current = cached.attempt.version; }
+      });
     }
     (examId ? portalApi.managedExamById(examId) : portalApi.managedExamInvite(token)).then((data) => { if (!cancelled) setInvite(data); }).catch((err: unknown) => { if (!cancelled && !cached?.invite) setError(errorMessage(err)); }).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
