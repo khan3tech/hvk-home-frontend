@@ -106,11 +106,12 @@ export interface ManagedExamInvite {
   description: string;
   scheduledDate: string;
   durationMinutes: number;
-  status: "published";
+  status: "published" | "archived";
   questionCount: number;
   resultPublished: boolean;
   inviteId: string;
   inviteStatus: "invited" | "started" | "submitted" | "expired" | "revoked";
+  hasAttempt?: boolean;
 }
 
 export interface ManagedExamQuestion {
@@ -133,6 +134,7 @@ export interface ManagedExamAttempt {
   warningCount: number;
   score: number | null;
   totalMarks: number | null;
+  qualification?: "QUALIFIED" | "NOT_QUALIFIED" | "NOT_EVALUATED";
   resultPublished: boolean;
   sessionId?: string;
   questions: ManagedExamQuestion[];
