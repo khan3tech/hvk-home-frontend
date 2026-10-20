@@ -92,14 +92,16 @@ export function ManagedExamInvite({ examId }: { examId?: string } = {}) {
     if (sessionStatus !== "authenticated") return;
     let cancelled = false;
     const cached = readExamCache(inviteReference);
-    if (cached?.invite) {
+    const cachedInvite = cached?.invite;
+    const cachedAttempt = cached?.attempt;
+    if (cachedInvite) {
       queueMicrotask(() => {
         if (cancelled) return;
-        setInvite(cached.invite);
-        if (cached.attempt) { setAttempt(cached.attempt); serverRevision.current = cached.attempt.version; }
+        setInvite(cachedInvite);
+        if (cachedAttempt) { setAttempt(cachedAttempt); serverRevision.current = cachedAttempt.version; }
       });
     }
-    (examId ? portalApi.managedExamById(examId) : portalApi.managedExamInvite(token)).then((data) => { if (!cancelled) setInvite(data); }).catch((err: unknown) => { if (!cancelled && !cached?.invite) setError(errorMessage(err)); }).finally(() => { if (!cancelled) setLoading(false); });
+    (examId ? portalApi.managedExamById(examId) : portalApi.managedExamInvite(token)).then((data) => { if (!cancelled) setInvite(data); }).catch((err: unknown) => { if (!cancelled && !cachedInvite) setError(errorMessage(err)); }).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [examId, inviteReference, sessionStatus, token]);
 
