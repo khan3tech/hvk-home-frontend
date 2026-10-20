@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 export function Header() {
   const [scrolled, setScrolled] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  // Signed-in users already have an account: hide "Register Now" (it also overflowed the header).
+  // Signed-in users already have an account: hide "Join Us" (it also overflowed the header).
   const showRegister = useSession().status !== "authenticated";
 
   React.useEffect(() => {
@@ -80,7 +80,7 @@ export function Header() {
               href="/registration#registration"
               className={cn(buttonVariants({ variant: "primary" }), "hidden lg:inline-flex")}
             >
-              Register Now
+              Join Us
               <span aria-hidden="true">→</span>
             </Link>
           ) : null}
@@ -126,7 +126,7 @@ export function Header() {
               onClick={() => setMobileOpen(false)}
               className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-bright-blue px-5 py-3 text-sm font-semibold text-white hover:bg-primary-blue"
             >
-              Register Now →
+              Join Us →
             </Link>
           ) : null}
         </nav>

@@ -18,7 +18,7 @@ export function CtaSection() {
           href="#registration"
           className={cn(buttonVariants({ variant: "primary", size: "lg" }), "shrink-0")}
         >
-          Register Now
+          Join Us
           <span aria-hidden="true">→</span>
         </Link>
       </div>

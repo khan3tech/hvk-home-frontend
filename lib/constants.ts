@@ -82,7 +82,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     subheading: "Internships · Placements · Mentorship",
     description:
       "Get access to internships, dedicated placement support and career guidance from experienced mentors.",
-    ctaLabel: "Register Now",
+    ctaLabel: "Join Us",
     ctaHref: "/registration#registration",
     image: "/images/hero/hero-3.jpg",
   },

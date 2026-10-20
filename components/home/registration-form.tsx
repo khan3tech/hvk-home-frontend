@@ -137,7 +137,7 @@ export function RegistrationForm() {
                 Secure Your Seat
               </span>
               <span className="block text-[11px] text-muted dark:text-slate-400">
-                Limited Seats Available. Register Now!
+                Limited Seats Available. Join Us!
               </span>
             </span>
           </div>
@@ -163,7 +163,7 @@ export function RegistrationForm() {
                   Secure Your Seat
                 </span>
                 <span className="block text-[11px] text-muted dark:text-slate-400">
-                  Limited Seats Available. Register Now!
+                  Limited Seats Available. Join Us!
                 </span>
               </span>
             </div>
