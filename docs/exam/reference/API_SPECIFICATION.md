@@ -17,6 +17,9 @@ The machine-readable contract is [`openapi.yaml`](./openapi.yaml), and [`swagger
 
 | Method | Endpoint | Purpose |
 |---|---|---|
+| GET | `/exams/candidate-exams` | List managed exams assigned to the authenticated candidate. |
+| GET | `/exams/candidate-exams/{examId}` | Read an assigned exam without exposing its invitation token. |
+| POST | `/exams/candidate-exams/{examId}/start` | Start or resume an assigned exam from the candidate exam list. |
 | GET | `/exams` | List exams visible to the candidate. |
 | GET | `/exams/{examId}` | Return availability and public metadata. |
 | POST | `/exams/{examId}/attempts` | Create/start the one permitted attempt. |

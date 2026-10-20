@@ -10,7 +10,7 @@ stateDiagram-v2
   PUBLISHED --> [*]
 ```
 
-An exam is published only when it has valid questions, duration, date, eligibility rule, and result publication policy. The passing cutoff is temporarily disabled by default (`EXAM_CUTOFF_ENABLED=false`); when enabled, a valid qualification rule is also required.
+An exam is published only when it has valid questions, duration, date, eligibility rule, and result publication policy. The passing cutoff is disabled by default (`EXAM_CUTOFF_ENABLED=false`). When enabling it, set `NEXT_PUBLIC_EXAM_CUTOFF_ENABLED=true` in the frontend as well so admins can choose a percentage or marks rule; a new exam defaults to 40% if no percentage is supplied.
 
 ## Candidate attempt lifecycle
 

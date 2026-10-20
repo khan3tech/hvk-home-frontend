@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, UserRound } from "lucide-react";
+import { ArrowRight, ClipboardList, UserRound } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { STEP_ACTION, STEP_ROUTE } from "@/lib/journey";
 import { useSession } from "@/lib/session/session-provider";
@@ -35,6 +35,9 @@ export function Dashboard() {
         </Link>
         <Link href="/profile" className={cn(buttonVariants({ variant: "ghost" }))}>
           <UserRound className="h-4 w-4" aria-hidden="true" /> My profile
+        </Link>
+        <Link href="/examinations" className={cn(buttonVariants({ variant: "ghost" }))}>
+          <ClipboardList className="h-4 w-4" aria-hidden="true" /> My examinations
         </Link>
       </div>
     </PageShell>
