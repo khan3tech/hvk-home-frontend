@@ -62,6 +62,7 @@ export function ManagedExamInvite({ examId }: { examId?: string } = {}) {
   const saveQueue = React.useRef<Promise<void>>(Promise.resolve());
   const flushRunning = React.useRef(false);
   const saveFailed = React.useRef(false);
+  const submissionFullscreenExit = React.useRef(false);
   const serverRevision = React.useRef(0);
   const [cameraMessage, setCameraMessage] = React.useState("Camera permission is required before starting.");
   const [monitoringDialog, setMonitoringDialog] = React.useState<"NO_FACE" | "MULTIPLE_FACE" | null>(null);
@@ -195,7 +196,7 @@ export function ManagedExamInvite({ examId }: { examId?: string } = {}) {
     if (!attemptId || attemptState !== "in_progress" || !sessionId) return;
     const record = (type: "TAB_HIDDEN" | "FULLSCREEN_EXIT") => { setSecurityDialog(type); void portalApi.recordManagedExamMonitoring(attemptId, type, sessionId, clientInstanceId, newIdempotencyKey()).then((result) => setAttempt((current) => current ? { ...current, warningCount: result.warningCount } : current)).catch(() => undefined); };
     const onVisibility = () => { if (document.visibilityState === "hidden") record("TAB_HIDDEN"); };
-    const onFullscreen = () => { if (!document.fullscreenElement) record("FULLSCREEN_EXIT"); };
+    const onFullscreen = () => { if (!document.fullscreenElement && !submissionFullscreenExit.current) record("FULLSCREEN_EXIT"); };
     document.addEventListener("visibilitychange", onVisibility);
     document.addEventListener("fullscreenchange", onFullscreen);
     return () => { document.removeEventListener("visibilitychange", onVisibility); document.removeEventListener("fullscreenchange", onFullscreen); };
@@ -325,7 +326,10 @@ export function ManagedExamInvite({ examId }: { examId?: string } = {}) {
       await saveQueue.current;
       if (!navigator.onLine || !online) throw new Error('Reconnect to the internet and wait for all answers to save before submitting.');
       if (saveFailed.current) throw new Error('Please resolve the answer save issue before submitting.');
-      const submitted = await portalApi.submitManagedExam(attempt.id, sessionId, clientInstanceId, newIdempotencyKey()); await exitExamFullscreen(); setAttempt(submitted); setSaveState('saved'); setConfirmSubmit(false);
+      const submitted = await portalApi.submitManagedExam(attempt.id, sessionId, clientInstanceId, newIdempotencyKey());
+      submissionFullscreenExit.current = true;
+      await exitExamFullscreen();
+      setAttempt(submitted); setSaveState('saved'); setConfirmSubmit(false); setSecurityDialog(null);
     } catch (err) { setError(errorMessage(err)); }
     finally { setSubmitting(false); }
   }
