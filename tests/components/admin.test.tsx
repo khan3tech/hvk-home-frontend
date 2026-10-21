@@ -155,6 +155,27 @@ describe("Lead detail (US8)", () => {
     setup(lead({ status: "closed" }));
     expect(await screen.findByLabelText("Status")).toBeDisabled();
   });
+
+  it("sends a paid candidate a new 24-hour exam link", async () => {
+    let reissued = false;
+    server.use(
+      http.post(`${API}/admin/exams/candidates/c1/reissue-link`, () => {
+        reissued = true;
+        return ok({ attemptId: "att-1", status: "link_issued", examUrl: "https://x.test/exam/invite/t", completedAt: null, mode: "managed", linkStatus: "active", linkExpiresAt: "2026-10-22T09:30:00Z" });
+      }),
+    );
+    setup(lead({ candidate: { ...summary, onboardingStep: "exam_ready" } }));
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole("button", { name: "Send a new exam link" }));
+    expect(await screen.findByText(/New exam link emailed/)).toBeInTheDocument();
+    expect(reissued).toBe(true);
+  });
+
+  it("offers a new exam link only to paid candidates who have not started", async () => {
+    setup();
+    await screen.findByText("XYZ University");
+    expect(screen.queryByRole("button", { name: "Send a new exam link" })).not.toBeInTheDocument();
+  });
 });
 
 describe("Follow-ups (US8)", () => {

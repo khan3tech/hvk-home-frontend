@@ -1,3 +1,4 @@
+import type { Exam } from "@/types/api";
 import { apiFetch } from "./client";
 
 export interface AdminExam {
@@ -9,6 +10,8 @@ export interface AdminExam {
   status: "draft" | "published" | "archived";
   questionCount: number;
   resultPublished: boolean;
+  /** The exam paid candidates get a personal 24-hour link to (only one at a time). */
+  forPaidCandidates?: boolean;
   attemptCount?: number;
   cutoffEnabled: boolean;
   passingMode?: "NONE" | "PERCENTAGE" | "MARKS";
@@ -65,6 +68,10 @@ export const adminExamApi = {
   archive: (id: string) => apiFetch<AdminExam>(`/admin/exams/${encodeURIComponent(id)}/archive`, { method: "POST" }),
   attempts: (id: string) => apiFetch<{ examId: string; resultPublished: boolean; attempts: AdminExamAttempt[] }>(`/admin/exams/${encodeURIComponent(id)}/attempts`),
   invitations: (id: string) => apiFetch<{ examId: string; invitations: AdminExamInvitation[] }>(`/admin/exams/${encodeURIComponent(id)}/invitations`),
-  publish: (id: string) => apiFetch<{ examId: string; status: string; invitationsCreated: number; emailsQueued: number }>(`/admin/exams/${encodeURIComponent(id)}/publish`, { method: "POST" }),
+  publish: (id: string) => apiFetch<{ examId: string; status: string; invitationsCreated: number; emailsQueued: number; linksIssued?: number }>(`/admin/exams/${encodeURIComponent(id)}/publish`, { method: "POST" }),
+  /** Marks the exam paid candidates get; candidates who were waiting receive their link now. */
+  setPaidExam: (id: string) => apiFetch<AdminExam & { linksIssued: number }>(`/admin/exams/${encodeURIComponent(id)}/paid-exam`, { method: "POST" }),
+  /** Sends a paid candidate a fresh 24-hour exam link (their previous link stops working). */
+  reissueLink: (candidateId: string) => apiFetch<Exam>(`/admin/exams/candidates/${encodeURIComponent(candidateId)}/reissue-link`, { method: "POST" }),
   publishResults: (id: string) => apiFetch<{ examId: string; resultPublished: boolean }>(`/admin/exams/${encodeURIComponent(id)}/results/publish`, { method: "POST" }),
 };

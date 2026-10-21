@@ -98,6 +98,11 @@ export interface Exam {
   status: AttemptStatus;
   examUrl: string | null;
   completedAt: string | null;
+  /** `managed`: the built-in exam via a personal link valid 24 hours; `external`: provider link. */
+  mode?: "managed" | "external";
+  /** Managed mode: `pending` until an exam for paid candidates is published. */
+  linkStatus?: "pending" | "active" | "expired" | "started" | "submitted" | null;
+  linkExpiresAt?: string | null;
 }
 
 export interface ManagedExamInvite {
@@ -112,6 +117,8 @@ export interface ManagedExamInvite {
   inviteId: string;
   inviteStatus: "invited" | "started" | "submitted" | "expired" | "revoked";
   hasAttempt?: boolean;
+  /** Set for links issued after payment: usable until this time, on any day. */
+  expiresAt?: string | null;
 }
 
 export interface ManagedExamQuestion {

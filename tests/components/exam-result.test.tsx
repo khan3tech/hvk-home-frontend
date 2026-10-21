@@ -48,6 +48,62 @@ describe("Exam (US6)", () => {
     await waitFor(() => expect(nav.push).toHaveBeenCalledWith("/feedback"));
   });
 
+  describe("built-in exam with a 24-hour link (mode managed)", () => {
+    const MANAGED: ExamDTO = {
+      ...EXAM,
+      examUrl: "https://staging.hvktech.in/exam/invite/tok_abcdefghijklmnopqrstuvwxyz012345",
+      mode: "managed",
+      linkStatus: "active",
+      linkExpiresAt: "2026-10-22T09:30:00.000Z",
+    };
+
+    it("starts in this tab and shows until when the link works", async () => {
+      server.use(http.get(`${API}/exams/current`, () => ok(MANAGED)));
+      renderPortal(<Exam />, { pathname: "/exam", step: "exam_ready" });
+      const link = await screen.findByRole("link", { name: "Start exam" });
+      expect(link).toHaveAttribute("href", "/exam/invite/tok_abcdefghijklmnopqrstuvwxyz012345");
+      expect(link).not.toHaveAttribute("target");
+      expect(screen.getByText(/Start before 22 Oct 2026, 3:00 pm IST/i)).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /finished the exam/ })).not.toBeInTheDocument();
+    });
+
+    it("offers Resume once started", async () => {
+      server.use(http.get(`${API}/exams/current`, () => ok({ ...MANAGED, linkStatus: "started" })));
+      renderPortal(<Exam />, { pathname: "/exam", step: "exam_in_progress" });
+      expect(await screen.findByRole("link", { name: "Resume exam" })).toBeInTheDocument();
+    });
+
+    it("explains an expired link and how to get a new one", async () => {
+      server.use(http.get(`${API}/exams/current`, () => ok({ ...MANAGED, linkStatus: "expired" })));
+      renderPortal(<Exam />, { pathname: "/exam", step: "exam_ready" });
+      const alert = await screen.findByRole("alert");
+      expect(alert).toHaveTextContent("Your exam link has expired");
+      expect(alert).toHaveTextContent("send you a new one");
+      expect(screen.queryByRole("link", { name: /Start exam/ })).not.toBeInTheDocument();
+    });
+
+    it("waits while the exam is prepared and shows Start as soon as the link is issued", async () => {
+      let calls = 0;
+      server.use(
+        http.get(`${API}/exams/current`, () => {
+          calls += 1;
+          return ok(calls === 1 ? { ...MANAGED, examUrl: null, linkStatus: "pending", linkExpiresAt: null } : MANAGED);
+        }),
+      );
+      renderPortal(<Exam pendingPollMs={30} />, { pathname: "/exam", step: "exam_ready" });
+      expect(await screen.findByText(/Your exam is being prepared/)).toBeInTheDocument();
+      expect(await screen.findByRole("link", { name: "Start exam" })).toBeInTheDocument();
+    });
+
+    it("goes to feedback once the exam is submitted", async () => {
+      server.use(http.get(`${API}/exams/current`, () => ok({ ...MANAGED, linkStatus: "submitted" })));
+      const { statusCalls } = renderPortal(<Exam />, { pathname: "/exam", step: "exam_ready" });
+      statusCalls.step = "exam_completed";
+      // The page pushes /feedback, or the portal gate redirects there first; either way the candidate lands on feedback.
+      await waitFor(() => expect([...nav.push.mock.calls, ...nav.replace.mock.calls].flat()).toContain("/feedback"));
+    });
+  });
+
   it("shows an error if the exam cannot be loaded", async () => {
     server.use(http.get(`${API}/exams/current`, () => fail(500, "INTERNAL_ERROR")));
     renderPortal(<Exam />, { pathname: "/exam", step: "exam_ready" });
