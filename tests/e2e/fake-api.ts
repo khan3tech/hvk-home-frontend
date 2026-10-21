@@ -97,7 +97,7 @@ export async function installFakeApi(page: Page, baseURL: string, initial: Parti
               orderId: "order_e2e",
               amount: 49900,
               currency: "INR",
-              name: "HVK Infotech",
+              name: "HVK Tech innovation",
               prefill: { name: "Asha Verma", email: "asha@example.com", contact: "+919876543210" },
             },
           },

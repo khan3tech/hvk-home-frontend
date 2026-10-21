@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { LoginForm } from "@/components/portal/login-form";
 import { StatusCard } from "@/components/portal/status-card";
 
-export const metadata: Metadata = { title: "Sign in | HVK Infotech" };
+export const metadata: Metadata = { title: "Sign in | HVK Tech innovation" };
 
 export default function LoginPage() {
   return (

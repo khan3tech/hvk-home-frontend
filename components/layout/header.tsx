@@ -39,7 +39,7 @@ export function Header() {
         <Link href="/registration" className="flex items-center gap-3">
           <Image
             src="/images/hvk-logo.png"
-            alt="HVK Infotech logo"
+            alt="HVK Tech innovation logo"
             width={48}
             height={48}
             priority

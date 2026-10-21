@@ -20,7 +20,7 @@ import type {
   StatItem,
 } from "@/types";
 
-export const SITE_NAME = "HVK Infotech";
+export const SITE_NAME = "HVK Tech innovation";
 export const SITE_TAGLINE = "Innovate | Build | Grow";
 export const PHONE_NUMBER = "+91 98765 43210";
 export const PHONE_NUMBER_HREF = "tel:+919876543210";
@@ -52,8 +52,8 @@ export const SOCIAL_LINKS: SocialLink[] = [
 export const HERO_SLIDES: HeroSlide[] = [
   {
     id: "slide-1",
-    eyebrow: "HVK INFOTECH",
-    headingLines: ["Shape Your Future with", "HVK Infotech"],
+    eyebrow: "HVK Tech innovation",
+    headingLines: ["Shape Your Future with", "HVK Tech innovation"],
     highlightWord: "Infotech",
     subheading: "Learn · Build · Grow · Succeed",
     description:
@@ -64,7 +64,7 @@ export const HERO_SLIDES: HeroSlide[] = [
   },
   {
     id: "slide-2",
-    eyebrow: "HVK INFOTECH",
+    eyebrow: "HVK Tech innovation",
     headingLines: ["Build Skills That", "Matter"],
     highlightWord: "Matter",
     subheading: "Practical · Hands-on · Industry-Ready",
@@ -76,7 +76,7 @@ export const HERO_SLIDES: HeroSlide[] = [
   },
   {
     id: "slide-3",
-    eyebrow: "HVK INFOTECH",
+    eyebrow: "HVK Tech innovation",
     headingLines: ["Start Your Career", "Journey"],
     highlightWord: "Journey",
     subheading: "Internships · Placements · Mentorship",
@@ -140,7 +140,7 @@ export const TESTIMONIALS: TestimonialItem[] = [
     education: "B.Tech, Lucknow University",
     rating: 5,
     quote:
-      "HVK Infotech provided amazing practical training and placement support. The mentors were very helpful and always guide you in the right direction.",
+      "HVK Tech innovation provided amazing practical training and placement support. The mentors were very helpful and always guide you in the right direction.",
     avatar: "/images/testimonials/aarav-sharma.jpg",
   },
   {
@@ -149,7 +149,7 @@ export const TESTIMONIALS: TestimonialItem[] = [
     education: "BCA, Delhi University",
     rating: 5,
     quote:
-      "The internship program at HVK Infotech helped me gain real-world experience. Highly recommended for anyone serious about their career.",
+      "The internship program at HVK Tech innovation helped me gain real-world experience. Highly recommended for anyone serious about their career.",
     avatar: "/images/testimonials/priya-verma.jpg",
   },
   {
@@ -158,7 +158,7 @@ export const TESTIMONIALS: TestimonialItem[] = [
     education: "MCA, AKTU",
     rating: 5,
     quote:
-      "Great learning environment, supportive team, and excellent placement assistance. HVK Infotech truly cares about its students.",
+      "Great learning environment, supportive team, and excellent placement assistance. HVK Tech innovation truly cares about its students.",
     avatar: "/images/testimonials/rohit-singh.jpg",
   },
   {
@@ -167,7 +167,7 @@ export const TESTIMONIALS: TestimonialItem[] = [
     education: "B.Sc IT, Mumbai University",
     rating: 5,
     quote:
-      "The workshops and hands-on sessions gave me confidence to face real interviews. HVK Infotech's guidance made all the difference.",
+      "The workshops and hands-on sessions gave me confidence to face real interviews. HVK Tech innovation's guidance made all the difference.",
     avatar: "/images/testimonials/sneha-gupta.jpg",
   },
 ];

@@ -8,9 +8,9 @@ export function AnnouncementBar() {
       <div className="container flex h-9 items-center justify-between gap-4 text-xs sm:text-sm">
         <p className="truncate font-medium">
           <span className="hidden sm:inline">
-            Empowering Talent. Building Careers. Join HVK Infotech Today!
+            Empowering Talent. Building Careers. Join HVK Tech innovation Today!
           </span>
-          <span className="sm:hidden">Join HVK Infotech Today!</span>
+          <span className="sm:hidden">Join HVK Tech innovation Today!</span>
         </p>
         <div className="flex items-center gap-3 sm:gap-4">
           <ul className="hidden items-center gap-3 md:flex" aria-label="Social media links">

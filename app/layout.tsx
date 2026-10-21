@@ -13,17 +13,17 @@ const siteUrl = "https://www.hvkinfotech.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "HVK Infotech | Innovate • Build • Grow",
+  title: "HVK Tech innovation | Innovate • Build • Grow",
   description:
-    "HVK Infotech provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
+    "HVK Tech innovation provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
   keywords: [
-    "HVK Infotech",
+    "HVK Tech innovation",
     "training and certification",
     "internship programs",
     "placement assistance",
     "career guidance",
   ],
-  authors: [{ name: "HVK Infotech" }],
+  authors: [{ name: "HVK Tech innovation" }],
   icons: {
     icon: "/images/hvk-logo.png",
     shortcut: "/images/hvk-logo.png",
@@ -32,24 +32,24 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: siteUrl,
-    siteName: "HVK Infotech",
-    title: "HVK Infotech | Innovate • Build • Grow",
+    siteName: "HVK Tech innovation",
+    title: "HVK Tech innovation | Innovate • Build • Grow",
     description:
-      "HVK Infotech provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
+      "HVK Tech innovation provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
     images: [
       {
         url: "/images/hvk-logo.png",
         width: 512,
         height: 512,
-        alt: "HVK Infotech",
+        alt: "HVK Tech innovation",
       },
     ],
   },
   twitter: {
     card: "summary",
-    title: "HVK Infotech | Innovate • Build • Grow",
+    title: "HVK Tech innovation | Innovate • Build • Grow",
     description:
-      "HVK Infotech provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
+      "HVK Tech innovation provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
     images: ["/images/hvk-logo.png"],
   },
   robots: {

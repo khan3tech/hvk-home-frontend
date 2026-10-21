@@ -46,7 +46,7 @@ export function TestimonialsSection() {
           </div>
           <p className="mt-3 text-sm leading-relaxed text-muted dark:text-white/70 sm:text-base">
             Real stories from our learners who are building successful
-            careers with HVK Infotech.
+            careers with HVK Tech innovation.
           </p>
         </div>
 

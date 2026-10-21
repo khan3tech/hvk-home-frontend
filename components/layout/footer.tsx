@@ -44,7 +44,7 @@ export function Footer() {
           <Link href="/registration" className="flex items-center gap-3">
             <Image
               src="/images/hvk-logo.png"
-              alt="HVK Infotech logo"
+              alt="HVK Tech innovation logo"
               width={44}
               height={44}
               className="h-11 w-11 rounded-full object-cover"
@@ -112,7 +112,7 @@ export function Footer() {
 
       <div className="border-t border-navy/10 dark:border-white/10">
         <div className="container flex flex-col items-center justify-between gap-3 py-5 text-xs text-muted dark:text-white/60 sm:flex-row">
-          <p>© 2026 HVK Infotech. All rights reserved.</p>
+          <p>© 2026 HVK Tech innovation. All rights reserved.</p>
           <div className="flex items-center gap-5">
             <Link href="/privacy-policy" className="hover:text-bright-blue">
               Privacy Policy

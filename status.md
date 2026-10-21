@@ -4,7 +4,7 @@
 
 ## Project
 
-HVK Infotech is a Next.js 16.3 / React 19 frontend with two main areas:
+HVK Tech innovation is a Next.js 16.3 / React 19 frontend with two main areas:
 
 - Public marketing homepage at `/`, built from `components/tech/`.
 - Candidate portal and TA/admin dashboard under `app/(infotech)/`, connected to the separate `hvk-home-backend` API.

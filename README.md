@@ -1,4 +1,4 @@
-# HVK Infotech — website & candidate portal
+# HVK Tech innovation — website & candidate portal
 
 Next.js 16 (App Router) + React 19 + Tailwind. One site, two parts:
 

@@ -151,7 +151,7 @@ export function RegistrationForm() {
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted dark:text-slate-400">
               Fill in your details to register for our programs and take the
-              first step towards a brighter future with HVK Infotech.
+              first step towards a brighter future with HVK Tech innovation.
             </p>
 
             <div className="mt-4 flex items-center gap-3 rounded-full border border-light-blue bg-light-blue/40 py-2 pl-3 pr-4 dark:border-white/10 dark:bg-dark-surface-alt sm:hidden">
