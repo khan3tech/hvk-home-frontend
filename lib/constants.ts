@@ -175,7 +175,7 @@ export const TESTIMONIALS: TestimonialItem[] = [
 
 export const QUICK_LINKS: NavLink[] = [
   { label: "Home", href: "/registration" },
-  { label: "About Us", href: "/registration#about" },
+  { label: "About Us", href: "https://staging.hvktech.in/#about" },
   { label: "Services", href: "/registration#services" },
   { label: "Testimonials", href: "/registration#testimonials" },
   { label: "Contact", href: "#contact" },
