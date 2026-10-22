@@ -37,7 +37,7 @@ jobs:
           if printf '%s\n' "$changed" | grep -qx 'lib/tech-constants.ts'; then
             removed=$(git diff --unified=0 "$base...HEAD" -- lib/tech-constants.ts | awk '/^---/ { next } /^-/ { print substr($0, 2) }' | sort)
             added=$(git diff --unified=0 "$base...HEAD" -- lib/tech-constants.ts | awk '/^\+\+\+/ { next } /^\+/ { print substr($0, 2) }' | sort)
-            expected=$(printf '%s\n' '{ label: "About HVK", href: "#about" },' '{ label: "About", href: "#about" },' | sort)
+            expected=$(printf '%s\n' '      { label: "About HVK", href: "#about" },' '  { label: "About", href: "#about" },' | sort)
 
             if [ "$removed" != "$expected" ] || [ "$added" != "$expected" ]; then
               echo "::error::The only allowed tech-constants.ts change in portal work is moving About links to the end."
