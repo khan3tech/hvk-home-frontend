@@ -15,20 +15,34 @@ concurrency:
 
 jobs:
   home-guard:
-    name: Home page unchanged
+    name: Home page scope guard
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - name: Fail if the home page was modified (constitution IV)
+      - name: Fail if the home page was modified outside the About link reorder (constitution IV)
         run: |
-          changed=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- app/page.tsx 'components/tech/**' lib/tech-constants.ts)
-          if [ -n "$changed" ]; then
+          base="origin/${{ github.base_ref }}"
+          changed=$(git diff --name-only "$base...HEAD" -- app/page.tsx 'components/tech/**' lib/tech-constants.ts)
+          unexpected=$(printf '%s\n' "$changed" | grep -vx 'lib/tech-constants.ts' || true)
+
+          if [ -n "$unexpected" ]; then
             echo "::error::The home page is out of scope for portal work. Changed files:"
-            echo "$changed"
+            echo "$unexpected"
             exit 1
+          fi
+
+          if printf '%s\n' "$changed" | grep -qx 'lib/tech-constants.ts'; then
+            removed=$(git diff --unified=0 "$base...HEAD" -- lib/tech-constants.ts | awk '/^---/ { next } /^-/ { print substr($0, 2) }' | sort)
+            added=$(git diff --unified=0 "$base...HEAD" -- lib/tech-constants.ts | awk '/^\+\+\+/ { next } /^\+/ { print substr($0, 2) }' | sort)
+            expected=$(printf '%s\n' '{ label: "About HVK", href: "#about" },' '{ label: "About", href: "#about" },' | sort)
+
+            if [ "$removed" != "$expected" ] || [ "$added" != "$expected" ]; then
+              echo "::error::The only allowed tech-constants.ts change in portal work is moving About links to the end."
+              exit 1
+            fi
           fi
 
   quality:
