@@ -32,7 +32,7 @@ export function AboutSection() {
             Empowering the Next Generation
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted dark:text-slate-400">
-            HVK Tech innovation is committed to bridging the gap between education
+            HVK Tech Online Examination is committed to bridging the gap between education
             and industry. We provide practical training, real-world
             experiences, and career guidance to help students and
             professionals achieve their goals.

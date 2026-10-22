@@ -15,6 +15,7 @@ import {
   Phone,
   ShieldCheck,
   User,
+  X,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -47,7 +48,8 @@ const FIELD_MAP: Record<string, Path<CandidateRegistrationInput>> = {
   acceptTerms: "acceptTerms",
 };
 
-export function RegistrationForm() {
+export function RegistrationForm({ variant = "page", onClose }: { variant?: "page" | "dialog"; onClose?: () => void } = {}) {
+  const isDialog = variant === "dialog";
   const router = useRouter();
   const session = useSession();
   const [submitting, setSubmitting] = React.useState(false);
@@ -118,17 +120,22 @@ export function RegistrationForm() {
   }
 
   return (
-    <section id="registration" className="relative bg-app-bg py-14 dark:bg-dark-bg sm:py-16 lg:py-20">
+    <section id="registration" className={isDialog ? "bg-app-bg dark:bg-dark-bg" : "relative bg-app-bg py-14 dark:bg-dark-bg sm:py-16 lg:py-20"}>
 
-      <div className="container">
+      <div className={isDialog ? "w-full" : "container"}>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="relative rounded-xl2 border border-slate-100 bg-white p-6 shadow-card-hover dark:border-white/10 dark:bg-dark-surface sm:p-8 lg:p-10"
+          className={isDialog ? "relative rounded-2xl bg-white p-5 dark:bg-dark-surface sm:p-8" : "relative rounded-xl2 border border-slate-100 bg-white p-6 shadow-card-hover dark:border-white/10 dark:bg-dark-surface sm:p-8 lg:p-10"}
         >
-          <div className="hidden items-center gap-3 rounded-full border border-light-blue bg-white py-2 pl-3 pr-4 shadow-card-hover dark:border-white/10 dark:bg-dark-surface-alt sm:absolute sm:-top-5 sm:right-8 sm:flex lg:-top-6 lg:right-10">
+          {isDialog && onClose ? (
+            <button type="button" onClick={onClose} aria-label="Close registration" className="absolute right-4 top-4 rounded-lg p-2 text-muted hover:bg-slate-100 hover:text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-blue dark:hover:bg-white/10 dark:hover:text-white">
+              <X className="h-5 w-5" aria-hidden="true" />
+            </button>
+          ) : null}
+          <div className={isDialog ? "hidden" : "hidden items-center gap-3 rounded-full border border-light-blue bg-white py-2 pl-3 pr-4 shadow-card-hover dark:border-white/10 dark:bg-dark-surface-alt sm:absolute sm:-top-5 sm:right-8 sm:flex lg:-top-6 lg:right-10"}>
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-light-blue text-primary-blue dark:bg-bright-blue/10 dark:text-bright-blue">
               <ShieldCheck className="h-4.5 w-4.5" aria-hidden="true" />
             </span>
@@ -146,15 +153,15 @@ export function RegistrationForm() {
             <span className="text-xs font-bold uppercase tracking-[0.15em] text-primary-blue dark:text-bright-blue">
               Get Started Today
             </span>
-            <h2 className="mt-2 text-2xl font-extrabold text-navy dark:text-white sm:text-3xl">
+            <h2 id={isDialog ? "registration-title" : undefined} className={`mt-2 text-2xl font-extrabold text-navy dark:text-white sm:text-3xl ${isDialog ? "pr-10" : ""}`}>
               Candidate Registration
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted dark:text-slate-400">
               Fill in your details to register for our programs and take the
-              first step towards a brighter future with HVK Tech innovation.
+              first step towards a brighter future with HVK Tech Online Examination.
             </p>
 
-            <div className="mt-4 flex items-center gap-3 rounded-full border border-light-blue bg-light-blue/40 py-2 pl-3 pr-4 dark:border-white/10 dark:bg-dark-surface-alt sm:hidden">
+            {!isDialog ? <div className="mt-4 flex items-center gap-3 rounded-full border border-light-blue bg-light-blue/40 py-2 pl-3 pr-4 dark:border-white/10 dark:bg-dark-surface-alt sm:hidden">
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-primary-blue dark:bg-bright-blue/10 dark:text-bright-blue">
                 <ShieldCheck className="h-4.5 w-4.5" aria-hidden="true" />
               </span>
@@ -166,7 +173,7 @@ export function RegistrationForm() {
                   Limited Seats Available. Join Us!
                 </span>
               </span>
-            </div>
+            </div> : null}
 
             {session.status === "authenticated" ? (
               <div className="mt-6 rounded-lg border border-light-blue bg-light-blue/40 p-5 dark:border-white/10 dark:bg-dark-surface-alt">
@@ -274,7 +281,11 @@ export function RegistrationForm() {
 
               <p className="text-center text-sm text-muted dark:text-slate-400">
                 Already registered?{" "}
-                <Link href="/login" className="font-semibold text-primary-blue underline dark:text-bright-blue">Sign in</Link>
+                {isDialog && onClose ? (
+                  <button type="button" onClick={onClose} className="font-semibold text-primary-blue underline dark:text-bright-blue">Sign in</button>
+                ) : (
+                  <Link href="/login" className="font-semibold text-primary-blue underline dark:text-bright-blue">Sign in</Link>
+                )}
               </p>
 
               <p className="flex items-center justify-center gap-1.5 text-xs text-muted dark:text-slate-400">

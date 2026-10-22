@@ -7,7 +7,7 @@ import { TestimonialsSection } from "@/components/home/testimonials-section";
 import { CtaSection } from "@/components/home/cta-section";
 
 export const metadata: Metadata = {
-  title: "Registration | HVK Tech innovation",
+  title: "Registration | HVK Tech Online Examination",
 };
 
 export default function RegistrationPage() {

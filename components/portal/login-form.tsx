@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, MessageSquareText, Phone } from "lucide-react";
 import type { AuthResult } from "@/types/api";
+import { RegistrationForm } from "@/components/home/registration-form";
 import { Input } from "@/components/ui/input";
 import { authApi } from "@/lib/api/auth";
 import { errorMessage } from "@/lib/api/client";
@@ -35,6 +36,7 @@ export function LoginForm() {
   const params = useSearchParams();
   const session = useSession();
   const [mode, setMode] = React.useState<Mode>("password");
+  const [registrationOpen, setRegistrationOpen] = React.useState(false);
   const next = params.get("next");
 
   // Already signed in (e.g. back button): go straight to the right place.
@@ -76,11 +78,37 @@ export function LoginForm() {
 
       <p className="mt-6 text-center text-sm text-muted dark:text-slate-400">
         New here?{" "}
-        <Link href="/registration#registration" className="font-semibold text-primary-blue underline dark:text-bright-blue">
+        <button type="button" onClick={() => setRegistrationOpen(true)} className="font-semibold text-primary-blue underline dark:text-bright-blue">
           Create an account
-        </Link>
+        </button>
       </p>
+      {registrationOpen ? <RegistrationDialog onClose={() => setRegistrationOpen(false)} /> : null}
     </AuthCard>
+  );
+}
+
+function RegistrationDialog({ onClose }: { onClose: () => void }) {
+  const dialogRef = React.useRef<HTMLDialogElement>(null);
+
+  React.useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    dialog.showModal();
+    return () => {
+      if (dialog.open) dialog.close();
+    };
+  }, []);
+
+  return (
+    <dialog
+      ref={dialogRef}
+      aria-labelledby="registration-title"
+      onCancel={(event) => { event.preventDefault(); onClose(); }}
+      onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}
+      className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto rounded-2xl border-0 bg-white p-0 shadow-2xl backdrop:bg-navy/70 dark:bg-dark-surface"
+    >
+      <RegistrationForm variant="dialog" onClose={onClose} />
+    </dialog>
   );
 }
 

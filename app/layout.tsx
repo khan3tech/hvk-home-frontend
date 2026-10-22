@@ -13,17 +13,17 @@ const siteUrl = "https://www.hvkinfotech.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "HVK Tech innovation | Innovate • Build • Grow",
+  title: "HVK Tech Online Examination | Innovate • Build • Grow",
   description:
-    "HVK Tech innovation provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
+    "HVK Tech Online Examination provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
   keywords: [
-    "HVK Tech innovation",
+    "HVK Tech Online Examination",
     "training and certification",
     "internship programs",
     "placement assistance",
     "career guidance",
   ],
-  authors: [{ name: "HVK Tech innovation" }],
+  authors: [{ name: "HVK Tech Online Examination" }],
   icons: {
     icon: "/images/hvk-logo.png",
     shortcut: "/images/hvk-logo.png",
@@ -32,24 +32,24 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: siteUrl,
-    siteName: "HVK Tech innovation",
-    title: "HVK Tech innovation | Innovate • Build • Grow",
+    siteName: "HVK Tech Online Examination",
+    title: "HVK Tech Online Examination | Innovate • Build • Grow",
     description:
-      "HVK Tech innovation provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
+      "HVK Tech Online Examination provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
     images: [
       {
         url: "/images/hvk-logo.png",
         width: 512,
         height: 512,
-        alt: "HVK Tech innovation",
+        alt: "HVK Tech Online Examination",
       },
     ],
   },
   twitter: {
     card: "summary",
-    title: "HVK Tech innovation | Innovate • Build • Grow",
+    title: "HVK Tech Online Examination | Innovate • Build • Grow",
     description:
-      "HVK Tech innovation provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
+      "HVK Tech Online Examination provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
     images: ["/images/hvk-logo.png"],
   },
   robots: {
