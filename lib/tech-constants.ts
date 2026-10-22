@@ -13,9 +13,9 @@ export const TECH_PHONES = [
 export const TECH_NAV_LINKS: NavLink[] = [
   { label: "Home", href: "#home" },
   { label: "Services", href: "#services" },
-  { label: "About", href: "#about" },
   { label: "Why HVK", href: "#why-hvk" },
   { label: "Contact", href: "#contact" },
+  { label: "About", href: "#about" },
 ];
 
 // Placeholder profile URLs — replace with HVK's real social accounts.
@@ -128,10 +128,10 @@ export const TECH_FOOTER_GROUPS: { title: string; links: NavLink[] }[] = [
   {
     title: "Company",
     links: [
-      { label: "About HVK", href: "#about" },
       { label: "Why HVK", href: "#why-hvk" },
       { label: "Our Process", href: "#process" },
       { label: "Contact", href: "#contact" },
+      { label: "About HVK", href: "#about" },
     ],
   },
   {

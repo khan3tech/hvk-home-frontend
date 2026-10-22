@@ -29,7 +29,7 @@ export function AboutCarousel() {
     <div
       role="region"
       aria-roledescription="carousel"
-      aria-label="HVK Tech innovation office and team photos"
+      aria-label="HVK Tech Online Examination office and team photos"
       className="relative aspect-[4/3] overflow-hidden rounded-xl2 shadow-card-hover"
     >
       <div className="embla h-full" ref={emblaRef}>
@@ -45,7 +45,7 @@ export function AboutCarousel() {
             >
               <Image
                 src={image}
-                alt="HVK Tech innovation office and team collaborating"
+                alt="HVK Tech Online Examination office and team collaborating"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 priority={index === 0}

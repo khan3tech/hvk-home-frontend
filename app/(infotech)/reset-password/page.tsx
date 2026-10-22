@@ -4,7 +4,7 @@ import { ResetPasswordForm } from "@/components/portal/password-reset-forms";
 import { StatusCard } from "@/components/portal/status-card";
 
 export const metadata: Metadata = {
-  title: "Reset password | HVK Tech innovation",
+  title: "Reset password | HVK Tech Online Examination",
   robots: { index: false, follow: false },
 };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { ABOUT_STATS } from "@/lib/constants";
 import { buttonVariants } from "@/components/ui/button";
 import { AboutCarousel } from "@/components/home/about-carousel";
@@ -32,7 +33,7 @@ export function AboutSection() {
             Empowering the Next Generation
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted dark:text-slate-400">
-            HVK Tech innovation is committed to bridging the gap between education
+            HVK Tech Online Examination is committed to bridging the gap between education
             and industry. We provide practical training, real-world
             experiences, and career guidance to help students and
             professionals achieve their goals.
@@ -52,13 +53,13 @@ export function AboutSection() {
             ))}
           </dl>
 
-          <a
-            href="#about"
+          <Link
+            href="/#about"
             className={cn(buttonVariants({ variant: "primary" }), "mt-8")}
           >
             Know More About Us
             <span aria-hidden="true">→</span>
-          </a>
+          </Link>
         </motion.div>
       </div>
     </section>

@@ -20,12 +20,13 @@ import type {
   StatItem,
 } from "@/types";
 
-export const SITE_NAME = "HVK Tech innovation";
+export const SITE_NAME = "HVK Tech Online Examination";
 export const SITE_TAGLINE = "Innovate | Build | Grow";
+export const COMPANY_WEBSITE_URL = "https://www.hvkinfotech.com";
 export const PHONE_NUMBER = "+91 98765 43210";
 export const PHONE_NUMBER_HREF = "tel:+919876543210";
 export const CONTACT_EMAIL = "info@hvkinfotech.com";
-export const OFFICE_LOCATION = "Lucknow, Uttar Pradesh, India";
+export const OFFICE_LOCATION = "HIG 216, Beside Bank of Baroda, 2nd Floor, Phase 1 & 2, Kukatpally, Hyderabad, Telangana 500072";
 export const WORKING_HOURS = "Mon - Sat: 9:00 AM - 6:00 PM";
 
 export const ABOUT_IMAGES: string[] = [
@@ -36,25 +37,25 @@ export const ABOUT_IMAGES: string[] = [
 
 export const NAV_LINKS: NavLink[] = [
   { label: "Home", href: "/registration" },
-  { label: "About", href: "/registration#about" },
   { label: "Services", href: "/registration#services" },
   { label: "Testimonials", href: "/registration#testimonials" },
   { label: "Contact", href: "#contact" },
+  { label: "About", href: "/#about" },
 ];
 
 export const SOCIAL_LINKS: SocialLink[] = [
-  { label: "LinkedIn", href: "https://linkedin.com", icon: Linkedin },
-  { label: "Instagram", href: "https://instagram.com", icon: Instagram },
-  { label: "YouTube", href: "https://youtube.com", icon: Youtube },
-  { label: "Facebook", href: "https://facebook.com", icon: Facebook },
+  { label: "LinkedIn", href: COMPANY_WEBSITE_URL, icon: Linkedin },
+  { label: "Instagram", href: COMPANY_WEBSITE_URL, icon: Instagram },
+  { label: "YouTube", href: COMPANY_WEBSITE_URL, icon: Youtube },
+  { label: "Facebook", href: COMPANY_WEBSITE_URL, icon: Facebook },
 ];
 
 export const HERO_SLIDES: HeroSlide[] = [
   {
     id: "slide-1",
-    eyebrow: "HVK Tech innovation",
-    headingLines: ["Shape Your Future with", "HVK Tech innovation"],
-    highlightWord: "Infotech",
+    eyebrow: "HVK Tech Online Examination",
+    headingLines: ["Shape Your Future with", "HVK Tech Online Examination"],
+    highlightWord: "Examination",
     subheading: "Learn · Build · Grow · Succeed",
     description:
       "Practical learning, real-world projects and career opportunities to help you become industry ready.",
@@ -64,7 +65,7 @@ export const HERO_SLIDES: HeroSlide[] = [
   },
   {
     id: "slide-2",
-    eyebrow: "HVK Tech innovation",
+    eyebrow: "HVK Tech Online Examination",
     headingLines: ["Build Skills That", "Matter"],
     highlightWord: "Matter",
     subheading: "Practical · Hands-on · Industry-Ready",
@@ -76,7 +77,7 @@ export const HERO_SLIDES: HeroSlide[] = [
   },
   {
     id: "slide-3",
-    eyebrow: "HVK Tech innovation",
+    eyebrow: "HVK Tech Online Examination",
     headingLines: ["Start Your Career", "Journey"],
     highlightWord: "Journey",
     subheading: "Internships · Placements · Mentorship",
@@ -140,7 +141,7 @@ export const TESTIMONIALS: TestimonialItem[] = [
     education: "B.Tech, Lucknow University",
     rating: 5,
     quote:
-      "HVK Tech innovation provided amazing practical training and placement support. The mentors were very helpful and always guide you in the right direction.",
+      "HVK Tech Online Examination provided amazing practical training and placement support. The mentors were very helpful and always guide you in the right direction.",
     avatar: "/images/testimonials/aarav-sharma.jpg",
   },
   {
@@ -149,7 +150,7 @@ export const TESTIMONIALS: TestimonialItem[] = [
     education: "BCA, Delhi University",
     rating: 5,
     quote:
-      "The internship program at HVK Tech innovation helped me gain real-world experience. Highly recommended for anyone serious about their career.",
+      "The internship program at HVK Tech Online Examination helped me gain real-world experience. Highly recommended for anyone serious about their career.",
     avatar: "/images/testimonials/priya-verma.jpg",
   },
   {
@@ -158,7 +159,7 @@ export const TESTIMONIALS: TestimonialItem[] = [
     education: "MCA, AKTU",
     rating: 5,
     quote:
-      "Great learning environment, supportive team, and excellent placement assistance. HVK Tech innovation truly cares about its students.",
+      "Great learning environment, supportive team, and excellent placement assistance. HVK Tech Online Examination truly cares about its students.",
     avatar: "/images/testimonials/rohit-singh.jpg",
   },
   {
@@ -167,17 +168,17 @@ export const TESTIMONIALS: TestimonialItem[] = [
     education: "B.Sc IT, Mumbai University",
     rating: 5,
     quote:
-      "The workshops and hands-on sessions gave me confidence to face real interviews. HVK Tech innovation's guidance made all the difference.",
+      "The workshops and hands-on sessions gave me confidence to face real interviews. HVK Tech Online Examination's guidance made all the difference.",
     avatar: "/images/testimonials/sneha-gupta.jpg",
   },
 ];
 
 export const QUICK_LINKS: NavLink[] = [
   { label: "Home", href: "/registration" },
-  { label: "About Us", href: "/registration#about" },
   { label: "Services", href: "/registration#services" },
   { label: "Testimonials", href: "/registration#testimonials" },
   { label: "Contact", href: "#contact" },
+  { label: "About Us", href: "/#about" },
 ];
 
 export const FOOTER_SERVICE_LINKS: NavLink[] = SERVICES.map((service) => ({

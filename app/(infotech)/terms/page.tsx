@@ -1,41 +1,11 @@
 import type { Metadata } from "next";
 import { CONTACT_EMAIL, SITE_NAME } from "@/lib/constants";
+import { TERMS_SECTIONS } from "@/lib/legal-content";
 
 export const metadata: Metadata = {
   title: `Terms & Conditions | ${SITE_NAME}`,
   robots: { index: false, follow: true },
 };
-
-const SECTIONS = [
-  {
-    heading: "Acceptance of Terms",
-    body: `By registering for a program or using this website, you agree to be bound by these Terms & Conditions. If you do not agree with any part of these terms, please do not use our services.`,
-  },
-  {
-    heading: "Registration",
-    body: "Registration requires accurate and complete information. Providing false information may result in your registration being cancelled without a refund.",
-  },
-  {
-    heading: "Payments",
-    body: `The registration fee is processed securely through our payment partner. Your seat is confirmed only once payment has been successfully verified.`,
-  },
-  {
-    heading: "Refunds & Cancellations",
-    body: "Refund and cancellation requests are reviewed on a case-by-case basis. Please contact us directly with your registration details for any refund-related query.",
-  },
-  {
-    heading: "Program Changes",
-    body: `${SITE_NAME} reserves the right to modify program schedules, content, or delivery format where necessary, and will make reasonable efforts to inform registered candidates of any material changes.`,
-  },
-  {
-    heading: "Limitation of Liability",
-    body: `${SITE_NAME} is not liable for any indirect or incidental damages arising from the use of our website or participation in our programs.`,
-  },
-  {
-    heading: "Changes to These Terms",
-    body: "We may revise these Terms & Conditions from time to time. Continued use of our services after changes are posted constitutes acceptance of the revised terms.",
-  },
-];
 
 export default function TermsPage() {
   return (
@@ -53,7 +23,7 @@ export default function TermsPage() {
         </p>
 
         <div className="mt-10 space-y-8">
-          {SECTIONS.map((section) => (
+          {TERMS_SECTIONS.map((section) => (
             <div key={section.heading}>
               <h2 className="text-lg font-bold text-navy dark:text-white">
                 {section.heading}
