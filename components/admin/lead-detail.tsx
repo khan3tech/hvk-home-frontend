@@ -7,6 +7,7 @@ import type { LeadStatus, StaffMember, TaLead } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { FormMessage } from "@/components/portal/form-field";
 import { adminApi, type LeadPatch } from "@/lib/api/admin";
+import { adminExamApi } from "@/lib/api/admin-exams";
 import { ApiError, errorMessage } from "@/lib/api/client";
 import { useSession } from "@/lib/session/session-provider";
 import { formatDateTime, LEAD_STATUS_LABEL, LEAD_TRANSITIONS, STEP_LABEL } from "@/lib/ta";
@@ -99,6 +100,23 @@ export function LeadDetail({ id }: { id: string }) {
     }
   }
 
+  /** A paid candidate whose 24-hour exam link expired (or never arrived) gets a fresh one. */
+  async function reissueExamLink(candidateId: string) {
+    setSaving(true);
+    setMessage(null);
+    try {
+      const exam = await adminExamApi.reissueLink(candidateId);
+      setMessage({
+        tone: "success",
+        text: `New exam link emailed${exam.linkExpiresAt ? `, valid until ${formatDateTime(exam.linkExpiresAt)}` : ""}. The previous link no longer works.`,
+      });
+    } catch (err) {
+      setMessage({ tone: "error", text: errorMessage(err) });
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <AdminShell title={c?.fullName ?? "Lead"}>
       <Link href="/admin/leads" className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-primary-blue hover:underline dark:text-bright-blue">
@@ -127,6 +145,14 @@ export function LeadDetail({ id }: { id: string }) {
           ) : (
             <p className="mt-3 text-sm text-muted">Candidate record unavailable.</p>
           )}
+          {c?.onboardingStep === "exam_ready" ? (
+            <div className="mt-4 border-t border-slate-100 pt-4 dark:border-white/10">
+              <p className="text-xs text-muted">Paid, exam not started. Exam links are valid for 24 hours.</p>
+              <Button type="button" variant="outline" size="sm" className="mt-2" disabled={saving} onClick={() => void reissueExamLink(c.id)}>
+                Send a new exam link
+              </Button>
+            </div>
+          ) : null}
         </section>
 
         <section className={`${cardClass} lg:col-span-2`} aria-labelledby="lead-heading">
