@@ -37,10 +37,10 @@ export const ABOUT_IMAGES: string[] = [
 
 export const NAV_LINKS: NavLink[] = [
   { label: "Home", href: "/registration" },
-  { label: "About", href: "/registration#about" },
   { label: "Services", href: "/registration#services" },
   { label: "Testimonials", href: "/registration#testimonials" },
   { label: "Contact", href: "#contact" },
+  { label: "About", href: "/#about" },
 ];
 
 export const SOCIAL_LINKS: SocialLink[] = [
@@ -175,10 +175,10 @@ export const TESTIMONIALS: TestimonialItem[] = [
 
 export const QUICK_LINKS: NavLink[] = [
   { label: "Home", href: "/registration" },
-  { label: "About Us", href: "https://staging.hvktech.in/#about" },
   { label: "Services", href: "/registration#services" },
   { label: "Testimonials", href: "/registration#testimonials" },
   { label: "Contact", href: "#contact" },
+  { label: "About Us", href: "/#about" },
 ];
 
 export const FOOTER_SERVICE_LINKS: NavLink[] = SERVICES.map((service) => ({
