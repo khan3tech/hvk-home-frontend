@@ -22,6 +22,7 @@ import type {
 
 export const SITE_NAME = "HVK Tech Online Examination";
 export const SITE_TAGLINE = "Innovate | Build | Grow";
+export const COMPANY_WEBSITE_URL = "https://www.hvkinfotech.com";
 export const PHONE_NUMBER = "+91 98765 43210";
 export const PHONE_NUMBER_HREF = "tel:+919876543210";
 export const CONTACT_EMAIL = "info@hvkinfotech.com";
@@ -43,10 +44,10 @@ export const NAV_LINKS: NavLink[] = [
 ];
 
 export const SOCIAL_LINKS: SocialLink[] = [
-  { label: "LinkedIn", href: "https://linkedin.com", icon: Linkedin },
-  { label: "Instagram", href: "https://instagram.com", icon: Instagram },
-  { label: "YouTube", href: "https://youtube.com", icon: Youtube },
-  { label: "Facebook", href: "https://facebook.com", icon: Facebook },
+  { label: "LinkedIn", href: COMPANY_WEBSITE_URL, icon: Linkedin },
+  { label: "Instagram", href: COMPANY_WEBSITE_URL, icon: Instagram },
+  { label: "YouTube", href: COMPANY_WEBSITE_URL, icon: Youtube },
+  { label: "Facebook", href: COMPANY_WEBSITE_URL, icon: Facebook },
 ];
 
 export const HERO_SLIDES: HeroSlide[] = [
