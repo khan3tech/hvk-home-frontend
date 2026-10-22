@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { ABOUT_STATS } from "@/lib/constants";
 import { buttonVariants } from "@/components/ui/button";
 import { AboutCarousel } from "@/components/home/about-carousel";
@@ -52,13 +53,13 @@ export function AboutSection() {
             ))}
           </dl>
 
-          <a
-            href="#about"
+          <Link
+            href="/#about"
             className={cn(buttonVariants({ variant: "primary" }), "mt-8")}
           >
             Know More About Us
             <span aria-hidden="true">→</span>
-          </a>
+          </Link>
         </motion.div>
       </div>
     </section>
