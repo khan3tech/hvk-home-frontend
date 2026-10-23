@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { HeroCarousel } from "@/components/home/hero-carousel";
-import { RegistrationCta } from "@/components/home/registration-cta";
+import { RegistrationHashOpener } from "@/components/auth/registration-hash-opener";
 import { ServicesSection } from "@/components/home/services-section";
 import { AboutSection } from "@/components/home/about-section";
 import { TestimonialsSection } from "@/components/home/testimonials-section";
@@ -14,7 +14,7 @@ export default function RegistrationPage() {
   return (
     <>
       <HeroCarousel />
-      <RegistrationCta />
+      <RegistrationHashOpener />
       <ServicesSection />
       <AboutSection />
       <TestimonialsSection />

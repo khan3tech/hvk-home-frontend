@@ -35,7 +35,7 @@ test.describe("accessibility", () => {
   test("registration and sign-in popups", async ({ page, baseURL }) => {
     await installFakeApi(page, baseURL!);
     await page.goto("/registration");
-    await page.getByRole("button", { name: /Register now/ }).click();
+    await page.locator("section", { hasText: "Ready to Build Your Future?" }).getByRole("link", { name: /Join Us/ }).click();
     const registration = page.getByRole("dialog", { name: "Candidate Registration" });
     await registration.waitFor();
     await expectAccessible(page);

@@ -1,4 +1,8 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+// "Join Us" in the page's own call-to-action band (the header copy is hidden on phones).
+const joinUs = (page: Page) =>
+  page.locator("section", { hasText: "Ready to Build Your Future?" }).getByRole("link", { name: /Join Us/ });
 
 test("home page renders (unchanged by the portal work)", async ({ page }) => {
   await page.goto("/");
@@ -8,9 +12,9 @@ test("home page renders (unchanged by the portal work)", async ({ page }) => {
 
 test("registration page offers the candidate form as a popup", async ({ page }) => {
   await page.goto("/registration");
-  // The form is no longer inline: the page has a call to action that opens it.
+  // The form is not on the page itself: "Join Us" opens it in a popup.
   await expect(page.getByRole("form", { name: "Candidate registration" })).toHaveCount(0);
-  await page.getByRole("button", { name: /Register now/ }).click();
+  await joinUs(page).click();
   const dialog = page.getByRole("dialog", { name: "Candidate Registration" });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByLabel(/Full Name/)).toBeVisible();

@@ -1,12 +1,16 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { installFakeApi } from "./fake-api";
+
+// "Join Us" in the page's own call-to-action band (the header copy is hidden on phones).
+const joinUs = (page: Page) =>
+  page.locator("section", { hasText: "Ready to Build Your Future?" }).getByRole("link", { name: /Join Us/ });
 
 test("candidate journey: register → demo → pay → exam → feedback → result", async ({ page, baseURL }) => {
   const api = await installFakeApi(page, baseURL!);
 
   // Register through the popup on the /registration page.
   await page.goto("/registration");
-  await page.getByRole("button", { name: /Register now/ }).click();
+  await joinUs(page).click();
   await expect(page.getByRole("dialog", { name: "Candidate Registration" })).toBeVisible();
   await page.getByLabel(/Full Name/).fill("Asha Verma");
   await page.getByLabel(/Email Address/).fill("asha@example.com");

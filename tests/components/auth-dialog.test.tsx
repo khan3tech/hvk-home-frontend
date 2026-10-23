@@ -11,6 +11,7 @@ vi.mock("next/navigation", async () => (await import("../helpers/navigation")).n
 
 const { AuthDialogProvider } = await import("@/components/auth/auth-dialog");
 const { AuthLink } = await import("@/components/auth/auth-link");
+const { RegistrationHashOpener } = await import("@/components/auth/registration-hash-opener");
 const { Header } = await import("@/components/layout/header");
 
 // jsdom has no modal <dialog> API; this is the part of it the popup relies on.
@@ -129,6 +130,50 @@ describe("sign-in / create-account popup", () => {
     render(<AuthLink view="login" href="/login">Sign in</AuthLink>);
     await user.click(screen.getByRole("link", { name: "Sign in" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("opens the registration popup for visitors who arrive at /registration#registration", async () => {
+    window.location.hash = "#registration";
+    try {
+      render(
+        <SessionProvider>
+          <AuthDialogProvider>
+            <RegistrationHashOpener />
+          </AuthDialogProvider>
+        </SessionProvider>,
+      );
+      expect(await screen.findByRole("dialog", { name: "Candidate Registration" })).toBeInTheDocument();
+    } finally {
+      window.location.hash = "";
+    }
+  });
+
+  it("does not open it without the #registration link, or for signed-in visitors", async () => {
+    const { unmount } = render(
+      <SessionProvider>
+        <AuthDialogProvider>
+          <RegistrationHashOpener />
+        </AuthDialogProvider>
+      </SessionProvider>,
+    );
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    unmount();
+
+    window.location.hash = "#registration";
+    try {
+      server.use(http.post(`${API}/auth/refresh`, () => ok(authResult())));
+      render(
+        <SessionProvider>
+          <AuthDialogProvider>
+            <RegistrationHashOpener />
+          </AuthDialogProvider>
+        </SessionProvider>,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 150)); // the session resolves as signed in
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    } finally {
+      window.location.hash = "";
+    }
   });
 
   it("the header's Sign in and Join Us buttons open the popups", async () => {
