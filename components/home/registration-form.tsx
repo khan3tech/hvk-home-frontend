@@ -49,8 +49,18 @@ const FIELD_MAP: Record<string, Path<CandidateRegistrationInput>> = {
   acceptTerms: "acceptTerms",
 };
 
-export function RegistrationForm({ variant = "page", onClose }: { variant?: "page" | "dialog"; onClose?: () => void } = {}) {
+export function RegistrationForm({
+  variant = "page",
+  onClose,
+  onSignIn,
+}: {
+  variant?: "page" | "dialog";
+  onClose?: () => void;
+  /** Dialog only: what "Sign in" does (the site popup switches to its sign-in view). Defaults to closing. */
+  onSignIn?: () => void;
+} = {}) {
   const isDialog = variant === "dialog";
+  const showSignIn = onSignIn ?? onClose;
   const router = useRouter();
   const session = useSession();
   const [submitting, setSubmitting] = React.useState(false);
@@ -104,9 +114,15 @@ export function RegistrationForm({ variant = "page", onClose }: { variant?: "pag
         setFormError(
           <>
             {err.message}{" "}
-            <Link href="/login" className="underline">
-              Sign in
-            </Link>
+            {isDialog && showSignIn ? (
+              <button type="button" onClick={showSignIn} className="underline">
+                Sign in
+              </button>
+            ) : (
+              <Link href="/login" className="underline">
+                Sign in
+              </Link>
+            )}
           </>,
         );
         return;
@@ -126,11 +142,12 @@ export function RegistrationForm({ variant = "page", onClose }: { variant?: "pag
 
       <div className={isDialog ? "w-full" : "container"}>
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          // The popup is already on screen: scroll-triggered entrance animations never fire inside a modal.
+          initial={isDialog ? false : { opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className={isDialog ? "relative rounded-2xl bg-white p-5 dark:bg-dark-surface sm:p-8" : "relative rounded-xl2 border border-slate-100 bg-white p-6 shadow-card-hover dark:border-white/10 dark:bg-dark-surface sm:p-8 lg:p-10"}
+          className={isDialog ? "relative rounded-2xl bg-white p-5 dark:bg-dark-surface sm:px-7 sm:py-6" : "relative rounded-xl2 border border-slate-100 bg-white p-6 shadow-card-hover dark:border-white/10 dark:bg-dark-surface sm:p-8 lg:p-10"}
         >
           {isDialog && onClose ? (
             <button type="button" onClick={onClose} aria-label="Close registration" className="absolute right-4 top-4 rounded-lg p-2 text-muted hover:bg-slate-100 hover:text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-blue dark:hover:bg-white/10 dark:hover:text-white">
@@ -155,10 +172,10 @@ export function RegistrationForm({ variant = "page", onClose }: { variant?: "pag
             <span className="text-xs font-bold uppercase tracking-[0.15em] text-primary-blue dark:text-bright-blue">
               Get Started Today
             </span>
-            <h2 id={isDialog ? "registration-title" : undefined} className={`mt-2 text-2xl font-extrabold text-navy dark:text-white sm:text-3xl ${isDialog ? "pr-10" : ""}`}>
+            <h2 id={isDialog ? "registration-title" : undefined} className={isDialog ? "mt-1 pr-10 text-xl font-extrabold text-navy dark:text-white sm:text-2xl" : "mt-2 text-2xl font-extrabold text-navy dark:text-white sm:text-3xl"}>
               Candidate Registration
             </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted dark:text-slate-400">
+            <p className={cn("mt-2 max-w-2xl text-sm leading-relaxed text-muted dark:text-slate-400", isDialog && "hidden")}>
               Fill in your details to register for our programs and take the
               first step towards a brighter future with HVK Tech Online Examination.
             </p>
@@ -189,11 +206,17 @@ export function RegistrationForm({ variant = "page", onClose }: { variant?: "pag
             ) : (
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="mt-6 space-y-5"
+              className={cn(
+                isDialog
+                  ? // Compact popup: shorter inputs, tighter labels, no room for a scrollbar on a normal screen.
+                    "mt-4 grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-3 [&_label]:mb-1 [&_input:not([type=checkbox])]:h-10 [&_button[aria-label$=password]]:top-0.5"
+                  : "mt-6 space-y-5",
+              )}
               noValidate
               aria-label="Candidate registration"
             >
-              <div className="grid gap-5 sm:grid-cols-2">
+              {/* In the popup the fields flow straight into the form's grid, so the terms checkbox can share the last row. */}
+              <div className={isDialog ? "contents" : "grid gap-5 sm:grid-cols-2"}>
                 <div>
                   <FieldLabel htmlFor="fullName">Full Name</FieldLabel>
                   <Input id="fullName" icon={User} autoComplete="name" placeholder="Enter your full name" error={errors.fullName?.message} {...register("fullName")} />
@@ -251,7 +274,7 @@ export function RegistrationForm({ variant = "page", onClose }: { variant?: "pag
                 </div>
               </div>
 
-              <div>
+              <div className={isDialog ? "self-center sm:col-span-2" : undefined}>
                 <div className="flex items-start gap-3 text-sm text-ink dark:text-slate-200">
                   <input
                     id="acceptTerms"
@@ -277,27 +300,30 @@ export function RegistrationForm({ variant = "page", onClose }: { variant?: "pag
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-bright-blue px-6 py-4 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary-blue disabled:cursor-not-allowed disabled:opacity-70"
+                className={cn(
+                  "flex w-full items-center justify-center gap-2 rounded-lg bg-bright-blue px-6 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary-blue disabled:cursor-not-allowed disabled:opacity-70",
+                  isDialog ? "col-span-full py-3" : "py-4",
+                )}
               >
                 {submitting ? "Creating your account..." : "Create Account & Continue"}
                 <span aria-hidden="true">→</span>
               </button>
 
-              <p className="text-center text-sm text-muted dark:text-slate-400">
+              <p className={cn("text-center text-sm text-muted dark:text-slate-400", isDialog && "self-center sm:text-left")}>
                 Already registered?{" "}
-                {isDialog && onClose ? (
-                  <button type="button" onClick={onClose} className="font-semibold text-primary-blue underline dark:text-bright-blue">Sign in</button>
+                {isDialog && showSignIn ? (
+                  <button type="button" onClick={showSignIn} className="font-semibold text-primary-blue underline dark:text-bright-blue">Sign in</button>
                 ) : (
                   <Link href="/login" className="font-semibold text-primary-blue underline dark:text-bright-blue">Sign in</Link>
                 )}
               </p>
 
-              <p className="flex items-center justify-center gap-1.5 text-xs text-muted dark:text-slate-400">
+              <p className={cn("flex items-center justify-center gap-1.5 text-xs text-muted dark:text-slate-400", isDialog && "self-center sm:justify-end lg:col-span-2")}>
                 <Lock className="h-3.5 w-3.5" aria-hidden="true" />
                 Your information is safe and secure with us.
               </p>
 
-              <div className="text-center">
+              <div className={cn("text-center", isDialog && "col-span-full")}>
                 <FormMessage>{formError}</FormMessage>
               </div>
             </form>

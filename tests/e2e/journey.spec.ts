@@ -4,8 +4,10 @@ import { installFakeApi } from "./fake-api";
 test("candidate journey: register → demo → pay → exam → feedback → result", async ({ page, baseURL }) => {
   const api = await installFakeApi(page, baseURL!);
 
-  // Register on the existing /registration page.
+  // Register through the popup on the /registration page.
   await page.goto("/registration");
+  await page.getByRole("button", { name: /Register now/ }).click();
+  await expect(page.getByRole("dialog", { name: "Candidate Registration" })).toBeVisible();
   await page.getByLabel(/Full Name/).fill("Asha Verma");
   await page.getByLabel(/Email Address/).fill("asha@example.com");
   await page.getByLabel(/Contact Number/).fill("9876543210");

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { HeroCarousel } from "@/components/home/hero-carousel";
-import { RegistrationForm } from "@/components/home/registration-form";
+import { RegistrationCta } from "@/components/home/registration-cta";
 import { ServicesSection } from "@/components/home/services-section";
 import { AboutSection } from "@/components/home/about-section";
 import { TestimonialsSection } from "@/components/home/testimonials-section";
@@ -14,7 +14,7 @@ export default function RegistrationPage() {
   return (
     <>
       <HeroCarousel />
-      <RegistrationForm />
+      <RegistrationCta />
       <ServicesSection />
       <AboutSection />
       <TestimonialsSection />
