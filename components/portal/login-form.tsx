@@ -35,7 +35,6 @@ export function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const session = useSession();
-  const [mode, setMode] = React.useState<Mode>("password");
   const [registrationOpen, setRegistrationOpen] = React.useState(false);
   const next = params.get("next");
 
@@ -56,6 +55,21 @@ export function LoginForm() {
 
   return (
     <AuthCard title="Sign in" subtitle="Continue your registration, payment and exam journey.">
+      <LoginPanel onSignedIn={onSignedIn} onCreateAccount={() => setRegistrationOpen(true)} />
+      {registrationOpen ? <RegistrationDialog onClose={() => setRegistrationOpen(false)} /> : null}
+    </AuthCard>
+  );
+}
+
+/**
+ * Sign-in method tabs, the password / mobile-OTP forms and the "Create an account" prompt.
+ * Shared by the /login page and the site-wide sign-in popup.
+ */
+export function LoginPanel({ onSignedIn, onCreateAccount }: { onSignedIn: (r: AuthResult) => void; onCreateAccount: () => void }) {
+  const [mode, setMode] = React.useState<Mode>("password");
+
+  return (
+    <>
       <div role="tablist" aria-label="Sign-in method" className="mb-6 grid grid-cols-2 rounded-lg bg-light-blue/50 p-1 dark:bg-dark-surface-alt">
         {(["password", "otp"] as const).map((m) => (
           <button
@@ -78,12 +92,11 @@ export function LoginForm() {
 
       <p className="mt-6 text-center text-sm text-muted dark:text-slate-400">
         New here?{" "}
-        <button type="button" onClick={() => setRegistrationOpen(true)} className="font-semibold text-primary-blue underline dark:text-bright-blue">
+        <button type="button" onClick={onCreateAccount} className="font-semibold text-primary-blue underline dark:text-bright-blue">
           Create an account
         </button>
       </p>
-      {registrationOpen ? <RegistrationDialog onClose={() => setRegistrationOpen(false)} /> : null}
-    </AuthCard>
+    </>
   );
 }
 

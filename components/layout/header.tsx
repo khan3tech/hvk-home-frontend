@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
+import { AuthLink } from "@/components/auth/auth-link";
 import { buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { HeaderAuth } from "@/components/layout/header-auth";
@@ -76,13 +77,14 @@ export function Header() {
           <HeaderAuth variant="desktop" />
 
           {showRegister ? (
-            <Link
+            <AuthLink
+              view="register"
               href="/registration#registration"
               className={cn(buttonVariants({ variant: "primary" }), "hidden lg:inline-flex")}
             >
               Join Us
               <span aria-hidden="true">→</span>
-            </Link>
+            </AuthLink>
           ) : null}
 
           <button
@@ -121,13 +123,14 @@ export function Header() {
           ))}
           <HeaderAuth variant="mobile" onNavigate={() => setMobileOpen(false)} />
           {showRegister ? (
-            <Link
+            <AuthLink
+              view="register"
               href="/registration#registration"
-              onClick={() => setMobileOpen(false)}
+              onNavigate={() => setMobileOpen(false)}
               className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-bright-blue px-5 py-3 text-sm font-semibold text-white hover:bg-primary-blue"
             >
               Join Us →
-            </Link>
+            </AuthLink>
           ) : null}
         </nav>
       </div>

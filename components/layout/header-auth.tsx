@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
+import { AuthLink } from "@/components/auth/auth-link";
 import { buttonVariants } from "@/components/ui/button";
 import { isStaff } from "@/lib/journey";
 import { useSession } from "@/lib/session/session-provider";
@@ -20,13 +21,14 @@ export function HeaderAuth({ variant, onNavigate }: { variant: "desktop" | "mobi
   const desktop = variant === "desktop";
   if (status === "anonymous") {
     return (
-      <Link
+      <AuthLink
+        view="login"
         href="/login"
-        onClick={onNavigate}
+        onNavigate={onNavigate}
         className={desktop ? cn(buttonVariants({ variant: "ghost" }), "hidden lg:inline-flex") : mobileLink}
       >
         Sign in
-      </Link>
+      </AuthLink>
     );
   }
 
