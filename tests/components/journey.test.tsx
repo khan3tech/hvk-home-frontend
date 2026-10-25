@@ -1,16 +1,11 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { http } from "msw";
+import { screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { stageStates } from "@/components/portal/journey-stepper";
-import { API, fail, ok } from "../msw/handlers";
-import { server } from "../msw/server";
 import { nav, renderPortal } from "../helpers/portal";
 
 vi.mock("next/navigation", async () => (await import("../helpers/navigation")).navigationModule);
 
 const { Dashboard } = await import("@/components/portal/dashboard");
-const { DemoVideo } = await import("@/components/portal/demo-video");
 
 beforeEach(() => nav.reset());
 
@@ -52,53 +47,5 @@ describe("PortalGate after a step change (regression)", () => {
     await screen.findByText("page");
     expect(nav.replace).not.toHaveBeenCalledWith("/onboarding");
     expect(nav.replace).not.toHaveBeenCalled();
-  });
-});
-
-describe("Demo video (US4)", () => {
-  it("Next is disabled until the video ends, then completes the demo and goes to payment", async () => {
-    let called = "";
-    server.use(
-      http.post(`${API}/onboarding/demo/complete`, () => {
-        called = "complete";
-        return ok({ step: "fee_pending", demoAction: "completed", nextStep: "exam_ready" });
-      }),
-    );
-    const user = userEvent.setup();
-    const { container } = renderPortal(<DemoVideo />, { pathname: "/onboarding", step: "demo_pending" });
-    const next = await screen.findByRole("button", { name: /Next/ });
-    expect(next).toBeDisabled();
-    const video = container.querySelector("video")!;
-    expect(video).toHaveAttribute("src", "https://cdn.test/demo.mp4");
-
-    fireEvent.ended(video);
-    expect(next).toBeEnabled();
-    await user.click(next);
-    await waitFor(() => expect(nav.push).toHaveBeenCalledWith("/payment"));
-    expect(called).toBe("complete");
-  });
-
-  it("Skip is always available and records a skip", async () => {
-    let called = "";
-    server.use(
-      http.post(`${API}/onboarding/demo/skip`, () => {
-        called = "skip";
-        return ok({ step: "fee_pending", demoAction: "skipped", nextStep: "exam_ready" });
-      }),
-    );
-    const user = userEvent.setup();
-    renderPortal(<DemoVideo />, { pathname: "/onboarding", step: "demo_pending" });
-    await user.click(await screen.findByRole("button", { name: /Skip/ }));
-    await waitFor(() => expect(nav.push).toHaveBeenCalledWith("/payment"));
-    expect(called).toBe("skip");
-  });
-
-  it("shows an error and re-enables the buttons when the API fails", async () => {
-    server.use(http.post(`${API}/onboarding/demo/skip`, () => fail(500, "INTERNAL_ERROR")));
-    const user = userEvent.setup();
-    renderPortal(<DemoVideo />, { pathname: "/onboarding", step: "demo_pending" });
-    await user.click(await screen.findByRole("button", { name: /Skip/ }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Something went wrong on our side");
-    expect(screen.getByRole("button", { name: /Skip/ })).toBeEnabled();
   });
 });

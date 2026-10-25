@@ -218,3 +218,41 @@ export interface StaffMember {
   fullName: string;
   role: "ta" | "admin";
 }
+
+/** One lesson as the candidate sees it (the video's storage key is never sent to the browser). */
+export interface LearningLesson {
+  id: string;
+  title: string;
+  sectionTitle: string;
+  sectionPosition: number;
+  position: number;
+  durationSeconds: number;
+  completed: boolean;
+  /** Where playback resumes. */
+  positionSeconds: number;
+}
+
+export interface LearningCourse {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  /** Display order; the API already returns courses sorted by it. */
+  position: number;
+  lessonCount: number;
+  completedCount: number;
+  durationSeconds: number;
+  lessons: LearningLesson[];
+}
+
+export interface LessonProgressResult {
+  lessonId: string;
+  positionSeconds: number;
+  completed: boolean;
+}
+
+export interface PlaybackLink {
+  /** Short-lived signed video link. */
+  url: string;
+  expiresAt: string;
+}

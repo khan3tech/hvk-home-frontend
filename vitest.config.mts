@@ -15,7 +15,6 @@ export default defineConfig({
     // Matches the API base used by the MSW handlers.
     env: {
       NEXT_PUBLIC_API_BASE_URL: "http://api.test",
-      NEXT_PUBLIC_DEMO_VIDEO_URL: "https://cdn.test/demo.mp4",
     },
     coverage: {
       provider: "v8",

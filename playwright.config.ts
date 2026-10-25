@@ -29,7 +29,6 @@ export default defineConfig({
     timeout: 240_000,
     env: {
       NEXT_PUBLIC_API_BASE_URL: "http://api.test",
-      NEXT_PUBLIC_DEMO_VIDEO_URL: "https://cdn.test/demo.mp4",
     },
   },
 });
