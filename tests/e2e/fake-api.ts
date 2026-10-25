@@ -82,6 +82,24 @@ export async function installFakeApi(page: Page, baseURL: string, initial: Parti
     switch (key) {
       case "GET /onboarding/status":
         return ok(route, { step: state.step, demoAction: null, nextStep: null });
+      case "GET /courses":
+        return ok(route, [
+          {
+            id: "c1",
+            title: "JavaScript",
+            slug: "javascript",
+            description: "Basics",
+            position: 1,
+            lessonCount: 1,
+            completedCount: 0,
+            durationSeconds: 60,
+            lessons: [{ id: "l1", title: "Variables", sectionTitle: "Basics", sectionPosition: 1, position: 1, durationSeconds: 60, completed: false, positionSeconds: 0 }],
+          },
+        ]);
+      case "POST /lessons/l1/play":
+        return ok(route, { url: "http://localhost:9/none.mp4", expiresAt: "2030-01-01T00:00:00Z" });
+      case "PUT /lessons/l1/progress":
+        return ok(route, { lessonId: "l1", positionSeconds: 0, completed: false });
       case "POST /onboarding/demo/skip":
       case "POST /onboarding/demo/complete":
         state.step = "fee_pending";

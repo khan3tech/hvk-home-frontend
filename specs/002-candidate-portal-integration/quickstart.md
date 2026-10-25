@@ -7,7 +7,7 @@
 2. Frontend `.env.local`:
    ```
    NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
-   NEXT_PUBLIC_DEMO_VIDEO_URL=https://…/demo.mp4
+
    ```
    then `npm run dev` → http://localhost:3000/registration
 

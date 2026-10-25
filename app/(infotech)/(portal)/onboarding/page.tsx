@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { DemoVideo } from "@/components/portal/demo-video";
+import { Learning } from "@/components/learning/learning";
 
-export const metadata: Metadata = { title: "Demo | HVK Tech Online Examination" };
+export const metadata: Metadata = { title: "Learn | HVK Tech Online Examination" };
 
 export default function OnboardingPage() {
-  return <DemoVideo />;
+  return <Learning />;
 }

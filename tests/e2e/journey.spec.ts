@@ -26,9 +26,11 @@ test("candidate journey: register → demo → pay → exam → feedback → res
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: /Create Account/ }).click();
 
-  // Demo → skip.
+  // Learning → open a course, then skip to payment.
   await expect(page).toHaveURL(/\/onboarding$/);
-  await page.getByRole("button", { name: /Skip/ }).click();
+  await page.getByRole("button", { name: "Start JavaScript" }).click();
+  await expect(page.getByRole("navigation", { name: "Course content" })).toBeVisible();
+  await page.getByRole("button", { name: "Skip to payment" }).click();
 
   // Payment via (stubbed) Razorpay Checkout, verified by the API.
   await expect(page).toHaveURL(/\/payment$/);
