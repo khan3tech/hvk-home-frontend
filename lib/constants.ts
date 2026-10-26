@@ -45,8 +45,8 @@ export const NAV_LINKS: NavLink[] = [
 
 export const SOCIAL_LINKS: SocialLink[] = [
   { label: "LinkedIn", href: COMPANY_WEBSITE_URL, icon: Linkedin },
-  { label: "Instagram", href: COMPANY_WEBSITE_URL, icon: Instagram },
-  { label: "YouTube", href: COMPANY_WEBSITE_URL, icon: Youtube },
+  { label: "Instagram", href: "https://www.instagram.com/hvk.tech_innovations", icon: Instagram },
+  { label: "YouTube", href: "https://www.youtube.com/@hvktechinnovation", icon: Youtube },
   { label: "Facebook", href: COMPANY_WEBSITE_URL, icon: Facebook },
 ];
 

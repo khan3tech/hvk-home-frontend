@@ -37,10 +37,13 @@ jobs:
           if printf '%s\n' "$changed" | grep -qx 'lib/tech-constants.ts'; then
             removed=$(git diff --unified=0 "$base...HEAD" -- lib/tech-constants.ts | awk '/^---/ { next } /^-/ { print substr($0, 2) }' | sort)
             added=$(git diff --unified=0 "$base...HEAD" -- lib/tech-constants.ts | awk '/^\+\+\+/ { next } /^\+/ { print substr($0, 2) }' | sort)
-            expected=$(printf '%s\n' '      { label: "About HVK", href: "#about" },' '  { label: "About", href: "#about" },' | sort)
+            about=$(printf '%s\n' '      { label: "About HVK", href: "#about" },' '  { label: "About", href: "#about" },' | sort)
+            # Owner-approved 2026-10-26: Instagram and YouTube point at the real HVK profiles.
+            social_old=$(printf '%s\n' '  { label: "Instagram", href: "https://www.instagram.com", icon: "instagram" },' '  { label: "YouTube", href: "https://www.youtube.com", icon: "youtube" },' | sort)
+            social_new=$(printf '%s\n' '  { label: "Instagram", href: "https://www.instagram.com/hvk.tech_innovations", icon: "instagram" },' '  { label: "YouTube", href: "https://www.youtube.com/@hvktechinnovation", icon: "youtube" },' | sort)
 
-            if [ "$removed" != "$expected" ] || [ "$added" != "$expected" ]; then
-              echo "::error::The only allowed tech-constants.ts change in portal work is moving About links to the end."
+            if { [ "$removed" != "$about" ] || [ "$added" != "$about" ]; } && { [ "$removed" != "$social_old" ] || [ "$added" != "$social_new" ]; }; then
+              echo "::error::The only allowed tech-constants.ts changes in portal work are moving About links to the end and the approved Instagram/YouTube profile links."
               exit 1
             fi
           fi
