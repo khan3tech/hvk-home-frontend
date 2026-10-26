@@ -82,9 +82,13 @@ test("session survives a reload; sign-out protects portal pages", async ({ page,
   await page.goto("/exam");
   await expect(page).toHaveURL(/\/payment$/);
 
+  // Desktop: sign out lives in the user menu. Phones: in the hamburger menu.
   const menu = page.getByRole("button", { name: "Open menu" });
-  if (await menu.isVisible()) await menu.click();
-  await page.getByRole("button", { name: "Sign out" }).first().click();
+  const account = page.getByRole("button", { name: "Account menu" });
+  await expect(menu.or(account)).toBeVisible();
+  if (await account.isVisible()) await account.click();
+  else await menu.click();
+  await page.getByRole("menuitem", { name: "Sign out" }).or(page.getByRole("button", { name: "Sign out" })).first().click();
   await expect(page).toHaveURL(/\/login/);
 
   await page.goto("/dashboard");

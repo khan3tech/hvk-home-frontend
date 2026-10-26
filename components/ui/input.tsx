@@ -15,7 +15,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {Icon ? (
           <Icon
             aria-hidden="true"
-            className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-muted dark:text-slate-500"
+            className="pointer-events-none absolute left-3.5 top-6 h-4.5 w-4.5 -translate-y-1/2 text-muted dark:text-slate-500"
           />
         ) : null}
         <input

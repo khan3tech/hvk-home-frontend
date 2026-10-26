@@ -16,9 +16,9 @@ export default function RegistrationPage() {
       <HeroCarousel />
       <RegistrationHashOpener />
       <ServicesSection />
-      <AboutSection />
       <TestimonialsSection />
       <CtaSection />
+      <AboutSection />
     </>
   );
 }
