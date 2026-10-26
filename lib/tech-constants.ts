@@ -18,11 +18,11 @@ export const TECH_NAV_LINKS: NavLink[] = [
   { label: "About", href: "#about" },
 ];
 
-// Placeholder profile URLs — replace with HVK's real social accounts.
+// Official profiles: Instagram and YouTube are set; LinkedIn and X are still placeholders.
 export const TECH_SOCIAL_LINKS = [
   { label: "LinkedIn", href: "https://www.linkedin.com", icon: "linkedin" },
-  { label: "Instagram", href: "https://www.instagram.com", icon: "instagram" },
-  { label: "YouTube", href: "https://www.youtube.com", icon: "youtube" },
+  { label: "Instagram", href: "https://www.instagram.com/hvk.tech_innovations", icon: "instagram" },
+  { label: "YouTube", href: "https://www.youtube.com/@hvktechinnovation", icon: "youtube" },
   { label: "X", href: "https://x.com", icon: "x" },
 ] as const;
 
