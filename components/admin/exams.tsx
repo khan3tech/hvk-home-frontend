@@ -5,12 +5,14 @@ import { Loader2, Plus, Send, Trash2 } from "lucide-react";
 import { adminExamApi, type AdminExam, type AdminExamAttempt, type AdminExamDraft, type AdminExamInvitation } from "@/lib/api/admin-exams";
 import { errorMessage } from "@/lib/api/client";
 import { parseQuestionJson, questionJsonHint } from "@/lib/exam/question-import";
+import { QUESTION_FILE_ACCEPT, questionsFromFile } from "@/lib/exam/question-file";
 import { Button } from "@/components/ui/button";
 import { AdminShell, StatusBadge, cardClass } from "./admin-shell";
 
 type Question = AdminExamDraft["questions"][number];
 type DraftForm = Omit<AdminExamDraft, "description" | "eligibleCandidateIds" | "passingMode" | "passingPercentage" | "passingMarks"> & { description: string; eligibleCandidateIdsText: string; passingMode: "PERCENTAGE" | "MARKS"; passingValue: number };
 
+const questionFileHint = 'PDF/TXT layout: "1. Question", options "A." to "D.", then "Correct answer: A". Replaces the questions in this draft.';
 const inputClass = "mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-navy focus:border-primary-blue focus:outline-none focus:ring-2 focus:ring-primary-blue/20 dark:border-white/10 dark:bg-dark-surface-alt dark:text-white";
 const todayIST = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date());
 const uid = () => globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -92,6 +94,23 @@ export function AdminExams() {
     }
   }
 
+  async function importFile(event: React.ChangeEvent<HTMLInputElement>) {
+    const input = event.target;
+    const file = input.files?.[0];
+    if (!file) return;
+    setError(null); setMessage(null); setBusy(true);
+    try {
+      const questions = (await questionsFromFile(file)) as Question[];
+      setDraft((current) => ({ ...current, questions }));
+      setMessage(`${questions.length} question${questions.length === 1 ? "" : "s"} imported from ${file.name}. Review them before saving.`);
+    } catch (err) {
+      setError(err instanceof SyntaxError ? "Invalid JSON file. Check the commas, quotes, and brackets." : err instanceof Error ? err.message : errorMessage(err));
+    } finally {
+      setBusy(false);
+      input.value = ""; // allow choosing the same file again
+    }
+  }
+
   async function saveDraft() {
     setBusy(true); setMessage(null); setError(null);
     try {
@@ -157,7 +176,7 @@ export function AdminExams() {
 
         <div className="mt-6 space-y-4">
           <div className="flex items-center justify-between"><h3 className="font-bold text-navy dark:text-white">Questions</h3><Button size="sm" variant="outline" onClick={() => setDraft((current) => ({ ...current, questions: [...current.questions, newQuestion()] }))}><Plus className="h-4 w-4" /> Add question</Button></div>
-          <details open className="rounded-lg border border-slate-200 p-3 dark:border-white/10"><summary className="cursor-pointer text-sm font-semibold text-navy dark:text-white">Bulk import all questions from JSON</summary><label className="mt-3 block text-sm text-muted">Paste a JSON array or an object with a questions array<textarea className={`${inputClass} min-h-36 font-mono text-xs`} value={jsonImport} onChange={(event) => setJsonImport(event.target.value)} placeholder={questionJsonHint} /></label><Button className="mt-3" size="sm" variant="outline" onClick={importQuestions} disabled={!jsonImport.trim()}>Import questions</Button></details>
+          <details open className="rounded-lg border border-slate-200 p-3 dark:border-white/10"><summary className="cursor-pointer text-sm font-semibold text-navy dark:text-white">Bulk import all questions (PDF, text or JSON)</summary><label className="mt-3 block text-sm text-muted">Upload a PDF, TXT or JSON file<input type="file" accept={QUESTION_FILE_ACCEPT} onChange={(event) => void importFile(event)} disabled={busy} className="mt-1 block w-full text-sm text-navy file:mr-3 file:rounded-lg file:border-0 file:bg-light-blue file:px-3 file:py-2 file:text-sm file:font-semibold file:text-primary-blue dark:text-slate-200" /></label><p className="mt-1 text-xs text-muted">{questionFileHint}</p><label className="mt-3 block text-sm text-muted">Or paste a JSON array or an object with a questions array<textarea className={`${inputClass} min-h-36 font-mono text-xs`} value={jsonImport} onChange={(event) => setJsonImport(event.target.value)} placeholder={questionJsonHint} /></label><Button className="mt-3" size="sm" variant="outline" onClick={importQuestions} disabled={!jsonImport.trim()}>Import questions</Button></details>
           {draft.questions.map((question, questionIndex) => <fieldset key={question.id} className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
             <legend className="px-1 text-sm font-bold text-navy dark:text-white">Question {questionIndex + 1}</legend>
             <label className="block text-sm font-semibold text-navy dark:text-white">Question text<textarea className={inputClass} rows={3} value={question.prompt} onChange={(event) => patchQuestion(questionIndex, { prompt: event.target.value })} /></label>
