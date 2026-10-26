@@ -4,14 +4,19 @@ import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
+import { AuthLink } from "@/components/auth/auth-link";
 import { buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { HeaderAuth } from "@/components/layout/header-auth";
+import { useSession } from "@/lib/session/session-provider";
 import { NAV_LINKS, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 export function Header() {
   const [scrolled, setScrolled] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  // Signed-in users already have an account: hide "Join Us" (it also overflowed the header).
+  const showRegister = useSession().status !== "authenticated";
 
   React.useEffect(() => {
     function handleScroll() {
@@ -32,10 +37,10 @@ export function Header() {
       )}
     >
       <div className="container flex h-[72px] items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/registration" className="flex items-center gap-3">
           <Image
             src="/images/hvk-logo.png"
-            alt="HVK Infotech logo"
+            alt="HVK Tech Online Examination logo"
             width={48}
             height={48}
             priority
@@ -69,13 +74,18 @@ export function Header() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
 
-          <Link
-            href="/#registration"
-            className={cn(buttonVariants({ variant: "primary" }), "hidden lg:inline-flex")}
-          >
-            Register Now
-            <span aria-hidden="true">→</span>
-          </Link>
+          <HeaderAuth variant="desktop" />
+
+          {showRegister ? (
+            <AuthLink
+              view="register"
+              href="/registration#registration"
+              className={cn(buttonVariants({ variant: "primary" }), "hidden lg:inline-flex")}
+            >
+              Join Us
+              <span aria-hidden="true">→</span>
+            </AuthLink>
+          ) : null}
 
           <button
             type="button"
@@ -111,13 +121,17 @@ export function Header() {
               {link.label}
             </Link>
           ))}
-          <Link
-            href="/#registration"
-            onClick={() => setMobileOpen(false)}
-            className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-bright-blue px-5 py-3 text-sm font-semibold text-white hover:bg-primary-blue"
-          >
-            Register Now →
-          </Link>
+          <HeaderAuth variant="mobile" onNavigate={() => setMobileOpen(false)} />
+          {showRegister ? (
+            <AuthLink
+              view="register"
+              href="/registration#registration"
+              onNavigate={() => setMobileOpen(false)}
+              className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-bright-blue px-5 py-3 text-sm font-semibold text-white hover:bg-primary-blue"
+            >
+              Join Us →
+            </AuthLink>
+          ) : null}
         </nav>
       </div>
     </header>

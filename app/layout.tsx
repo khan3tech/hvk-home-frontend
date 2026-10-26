@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AnnouncementBar } from "@/components/layout/announcement-bar";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({
@@ -16,17 +13,17 @@ const siteUrl = "https://www.hvkinfotech.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "HVK Infotech | Innovate • Build • Grow",
+  title: "HVK Tech Online Examination | Innovate • Build • Grow",
   description:
-    "HVK Infotech provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
+    "HVK Tech Online Examination provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
   keywords: [
-    "HVK Infotech",
+    "HVK Tech Online Examination",
     "training and certification",
     "internship programs",
     "placement assistance",
     "career guidance",
   ],
-  authors: [{ name: "HVK Infotech" }],
+  authors: [{ name: "HVK Tech Online Examination" }],
   icons: {
     icon: "/images/hvk-logo.png",
     shortcut: "/images/hvk-logo.png",
@@ -35,24 +32,24 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: siteUrl,
-    siteName: "HVK Infotech",
-    title: "HVK Infotech | Innovate • Build • Grow",
+    siteName: "HVK Tech Online Examination",
+    title: "HVK Tech Online Examination | Innovate • Build • Grow",
     description:
-      "HVK Infotech provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
+      "HVK Tech Online Examination provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
     images: [
       {
         url: "/images/hvk-logo.png",
         width: 512,
         height: 512,
-        alt: "HVK Infotech",
+        alt: "HVK Tech Online Examination",
       },
     ],
   },
   twitter: {
     card: "summary",
-    title: "HVK Infotech | Innovate • Build • Grow",
+    title: "HVK Tech Online Examination | Innovate • Build • Grow",
     description:
-      "HVK Infotech provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
+      "HVK Tech Online Examination provides practical training, internships, career guidance, placement assistance, workshops and technology solutions.",
     images: ["/images/hvk-logo.png"],
   },
   robots: {
@@ -76,12 +73,7 @@ export default function RootLayout({
           >
             Skip to main content
           </a>
-          <AnnouncementBar />
-          <Header />
-          <main id="main-content" className="flex-1">
-            {children}
-          </main>
-          <Footer />
+          {children}
         </ThemeProvider>
       </body>
     </html>

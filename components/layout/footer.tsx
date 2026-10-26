@@ -41,10 +41,10 @@ export function Footer() {
     <footer className="bg-light-blue text-ink dark:bg-navy dark:text-white" id="contact">
       <div className="container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
         <div className="sm:col-span-2 lg:col-span-1">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/registration" className="flex items-center gap-3">
             <Image
               src="/images/hvk-logo.png"
-              alt="HVK Infotech logo"
+              alt="HVK Tech Online Examination logo"
               width={44}
               height={44}
               className="h-11 w-11 rounded-full object-cover"
@@ -112,7 +112,7 @@ export function Footer() {
 
       <div className="border-t border-navy/10 dark:border-white/10">
         <div className="container flex flex-col items-center justify-between gap-3 py-5 text-xs text-muted dark:text-white/60 sm:flex-row">
-          <p>© 2026 HVK Infotech. All rights reserved.</p>
+          <p>© 2026 HVK Tech Online Examination. All rights reserved.</p>
           <div className="flex items-center gap-5">
             <Link href="/privacy-policy" className="hover:text-bright-blue">
               Privacy Policy

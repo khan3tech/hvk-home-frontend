@@ -7,8 +7,12 @@ import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { AuthLink } from "@/components/auth/auth-link";
 import { HERO_SLIDES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+
+const heroCtaClass =
+  "mt-8 inline-flex items-center gap-2 rounded-lg bg-bright-blue px-6 py-3.5 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-primary-blue";
 
 export function HeroCarousel() {
   const [autoplay] = React.useState(() =>
@@ -70,6 +74,8 @@ export function HeroCarousel() {
               aria-roledescription="slide"
               aria-label={`${index + 1} of ${HERO_SLIDES.length}`}
               aria-hidden={selectedIndex !== index}
+              // Off-screen slides must not be reachable by keyboard (WCAG aria-hidden-focus).
+              inert={selectedIndex !== index}
             >
               <Image
                 src={slide.image}
@@ -117,13 +123,17 @@ export function HeroCarousel() {
                   <p className="mt-4 max-w-xl text-base leading-relaxed text-white/75">
                     {slide.description}
                   </p>
-                  <Link
-                    href={slide.ctaHref}
-                    className="mt-8 inline-flex items-center gap-2 rounded-lg bg-bright-blue px-6 py-3.5 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-primary-blue"
-                  >
-                    {slide.ctaLabel}
-                    <span aria-hidden="true">→</span>
-                  </Link>
+                  {slide.ctaHref.endsWith("#registration") ? (
+                    <AuthLink view="register" href={slide.ctaHref} className={heroCtaClass}>
+                      {slide.ctaLabel}
+                      <span aria-hidden="true">→</span>
+                    </AuthLink>
+                  ) : (
+                    <Link href={slide.ctaHref} className={heroCtaClass}>
+                      {slide.ctaLabel}
+                      <span aria-hidden="true">→</span>
+                    </Link>
+                  )}
                 </motion.div>
               </div>
             </div>

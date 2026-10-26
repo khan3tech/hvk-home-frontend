@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AuthLink } from "@/components/auth/auth-link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -14,13 +14,14 @@ export function CtaSection() {
             Join thousands of students who are already on the path to success.
           </p>
         </div>
-        <Link
+        <AuthLink
+          view="register"
           href="#registration"
           className={cn(buttonVariants({ variant: "primary", size: "lg" }), "shrink-0")}
         >
-          Register Now
+          Join Us
           <span aria-hidden="true">→</span>
-        </Link>
+        </AuthLink>
       </div>
     </section>
   );
