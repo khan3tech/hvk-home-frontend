@@ -78,7 +78,7 @@ const SearchableSelect = React.forwardRef<
     <div className="relative" ref={containerRef}>
       <MapPin
         aria-hidden="true"
-        className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-muted dark:text-slate-500"
+        className="pointer-events-none absolute left-3.5 top-6 h-4.5 w-4.5 -translate-y-1/2 text-muted dark:text-slate-500"
       />
       <input
         id={id}
@@ -112,7 +112,7 @@ const SearchableSelect = React.forwardRef<
       <ChevronDown
         aria-hidden="true"
         className={cn(
-          "pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted transition-transform dark:text-slate-500",
+          "pointer-events-none absolute right-3.5 top-6 h-4 w-4 -translate-y-1/2 text-muted transition-transform dark:text-slate-500",
           open && "rotate-180"
         )}
       />

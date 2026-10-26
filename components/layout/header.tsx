@@ -6,7 +6,6 @@ import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { AuthLink } from "@/components/auth/auth-link";
 import { buttonVariants } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { HeaderAuth } from "@/components/layout/header-auth";
 import { useSession } from "@/lib/session/session-provider";
 import { NAV_LINKS, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
@@ -72,8 +71,6 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <ThemeToggle />
-
           <HeaderAuth variant="desktop" />
 
           {showRegister ? (
