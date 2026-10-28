@@ -54,7 +54,7 @@ describe("sign-in / create-account popup", () => {
 
     const dialog = signInDialog();
     expect(within(dialog).getByLabelText(/Email or mobile/)).toBeInTheDocument();
-    expect(within(dialog).getByRole("tab", { name: "Mobile OTP" })).toBeInTheDocument();
+    expect(within(dialog).getByRole("tab", { name: "Mobile number" })).toBeInTheDocument();
     expect(nav.push).not.toHaveBeenCalled();
     expect(nav.replace).not.toHaveBeenCalled();
   });
