@@ -193,7 +193,7 @@ export function AdminExams() {
             <div className="mt-4 flex justify-end"><Button size="sm" variant="outline" disabled={draft.questions.length <= 1} onClick={() => setDraft((current) => ({ ...current, questions: current.questions.filter((_, index) => index !== questionIndex) }))}><Trash2 className="h-4 w-4" /> Remove question</Button></div>
           </fieldset>)}
         </div>
-        <div className="mt-5 flex flex-wrap gap-2"><Button onClick={() => void saveDraft()} disabled={busy || !draft.title.trim()}><Plus className="h-4 w-4" /> {editingId ? "Save draft" : "Create draft"}</Button>{editingId ? <Button variant="outline" onClick={() => { setEditingId(null); setDraft(blankDraft()); }}>Cancel edit</Button> : null}</div>
+        <div className="mt-5 flex flex-wrap items-center gap-2"><Button onClick={() => void saveDraft()} disabled={busy || !draft.title.trim()}><Plus className="h-4 w-4" /> {editingId ? "Save draft" : "Create draft"}</Button>{!draft.title.trim() ? <span className="text-xs text-muted">Enter the exam title above to enable this button.</span> : null}{editingId ? <Button variant="outline" onClick={() => { setEditingId(null); setDraft(blankDraft()); }}>Cancel edit</Button> : null}</div>
       </section>
       <section className={cardClass}>
         <div className="flex items-center justify-between"><div><h2 className="text-lg font-bold text-navy dark:text-white">Examinations</h2><p className="mt-1 text-sm text-muted">Publish invitations, review attempts, and manage result visibility.</p></div><button type="button" onClick={() => void load()} className="text-sm font-semibold text-primary-blue">Refresh</button></div>
