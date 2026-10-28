@@ -83,7 +83,7 @@ export function LoginPanel({ onSignedIn, onCreateAccount }: { onSignedIn: (r: Au
               mode === m ? "bg-white text-navy shadow-sm dark:bg-dark-surface dark:text-white" : "text-muted hover:text-navy dark:text-slate-400",
             )}
           >
-            {m === "password" ? "Password" : "Mobile OTP"}
+            {m === "password" ? "Email" : "Mobile number"}
           </button>
         ))}
       </div>

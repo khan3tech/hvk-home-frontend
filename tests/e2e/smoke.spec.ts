@@ -40,3 +40,15 @@ test("the registration popup fits on a laptop screen without a scrollbar", async
   const overflow = await dialog.evaluate((el) => el.scrollHeight - el.clientHeight);
   expect(overflow).toBeLessThanOrEqual(1);
 });
+
+test("a service card opens its detail page, and the footer links to it too", async ({ page }) => {
+  await page.goto("/registration");
+  await page.locator("#services").getByRole("link", { name: "Placement Assistance" }).click();
+  await expect(page).toHaveURL(/\/services\/placement-assistance$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Placement Assistance" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Explore our other services" })).toBeVisible();
+  await page.getByRole("link", { name: "Career Guidance" }).first().click();
+  await expect(page).toHaveURL(/\/services\/career-guidance$/);
+  await page.goto("/services/not-a-service");
+  await expect(page.getByText(/not found|404/i).first()).toBeVisible();
+});
