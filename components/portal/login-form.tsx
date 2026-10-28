@@ -23,6 +23,7 @@ import {
   type OtpPhoneInput,
 } from "@/lib/validations";
 import { cn } from "@/lib/utils";
+import { mobileOtpEnabled } from "@/lib/features";
 import { AuthCard } from "./auth-card";
 import { FieldLabel, FormMessage, PasswordInput } from "./form-field";
 
@@ -67,28 +68,32 @@ export function LoginForm() {
  */
 export function LoginPanel({ onSignedIn, onCreateAccount }: { onSignedIn: (r: AuthResult) => void; onCreateAccount: () => void }) {
   const [mode, setMode] = React.useState<Mode>("password");
+  // Mobile OTP is switched off until SMS delivery is live (see lib/features.ts): email + password only.
+  const otpEnabled = mobileOtpEnabled();
 
   return (
     <>
-      <div role="tablist" aria-label="Sign-in method" className="mb-6 grid grid-cols-2 rounded-lg bg-light-blue/50 p-1 dark:bg-dark-surface-alt">
-        {(["password", "otp"] as const).map((m) => (
-          <button
-            key={m}
-            type="button"
-            role="tab"
-            aria-selected={mode === m}
-            onClick={() => setMode(m)}
-            className={cn(
-              "rounded-md py-2 text-sm font-semibold transition-colors",
-              mode === m ? "bg-white text-navy shadow-sm dark:bg-dark-surface dark:text-white" : "text-muted hover:text-navy dark:text-slate-400",
-            )}
-          >
-            {m === "password" ? "Email" : "Mobile number"}
-          </button>
-        ))}
-      </div>
+      {otpEnabled ? (
+        <div role="tablist" aria-label="Sign-in method" className="mb-6 grid grid-cols-2 rounded-lg bg-light-blue/50 p-1 dark:bg-dark-surface-alt">
+          {(["password", "otp"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              role="tab"
+              aria-selected={mode === m}
+              onClick={() => setMode(m)}
+              className={cn(
+                "rounded-md py-2 text-sm font-semibold transition-colors",
+                mode === m ? "bg-white text-navy shadow-sm dark:bg-dark-surface dark:text-white" : "text-muted hover:text-navy dark:text-slate-400",
+              )}
+            >
+              {m === "password" ? "Email" : "Mobile number"}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
-      {mode === "password" ? <PasswordLogin onSignedIn={onSignedIn} /> : <OtpLogin onSignedIn={onSignedIn} />}
+      {mode === "password" || !otpEnabled ? <PasswordLogin onSignedIn={onSignedIn} /> : <OtpLogin onSignedIn={onSignedIn} />}
 
       <p className="mt-6 text-center text-sm text-muted dark:text-slate-400">
         New here?{" "}
