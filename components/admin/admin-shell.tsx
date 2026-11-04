@@ -21,7 +21,7 @@ export function AdminShell({ title, children }: { title: string; children: React
       <div className="container">
         <span className="text-xs font-bold uppercase tracking-[0.15em] text-primary-blue dark:text-bright-blue">TA dashboard</span>
         <PageHeading className="mt-2 text-2xl font-extrabold text-navy dark:text-white">{title}</PageHeading>
-        <nav aria-label="TA sections" className="mt-4 flex gap-2 border-b border-slate-200 dark:border-white/10">
+        <nav aria-label="TA sections" className="mt-4 flex gap-2 overflow-x-auto border-b border-slate-200 dark:border-white/10">
           {TABS.map((t) => {
             const active = pathname.startsWith(t.href);
             return (
@@ -30,7 +30,7 @@ export function AdminShell({ title, children }: { title: string; children: React
                 href={t.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "-mb-px border-b-2 px-3 py-2 text-sm font-semibold",
+                  "-mb-px shrink-0 whitespace-nowrap border-b-2 px-3 py-2 text-sm font-semibold",
                   active ? "border-bright-blue text-navy dark:text-white" : "border-transparent text-muted hover:text-navy dark:text-slate-400",
                 )}
               >
