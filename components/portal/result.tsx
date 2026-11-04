@@ -1,10 +1,8 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { Award, Clock, Loader2 } from "lucide-react";
 import type { Result as ResultDTO } from "@/types/api";
-import { buttonVariants } from "@/components/ui/button";
 import { portalApi } from "@/lib/api/portal";
 import { errorMessage } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
@@ -20,9 +18,6 @@ export function ThankYou() {
           Your exam is complete. Your result will be emailed to you within 24 hours of finishing the exam, and it
           will also appear on your result page.
         </p>
-        <Link href="/result" className={cn(buttonVariants({ variant: "primary" }), "mt-6")}>
-          View result status
-        </Link>
       </div>
     </PageShell>
   );
