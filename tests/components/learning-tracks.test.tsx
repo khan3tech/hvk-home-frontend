@@ -42,6 +42,8 @@ const track = (slug: string, title: string, courses: LearningCourse[], over: Par
   slug,
   description: `${title} path`,
   position: 1,
+  domain: "",
+  domainPosition: 0,
   available: courses.some((c) => !c.comingSoon),
   selected: false,
   courseCount: courses.length,
@@ -101,6 +103,18 @@ describe("Learning with tracks", () => {
     expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual(["Frontend Developer", "Full Stack Developer", "AI Engineer"]);
     expect(screen.getByRole("button", { name: "Choose Frontend Developer" })).toBeEnabled();
     expect(screen.queryByRole("button", { name: /Start HTML/ })).toBeNull(); // no flat course list
+  });
+
+  it("groups pathways under their domain heading", async () => {
+    const mern = track("mern", "MERN Stack", [html(), js()], { domain: "Full Stack Development", domainPosition: 1 });
+    const mean = track("mean", "MEAN Stack", [html(), node()], { domain: "Full Stack Development", domainPosition: 1 });
+    const angular = track("angular", "Angular", [html(), node()], { domain: "Frontend Development", domainPosition: 2 });
+    serve({ tracks: [mern, mean, angular], byTrack: { mern: [html(), js()], mean: [html(), node()], angular: [html(), node()] } });
+    renderPortal(<Learning />, { pathname: "/onboarding", step: "demo_pending" });
+    const fullStack = (await screen.findByRole("region", { name: "Full Stack Development" })) as HTMLElement;
+    expect(within(fullStack).getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual(["MERN Stack", "MEAN Stack"]);
+    const frontend = screen.getByRole("region", { name: "Frontend Development" });
+    expect(within(frontend).getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual(["Angular"]);
   });
 
   it("shows a track without videos as Coming soon and cannot be chosen", async () => {

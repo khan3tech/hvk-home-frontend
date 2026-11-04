@@ -264,7 +264,10 @@ export interface LearningTrack {
   slug: string;
   description: string;
   position: number;
-  /** False while none of its courses has videos ("Coming soon"): it cannot be chosen. */
+  /** The domain heading it is grouped under (empty when it stands alone), and that heading's order. */
+  domain: string;
+  domainPosition: number;
+  /** False while none of its courses has videos ("Coming soon") or it is held back: it cannot be chosen. */
   available: boolean;
   /** The track this user chose. */
   selected: boolean;

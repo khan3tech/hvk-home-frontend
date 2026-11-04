@@ -1,11 +1,12 @@
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatTotal } from "@/lib/learning";
+import { groupTracks } from "@/lib/track-groups";
 import { trackArt } from "@/lib/track-art";
 import type { LearningTrack } from "@/types/api";
 
 /** "Choose your learning path": one card per track. A track without videos yet is shown as Coming soon and cannot be chosen. */
-export function TrackList({ tracks, busyId, onChoose }: { tracks: LearningTrack[]; busyId: string | null; onChoose: (track: LearningTrack) => void }) {
+function TrackCards({ tracks, busyId, onChoose, Heading }: { tracks: LearningTrack[]; busyId: string | null; onChoose: (track: LearningTrack) => void; Heading: "h2" | "h3" }) {
   return (
     <ul className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
       {tracks.map((track) => {
@@ -30,7 +31,7 @@ export function TrackList({ tracks, busyId, onChoose }: { tracks: LearningTrack[
               ) : null}
             </div>
             <div className="flex flex-1 flex-col p-5">
-              <h2 className="text-lg font-bold text-navy dark:text-white">{track.title}</h2>
+              <Heading className="text-lg font-bold text-navy dark:text-white">{track.title}</Heading>
               {track.description ? <p className="mt-1 text-sm leading-relaxed text-muted dark:text-slate-400">{track.description}</p> : null}
               <p className="mt-3 text-xs text-muted dark:text-slate-400">
                 {track.courseCount} course{track.courseCount === 1 ? "" : "s"}
@@ -75,5 +76,24 @@ export function TrackList({ tracks, busyId, onChoose }: { tracks: LearningTrack[
         );
       })}
     </ul>
+  );
+}
+
+/** "Choose your learning path": pathways grouped under their domain (for example Full Stack Development > MERN, MEAN). */
+export function TrackList({ tracks, busyId, onChoose }: { tracks: LearningTrack[]; busyId: string | null; onChoose: (track: LearningTrack) => void }) {
+  const groups = groupTracks(tracks);
+  return (
+    <div className="space-y-10">
+      {groups.map((group) => (
+        <section key={group.domain || "other"} aria-labelledby={group.domain ? `domain-${group.domain.replace(/\W+/g, "-")}` : undefined}>
+          {group.domain ? (
+            <h2 id={`domain-${group.domain.replace(/\W+/g, "-")}`} className="mb-4 border-l-4 border-bright-blue pl-3 text-xl font-extrabold text-navy dark:text-white">
+              {group.domain}
+            </h2>
+          ) : null}
+          <TrackCards tracks={group.tracks} busyId={busyId} onChoose={onChoose} Heading={group.domain ? "h3" : "h2"} />
+        </section>
+      ))}
+    </div>
   );
 }
