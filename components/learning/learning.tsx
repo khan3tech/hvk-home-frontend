@@ -2,8 +2,9 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ArrowLeft, ArrowRight, Shuffle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { learningApi } from "@/lib/api/learning";
 import { portalApi } from "@/lib/api/portal";
 import { errorMessage } from "@/lib/api/client";
@@ -21,7 +22,7 @@ import { TrackList } from "./track-list";
  * The learning step. With tracks set up: choose a track, then see only its courses and a player with a
  * content sidebar. Without tracks: every course. Continuing to payment is always possible.
  */
-export function Learning() {
+export function Learning({ hub = false }: { hub?: boolean } = {}) {
   const router = useRouter();
   const [tracks, setTracks] = React.useState<LearningTrack[] | null>(null);
   const [courses, setCourses] = React.useState<LearningCourse[] | null>(null);
@@ -110,17 +111,18 @@ export function Learning() {
   const showChooser = hasTracks && choosing;
   const loaded = loadError !== null || showChooser || courses !== null;
 
-  const title = showChooser ? "Choose your learning path" : active ? active.lesson.title : current ? current.title : "Learn before you start";
+  const title = showChooser ? "Choose your learning path" : active ? active.lesson.title : current ? current.title : hub ? "My learning" : "Learn before you start";
+  const later = hub ? "" : " You can continue to payment at any time.";
   const intro = showChooser
-    ? "Pick the career track you want to follow. You will see only its courses, and you can change track later. You can continue to payment at any time."
+    ? `Pick the career track you want to follow. You will see only its courses, and you can change track later.${later}`
     : active
       ? `${active.course.title} · ${active.lesson.sectionTitle}`
       : current
-        ? current.description || "Watch the courses of your track in any order, or skip ahead. You can continue to payment at any time."
-        : "Watch the courses in any order, or skip ahead. You can continue to payment at any time.";
+        ? current.description || `Watch the courses of your track in any order.${later}`
+        : `Watch the courses in any order.${later}`;
 
   return (
-    <PageShell eyebrow="Step 2 of 6" title={title} intro={intro} width="max-w-6xl">
+    <PageShell eyebrow={hub ? "My learning" : "Step 2 of 6"} title={title} intro={intro} width="max-w-6xl">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         {showChooser ? (
           current ? (
@@ -144,10 +146,16 @@ export function Learning() {
         ) : (
           <span />
         )}
-        <Button onClick={() => void proceed()} disabled={busy || !loaded}>
-          {busy ? "Continuing..." : finished ? "Continue to payment" : "Skip to payment"}
-          <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </Button>
+        {hub ? (
+          <Link href="/dashboard" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            Back to dashboard
+          </Link>
+        ) : (
+          <Button onClick={() => void proceed()} disabled={busy || !loaded}>
+            {busy ? "Continuing..." : finished ? "Continue to payment" : "Skip to payment"}
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Button>
+        )}
       </div>
       <FormMessage>{error}</FormMessage>
 

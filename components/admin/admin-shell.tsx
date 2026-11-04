@@ -7,6 +7,7 @@ import { PageHeading } from "@/components/portal/page-heading";
 
 const TABS = [
   { href: "/admin/leads", label: "Leads" },
+  { href: "/admin/payments", label: "Payments" },
   { href: "/admin/follow-ups", label: "Payment follow-ups" },
   { href: "/admin/exams", label: "Examinations" },
 ];

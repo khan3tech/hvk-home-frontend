@@ -86,6 +86,44 @@ export interface CheckoutOptions {
   prefill: { name: string; email: string; contact: string };
 }
 
+/** How candidates pay: online (Razorpay) or manually, with staff approving payments received outside the app. */
+export interface PaymentConfig {
+  mode: "razorpay" | "manual";
+  feeMinor: number;
+  currency: string;
+  /** Manual mode: how and where to pay. */
+  instructions: string;
+}
+
+export const MANUAL_METHODS = ["cash", "upi_qr", "bank_transfer", "other"] as const;
+export type ManualMethod = (typeof MANUAL_METHODS)[number];
+
+/** A registered candidate with no approved payment yet. */
+export interface PendingCandidate {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  college: string | null;
+  city: string | null;
+  step: string;
+  registeredAt: string | null;
+}
+
+export interface ManualApproval {
+  id: string;
+  candidateId: string;
+  candidateName: string;
+  amountMinor: number;
+  currency: string;
+  method: ManualMethod | null;
+  reference: string | null;
+  note: string | null;
+  approvedAt: string | null;
+  /** Name of the staff member who approved it. */
+  approvedBy: string | null;
+}
+
 export interface CreateOrderResult {
   payment: Payment;
   checkout: CheckoutOptions;

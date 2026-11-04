@@ -21,6 +21,15 @@ describe("journey routing", () => {
     expect(redirectForStep(path, step)).toBe(target);
   });
 
+  it("opens the course videos only once the fee is paid", () => {
+    for (const step of ["registered", "demo_pending", "fee_pending"] as const) {
+      expect(redirectForStep("/learning", step), step).toBe(STEP_ROUTE[step]);
+    }
+    for (const step of ["exam_ready", "exam_in_progress", "exam_completed", "feedback_submitted", "completed"] as const) {
+      expect(redirectForStep("/learning", step), step).toBeNull();
+    }
+  });
+
   it.each([
     ["/payment", "fee_pending"],
     ["/exam", "exam_in_progress"],
