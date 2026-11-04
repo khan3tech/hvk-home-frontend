@@ -5,6 +5,7 @@ import { ArrowRight, Menu, X } from "lucide-react";
 import { TECH_NAV_LINKS } from "@/lib/tech-constants";
 import { cn } from "@/lib/utils";
 import { TechBrand } from "./tech-brand";
+import { TalkToUs } from "./tech-contact-modal";
 import { techButtonClass } from "./tech-ui";
 
 export function TechHeader() {
@@ -61,9 +62,9 @@ export function TechHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <a href="#contact" className={cn(techButtonClass, "hidden sm:inline-flex")}>
+          <TalkToUs className={cn(techButtonClass, "hidden sm:inline-flex")}>
             Let&apos;s Talk <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </a>
+          </TalkToUs>
           <button
             type="button"
             className="rounded-full border border-white/20 p-2.5 text-white md:hidden"
