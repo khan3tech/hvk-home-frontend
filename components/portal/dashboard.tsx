@@ -34,7 +34,8 @@ export function Dashboard() {
   const manual = config?.mode === "manual";
   const waiting = manual && WAITING_STEPS.includes(step);
   // The videos open once the fee is paid (reached exam_ready); in online mode they are also offered before payment as the demo.
-  const showVideos = stepIndex(step) >= stepIndex("exam_ready");
+  // In manual mode the first video of every course is a free preview, so the button shows from registration on.
+  const showVideos = stepIndex(step) >= stepIndex("exam_ready") || manual;
 
   return (
     <PageShell eyebrow="My dashboard" title={`Welcome, ${candidate?.fullName.split(" ")[0] ?? "there"}`} intro={waiting ? MANUAL_HINT : HINTS[step]}>
@@ -45,7 +46,7 @@ export function Dashboard() {
         </Link>
         {showVideos ? (
           <Link href={LEARNING_PAGE} className={cn(buttonVariants({ variant: "outline" }))}>
-            <PlayCircle className="h-4 w-4" aria-hidden="true" /> Course videos
+            <PlayCircle className="h-4 w-4" aria-hidden="true" /> {waiting ? "Free preview videos" : "Course videos"}
           </Link>
         ) : null}
         <Link href="/profile" className={cn(buttonVariants({ variant: "ghost" }))}>

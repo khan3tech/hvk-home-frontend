@@ -268,6 +268,8 @@ export interface LearningLesson {
   completed: boolean;
   /** Where playback resumes. */
   positionSeconds: number;
+  /** First video of its course: free to watch before the payment is approved (manual-payment mode). */
+  preview: boolean;
 }
 
 export interface LearningCourse {
