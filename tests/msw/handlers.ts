@@ -1,4 +1,4 @@
-import { HttpResponse, type RequestHandler } from "msw";
+import { http, HttpResponse, type RequestHandler } from "msw";
 import type { AuthResult, Candidate, OnboardingStep, Role } from "@/types/api";
 
 /** Base URL the app is configured with in tests (vitest.config.ts → NEXT_PUBLIC_API_BASE_URL). */
@@ -45,4 +45,7 @@ export function authResult(opts: { role?: Role; step?: OnboardingStep; token?: s
 }
 
 /** Handlers active in every test; individual tests add more with `server.use(...)`. */
-export const defaultHandlers: RequestHandler[] = [];
+export const defaultHandlers: RequestHandler[] = [
+  // Online payment unless a test says otherwise.
+  http.get(`${API}/payments/config`, () => ok({ mode: "razorpay", feeMinor: 49900, currency: "INR", instructions: "" })),
+];

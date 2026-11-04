@@ -4,6 +4,7 @@ import type {
   Exam,
   OnboardingStatus,
   Payment,
+  PaymentConfig,
   Result,
   VerifyPaymentResult,
   ManagedExamInvite,
@@ -39,6 +40,8 @@ export const portalApi = {
   verifyPayment: (response: CheckoutResponse) =>
     apiFetch<VerifyPaymentResult>("/payments/verify", { method: "POST", body: response }),
   myPayments: () => apiFetch<Payment[]>("/payments/me"),
+  /** Whether payment is online or approved by staff, and how to pay in the manual case. */
+  paymentConfig: () => apiFetch<PaymentConfig>("/payments/config"),
 
   currentExam: () => apiFetch<Exam>("/exams/current"),
   claimCompletion: (attemptId: string) =>

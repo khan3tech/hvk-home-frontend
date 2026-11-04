@@ -1,24 +1,26 @@
 import { Check } from "lucide-react";
 import type { OnboardingStep } from "@/types/api";
 import { STAGES, stepIndex } from "@/lib/journey";
+
+type Stage = { label: string; steps: OnboardingStep[] };
 import { cn } from "@/lib/utils";
 
 type StageState = "done" | "current" | "upcoming";
 
-export function stageStates(step: OnboardingStep): StageState[] {
+export function stageStates(step: OnboardingStep, stages: Stage[] = STAGES): StageState[] {
   const current = stepIndex(step);
-  return STAGES.map(({ steps }) => {
+  return stages.map(({ steps }) => {
     if (steps.includes(step)) return step === "completed" ? "done" : "current";
     return Math.max(...steps.map(stepIndex)) < current ? "done" : "upcoming";
   });
 }
 
 /** Registered → Demo → Payment → Exam → Feedback → Result, driven by the API's onboarding step. */
-export function JourneyStepper({ step }: { step: OnboardingStep }) {
-  const states = stageStates(step);
+export function JourneyStepper({ step, stages = STAGES }: { step: OnboardingStep; stages?: Stage[] }) {
+  const states = stageStates(step, stages);
   return (
-    <ol aria-label="Your progress" className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-      {STAGES.map((stage, i) => {
+    <ol aria-label="Your progress" className={cn("grid grid-cols-3 gap-3", stages.length === 5 ? "sm:grid-cols-5" : "sm:grid-cols-6")}>
+      {stages.map((stage, i) => {
         const state = states[i]!;
         return (
           <li key={stage.label} aria-current={state === "current" ? "step" : undefined} className="flex flex-col items-center gap-2 text-center">

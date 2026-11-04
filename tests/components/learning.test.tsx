@@ -140,6 +140,16 @@ describe("Learning (spec 004)", () => {
     expect(calls).toMatchObject({ skip: 0, complete: 1 });
   });
 
+  it("in the hub (after payment) there is no payment step: a link back to the dashboard instead", async () => {
+    serve(two());
+    renderPortal(<Learning hub />, { pathname: "/learning", step: "exam_ready" });
+    expect(await screen.findByRole("button", { name: "Start JavaScript" })).toBeEnabled();
+    expect(screen.queryByRole("button", { name: /payment/ })).toBeNull();
+    expect(screen.getByRole("link", { name: "Back to dashboard" })).toHaveAttribute("href", "/dashboard");
+    expect(screen.getByText("My learning", { selector: "span" })).toBeInTheDocument();
+    expect(screen.queryByText(/continue to payment/i)).toBeNull();
+  });
+
   it("with no courses it just offers to continue", async () => {
     const calls = serve([]);
     const user = userEvent.setup();
