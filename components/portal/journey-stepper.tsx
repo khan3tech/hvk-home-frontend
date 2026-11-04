@@ -19,22 +19,22 @@ export function stageStates(step: OnboardingStep, stages: Stage[] = STAGES): Sta
 export function JourneyStepper({ step, stages = STAGES }: { step: OnboardingStep; stages?: Stage[] }) {
   const states = stageStates(step, stages);
   return (
-    <ol aria-label="Your progress" className={cn("grid grid-cols-3 gap-3", stages.length === 5 ? "sm:grid-cols-5" : "sm:grid-cols-6")}>
+    <ol aria-label="Your progress" className={cn("grid grid-cols-3 gap-4", stages.length === 5 ? "sm:grid-cols-5" : "sm:grid-cols-6")}>
       {stages.map((stage, i) => {
         const state = states[i]!;
         return (
           <li key={stage.label} aria-current={state === "current" ? "step" : undefined} className="flex flex-col items-center gap-2 text-center">
             <span
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-bold",
+                "flex h-12 w-12 items-center justify-center rounded-full border-2 text-base font-bold",
                 state === "done" && "border-green-500 bg-green-500 text-white",
                 state === "current" && "border-bright-blue bg-bright-blue text-white ring-4 ring-bright-blue/20",
                 state === "upcoming" && "border-slate-200 bg-white text-muted dark:border-white/10 dark:bg-dark-surface-alt",
               )}
             >
-              {state === "done" ? <Check className="h-4 w-4" aria-hidden="true" /> : i + 1}
+              {state === "done" ? <Check className="h-5 w-5" aria-hidden="true" /> : i + 1}
             </span>
-            <span className={cn("text-xs font-semibold", state === "upcoming" ? "text-muted dark:text-slate-500" : "text-navy dark:text-white")}>
+            <span className={cn("text-sm font-semibold", state === "upcoming" ? "text-muted dark:text-slate-500" : "text-navy dark:text-white")}>
               {stage.label}
               <span className="sr-only">{state === "done" ? " (completed)" : state === "current" ? " (current step)" : ""}</span>
             </span>
