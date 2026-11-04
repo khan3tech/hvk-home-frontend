@@ -15,7 +15,7 @@ import {
 import type { LearningCourse, LearningLesson } from "@/types/api";
 
 function lesson(id: string, over: Partial<LearningLesson> = {}): LearningLesson {
-  return { id, title: id, sectionTitle: "Intro", sectionPosition: 1, position: 1, durationSeconds: 100, completed: false, positionSeconds: 0, ...over };
+  return { id, title: id, sectionTitle: "Intro", sectionPosition: 1, position: 1, durationSeconds: 100, completed: false, positionSeconds: 0, preview: false, ...over };
 }
 
 function course(id: string, lessons: LearningLesson[]): LearningCourse {

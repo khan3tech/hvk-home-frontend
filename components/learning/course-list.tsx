@@ -1,16 +1,19 @@
+import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { courseStatus, formatTotal, resumeLesson } from "@/lib/learning";
 import type { LearningCourse } from "@/types/api";
 
 const ACTION = { coming_soon: "Coming soon", not_started: "Start", in_progress: "Resume", completed: "Watch again" } as const;
 
-export function CourseList({ courses, onOpen }: { courses: LearningCourse[]; onOpen: (lessonId: string) => void }) {
+export function CourseList({ courses, onOpen, gated = false }: { courses: LearningCourse[]; onOpen: (lessonId: string) => void; gated?: boolean }) {
   return (
     <ul className="grid gap-4 sm:grid-cols-2">
       {courses.map((course) => {
-        const first = resumeLesson(course);
+        // Before payment approval only the first video plays.
+        const first = gated ? (course.lessons.find((l) => l.preview) ?? null) : resumeLesson(course);
         const percent = course.lessonCount > 0 ? Math.round((course.completedCount / course.lessonCount) * 100) : 0;
         const action = ACTION[courseStatus(course)];
+        const previewing = gated && !course.comingSoon;
         return (
           <li key={course.id} className="flex flex-col rounded-lg border border-slate-100 p-4 dark:border-white/10">
             <h2 className="flex items-center justify-between gap-2 text-base font-bold text-navy dark:text-white">
@@ -40,11 +43,17 @@ export function CourseList({ courses, onOpen }: { courses: LearningCourse[]; onO
                 <p className="mt-1 text-xs text-muted dark:text-slate-400">
                   {course.completedCount} of {course.lessonCount} watched
                 </p>
+                {gated ? (
+                  <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300">
+                    <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+                    Free preview: video 1. The rest unlocks after payment approval.
+                  </p>
+                ) : null}
               </>
             )}
             <div className="mt-4">
-              <Button size="sm" disabled={!first} onClick={() => first && onOpen(first.id)} aria-label={`${action} ${course.title}`}>
-                {action}
+              <Button size="sm" disabled={!first} onClick={() => first && onOpen(first.id)} aria-label={`${previewing ? "Watch free preview of" : action} ${course.title}`}>
+                {previewing ? "Watch free preview" : action}
               </Button>
             </div>
           </li>

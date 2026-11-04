@@ -50,6 +50,11 @@ export function neighbours(courses: LearningCourse[], lessonId: string): { previ
   return { previous: all[index - 1] ?? null, next: all[index + 1] ?? null };
 }
 
+/** Before the payment is approved only each course's first video opens; navigation and deep links skip the rest. */
+export function openableCourses(courses: LearningCourse[], gated: boolean): LearningCourse[] {
+  return gated ? courses.map((course) => ({ ...course, lessons: course.lessons.filter((l) => l.preview) })) : courses;
+}
+
 /** Where "Start / Resume" lands: the first unfinished lesson of the course, else its first lesson. */
 export function resumeLesson(course: LearningCourse): LearningLesson | null {
   return course.lessons.find((l) => !l.completed) ?? course.lessons[0] ?? null;

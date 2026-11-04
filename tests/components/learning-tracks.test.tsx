@@ -20,6 +20,7 @@ const lesson = (id: string, over: Partial<LearningLesson> = {}): LearningLesson 
   durationSeconds: 100,
   completed: false,
   positionSeconds: 0,
+  preview: false,
   ...over,
 });
 
@@ -131,6 +132,8 @@ describe("Learning with tracks", () => {
     const user = userEvent.setup();
     renderPortal(<Learning />, { pathname: "/onboarding", step: "demo_pending" });
     await user.click(await screen.findByRole("button", { name: "Choose Frontend Developer" }));
+    await waitFor(() => expect(calls.selected).toEqual(["frontend"]));
+    await screen.findByRole("button", { name: "Change track" });
     expect(await screen.findByRole("heading", { name: "Frontend Developer" })).toBeInTheDocument();
     expect(calls.selected).toEqual(["frontend"]);
     expect(calls.courseQueries.at(-1)).toBe("frontend");
