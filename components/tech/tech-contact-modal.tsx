@@ -11,8 +11,11 @@ type Field = "email" | "phone" | "message";
 const inputClass =
   "mt-1.5 w-full rounded-lg border border-[#d9cfbd] bg-white px-3 py-2.5 text-sm text-[#16130f] placeholder:text-[#9a8f7c] focus:border-gold-deep focus:outline-none focus:ring-2 focus:ring-gold/40";
 
-/** The "Talk To Us" button and the enquiry form it opens (email, contact number, query). */
-export function TalkToUs() {
+const DEFAULT_BUTTON =
+  "inline-flex items-center gap-2 rounded-full bg-gold px-6 py-2.5 text-sm font-semibold text-[#1a140b] transition hover:bg-gold-deep hover:text-white";
+
+/** A button that opens the enquiry form (email, contact number, query). Used by the header and the contact section. */
+export function TalkToUs({ className, children }: { className?: string; children?: React.ReactNode }) {
   const [open, setOpen] = React.useState(false);
   return (
     <>
@@ -20,9 +23,13 @@ export function TalkToUs() {
         type="button"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
-        className="inline-flex items-center gap-2 rounded-full bg-gold px-6 py-2.5 text-sm font-semibold text-[#1a140b] transition hover:bg-gold-deep hover:text-white"
+        className={className ?? DEFAULT_BUTTON}
       >
-        Talk To Us <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        {children ?? (
+          <>
+            Talk To Us <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </>
+        )}
       </button>
       {open ? <ContactDialog onClose={() => setOpen(false)} /> : null}
     </>

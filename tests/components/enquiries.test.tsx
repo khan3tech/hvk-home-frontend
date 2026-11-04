@@ -10,6 +10,7 @@ vi.mock("next/navigation", async () => (await import("../helpers/navigation")).n
 
 const { TalkToUs } = await import("@/components/tech/tech-contact-modal");
 const { Enquiries } = await import("@/components/admin/enquiries");
+const { TechHeader } = await import("@/components/tech/tech-header");
 
 beforeAll(() => {
   // jsdom has no <dialog> modal support.
@@ -19,6 +20,16 @@ beforeAll(() => {
   HTMLDialogElement.prototype.close ??= function close(this: HTMLDialogElement) {
     this.removeAttribute("open");
   };
+});
+
+describe("Header Let's Talk button", () => {
+  it("opens the same enquiry form", async () => {
+    const user = userEvent.setup();
+    render(<TechHeader />);
+    await user.click(screen.getByRole("button", { name: /let.s talk/i }));
+    expect(screen.getByRole("heading", { name: "Talk to us" })).toBeInTheDocument();
+    expect(screen.getByLabelText(/Contact number/)).toBeInTheDocument();
+  });
 });
 
 describe("Talk to us modal", () => {
