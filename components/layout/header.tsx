@@ -3,11 +3,14 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { AuthLink } from "@/components/auth/auth-link";
 import { buttonVariants } from "@/components/ui/button";
 import { HeaderAuth } from "@/components/layout/header-auth";
 import { useSession } from "@/lib/session/session-provider";
+import { activeNav, WATCHED_SECTIONS } from "@/lib/nav-active";
+import { useSectionSpy } from "@/lib/use-section-spy";
 import { NAV_LINKS, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +19,9 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   // Signed-in users already have an account: hide "Join Us" (it also overflowed the header).
   const showRegister = useSession().status !== "authenticated";
+  const pathname = usePathname();
+  const section = useSectionSpy(WATCHED_SECTIONS, pathname === "/registration");
+  const active = activeNav(pathname, section);
 
   React.useEffect(() => {
     function handleScroll() {
@@ -63,7 +69,13 @@ export function Header() {
             <Link
               key={link.label}
               href={link.href}
-              className="text-sm font-semibold text-ink transition-colors hover:text-bright-blue dark:text-slate-200 dark:hover:text-bright-blue"
+              aria-current={active?.label === link.label ? active.kind : undefined}
+              className={cn(
+                "border-b-2 py-1 text-sm font-semibold transition-colors hover:text-bright-blue dark:hover:text-bright-blue",
+                active?.label === link.label
+                  ? "border-bright-blue text-bright-blue"
+                  : "border-transparent text-ink dark:text-slate-200",
+              )}
             >
               {link.label}
             </Link>
@@ -113,7 +125,11 @@ export function Header() {
               key={link.label}
               href={link.href}
               onClick={() => setMobileOpen(false)}
-              className="rounded-lg px-3 py-3 text-sm font-semibold text-ink transition-colors hover:bg-light-blue hover:text-bright-blue dark:text-slate-200 dark:hover:bg-white/10"
+              aria-current={active?.label === link.label ? active.kind : undefined}
+              className={cn(
+                "rounded-lg px-3 py-3 text-sm font-semibold transition-colors hover:bg-light-blue hover:text-bright-blue dark:hover:bg-white/10",
+                active?.label === link.label ? "bg-light-blue text-bright-blue dark:bg-white/10" : "text-ink dark:text-slate-200",
+              )}
             >
               {link.label}
             </Link>

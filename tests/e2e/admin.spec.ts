@@ -9,6 +9,12 @@ test("TA works a lead and a payment follow-up", async ({ page, baseURL }) => {
   await page.goto("/admin");
   await expect(page).toHaveURL(/\/admin\/leads$/);
 
+  // The staff portal has its own frame: no public menu, announcement bar or footer.
+  await expect(page.getByText("HVK Staff Portal")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
+  await expect(page.getByRole("contentinfo")).toHaveCount(0);
+  for (const name of ["Testimonials", "Services", "Contact", "About"]) await expect(page.getByRole("link", { name, exact: true })).toHaveCount(0);
+
   await page.getByLabel("Status").selectOption("new");
   await expect(page).toHaveURL(/status=new/);
   expect(api.leadQueries.at(-1)).toContain("status=new");
