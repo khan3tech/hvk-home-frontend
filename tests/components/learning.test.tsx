@@ -25,6 +25,7 @@ function course(id: string, title: string, lessons: LearningLesson[]): LearningC
     lessonCount: lessons.length,
     completedCount: lessons.filter((l) => l.completed).length,
     durationSeconds: lessons.length * 100,
+    comingSoon: false,
     lessons,
   };
 }
@@ -32,6 +33,7 @@ function course(id: string, title: string, lessons: LearningLesson[]): LearningC
 function serve(courses: LearningCourse[]) {
   const calls = { skip: 0, complete: 0, progress: [] as unknown[] };
   server.use(
+    http.get(`${API}/tracks`, () => ok([])), // no tracks set up: every course is shown
     http.get(`${API}/courses`, () => ok(courses)),
     http.post(`${API}/lessons/:id/play`, ({ params }) => ok({ url: `https://cdn.test/${String(params.id)}.mp4`, expiresAt: "2030-01-01T00:00:00Z" })),
     http.put(`${API}/lessons/:id/progress`, async ({ params, request }) => {

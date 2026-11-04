@@ -55,9 +55,10 @@ export function resumeLesson(course: LearningCourse): LearningLesson | null {
   return course.lessons.find((l) => !l.completed) ?? course.lessons[0] ?? null;
 }
 
-export type CourseStatus = "not_started" | "in_progress" | "completed";
+export type CourseStatus = "coming_soon" | "not_started" | "in_progress" | "completed";
 
 export function courseStatus(course: LearningCourse): CourseStatus {
+  if (course.comingSoon) return "coming_soon";
   if (course.lessonCount > 0 && course.completedCount >= course.lessonCount) return "completed";
   const started = course.completedCount > 0 || course.lessons.some((l) => l.positionSeconds > 0);
   return started ? "in_progress" : "not_started";

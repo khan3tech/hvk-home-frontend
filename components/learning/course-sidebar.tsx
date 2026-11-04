@@ -31,7 +31,15 @@ export function CourseSidebar({
     <nav aria-label="Course content" className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
       <ul className="space-y-2">
         {courses.map((course) => {
-          const expanded = open.has(course.id);
+          const expanded = open.has(course.id) && !course.comingSoon;
+          if (course.comingSoon) {
+            return (
+              <li key={course.id} className="flex items-center justify-between gap-2 rounded-lg border border-dashed border-slate-200 px-3 py-2.5 text-sm text-muted dark:border-white/15 dark:text-slate-400">
+                <span className="font-semibold">{course.title}</span>
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800 dark:bg-amber-400/15 dark:text-amber-300">Soon</span>
+              </li>
+            );
+          }
           return (
             <li key={course.id} className="rounded-lg border border-slate-100 dark:border-white/10">
               <button

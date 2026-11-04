@@ -242,7 +242,41 @@ export interface LearningCourse {
   lessonCount: number;
   completedCount: number;
   durationSeconds: number;
+  /** No videos yet: listed, but nothing to play. */
+  comingSoon: boolean;
   lessons: LearningLesson[];
+}
+
+export interface LearningTrackCourse {
+  id: string;
+  title: string;
+  slug: string;
+  comingSoon: boolean;
+  lessonCount: number;
+  completedCount: number;
+  durationSeconds: number;
+}
+
+/** A career track (for example Frontend Developer): an ordered list of courses. */
+export interface LearningTrack {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  position: number;
+  /** The domain heading it is grouped under (empty when it stands alone), and that heading's order. */
+  domain: string;
+  domainPosition: number;
+  /** False while none of its courses has videos ("Coming soon") or it is held back: it cannot be chosen. */
+  available: boolean;
+  /** The track this user chose. */
+  selected: boolean;
+  courseCount: number;
+  availableCourseCount: number;
+  lessonCount: number;
+  completedCount: number;
+  durationSeconds: number;
+  courses: LearningTrackCourse[];
 }
 
 export interface LessonProgressResult {
