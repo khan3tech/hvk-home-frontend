@@ -28,6 +28,7 @@ function course(id: string, lessons: LearningLesson[]): LearningCourse {
     lessonCount: lessons.length,
     completedCount: lessons.filter((l) => l.completed).length,
     durationSeconds: lessons.reduce((n, l) => n + l.durationSeconds, 0),
+    comingSoon: false,
     lessons,
   };
 }
@@ -73,6 +74,7 @@ describe("progress", () => {
     expect(resumeLesson(course("x", []))).toBeNull();
   });
   it("derives course status", () => {
+    expect(courseStatus({ ...course("x", []), comingSoon: true })).toBe("coming_soon");
     expect(courseStatus(course("x", [lesson("a")]))).toBe("not_started");
     expect(courseStatus(course("x", [lesson("a", { positionSeconds: 5 })]))).toBe("in_progress");
     expect(courseStatus(course("x", [lesson("a", { completed: true })]))).toBe("completed");
