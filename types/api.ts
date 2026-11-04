@@ -328,3 +328,18 @@ export interface PlaybackLink {
   url: string;
   expiresAt: string;
 }
+
+export const ENQUIRY_STATUSES = ["new", "in_progress", "resolved"] as const;
+export type EnquiryStatus = (typeof ENQUIRY_STATUSES)[number];
+
+/** A message sent through the website's "Talk to us" form. */
+export interface Enquiry {
+  id: string;
+  email: string;
+  /** E.164 */
+  phone: string;
+  message: string;
+  source: string;
+  status: EnquiryStatus;
+  createdAt: string | null;
+}

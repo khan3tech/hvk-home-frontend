@@ -10,6 +10,7 @@ const TABS = [
   { href: "/admin/payments", label: "Payments" },
   { href: "/admin/follow-ups", label: "Payment follow-ups" },
   { href: "/admin/exams", label: "Examinations" },
+  { href: "/admin/enquiries", label: "Enquiries" },
 ];
 
 /** TA dashboard frame with section tabs. */

@@ -69,3 +69,11 @@ export function toE164India(value: string): string {
   const v = value.trim();
   return /^[6-9]\d{9}$/.test(v) ? `+91${v}` : v;
 }
+
+/** Home page "Talk to us" form. Mirrors POST /enquiries (the API is authoritative). */
+export const enquirySchema = z.object({
+  email,
+  phone: indianMobile,
+  message: z.string().trim().min(10, "Tell us a little more (at least 10 characters)").max(2000, "Please keep it under 2000 characters"),
+});
+export type EnquiryFormInput = z.infer<typeof enquirySchema>;
