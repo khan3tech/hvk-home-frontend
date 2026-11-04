@@ -50,8 +50,8 @@ export function Dashboard() {
   const step = status.step;
   const manual = config?.mode === "manual";
   const waiting = manual && WAITING_STEPS.includes(step);
-  // The videos open once the fee is paid (reached exam_ready).
-  const showVideos = stepIndex(step) >= stepIndex("exam_ready");
+  // The videos open once the fee is paid (reached exam_ready). In manual mode the first video of every course is a free preview, so they are open from registration on.
+  const showVideos = stepIndex(step) >= stepIndex("exam_ready") || manual;
 
   return (
     <PageShell
@@ -82,7 +82,16 @@ export function Dashboard() {
 
       <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {showVideos ? (
-          <Tile href={LEARNING_PAGE} icon={PlayCircle} title="Course videos" text="Pick a learning track and watch your courses, lesson by lesson, at your own pace." />
+          <Tile
+            href={LEARNING_PAGE}
+            icon={PlayCircle}
+            title={waiting ? "Free preview videos" : "Course videos"}
+            text={
+              waiting
+                ? "Watch the first video of every course for free. The rest unlocks once your payment is approved."
+                : "Pick a learning track and watch your courses, lesson by lesson, at your own pace."
+            }
+          />
         ) : (
           <div aria-disabled="true" className={`${tileClass} opacity-75`}>
             <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-muted dark:bg-white/10 dark:text-slate-400">

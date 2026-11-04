@@ -3,15 +3,17 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Shuffle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Lock, Shuffle } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { learningApi } from "@/lib/api/learning";
 import { portalApi } from "@/lib/api/portal";
 import { errorMessage } from "@/lib/api/client";
-import { STEP_ROUTE } from "@/lib/journey";
-import { allCompleted, applyProgress, findLesson, neighbours } from "@/lib/learning";
+import { isUnlocked, STEP_ROUTE } from "@/lib/journey";
+import { allCompleted, applyProgress, findLesson, neighbours, openableCourses } from "@/lib/learning";
+import { usePaymentConfig } from "@/lib/use-payment-config";
 import { FormMessage } from "@/components/portal/form-field";
 import { PageShell } from "@/components/portal/page-shell";
+import { useJourney } from "@/components/portal/portal-gate";
 import type { LearningCourse, LearningTrack, LessonProgressResult } from "@/types/api";
 import { CourseList } from "./course-list";
 import { CourseSidebar } from "./course-sidebar";
@@ -24,6 +26,10 @@ import { TrackList } from "./track-list";
  */
 export function Learning({ hub = false }: { hub?: boolean } = {}) {
   const router = useRouter();
+  const { status } = useJourney();
+  const { config } = usePaymentConfig();
+  // Manual-payment mode, payment not approved yet: only the first video of each course plays; the exam is locked.
+  const gated = config?.mode === "manual" && !isUnlocked(status.step);
   const [tracks, setTracks] = React.useState<LearningTrack[] | null>(null);
   const [courses, setCourses] = React.useState<LearningCourse[] | null>(null);
   const [loadError, setLoadError] = React.useState<string | null>(null);
@@ -106,20 +112,22 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
 
   const hasTracks = tracks !== null && tracks.length > 0;
   const current = tracks?.find((t) => t.selected) ?? null;
-  const active = courses && activeId ? findLesson(courses, activeId) : null;
-  const near = courses && active ? neighbours(courses, active.lesson.id) : null;
+  const openable = courses ? openableCourses(courses, gated) : null;
+  const active = openable && activeId ? findLesson(openable, activeId) : null;
+  const near = openable && active ? neighbours(openable, active.lesson.id) : null;
   const showChooser = hasTracks && choosing;
   const loaded = loadError !== null || showChooser || courses !== null;
 
   const title = showChooser ? "Choose your learning path" : active ? active.lesson.title : current ? current.title : hub ? "My learning" : "Learn before you start";
   const later = hub ? "" : " You can continue to payment at any time.";
+  const previewNote = gated ? " Watch the first video of every course for free; the rest and your exam unlock after our team approves your payment." : "";
   const intro = showChooser
     ? `Pick the career track you want to follow. You will see only its courses, and you can change track later.${later}`
     : active
       ? `${active.course.title} · ${active.lesson.sectionTitle}`
       : current
-        ? current.description || `Watch the courses of your track in any order.${later}`
-        : `Watch the courses in any order.${later}`;
+        ? (current.description || `Watch the courses of your track in any order.${later}`) + previewNote
+        : `Watch the courses in any order.${later}${previewNote}`;
 
   return (
     <PageShell eyebrow={hub ? "My learning" : "Step 2 of 6"} title={title} intro={intro} width="max-w-6xl">
@@ -147,9 +155,20 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
           <span />
         )}
         {hub ? (
-          <Link href="/dashboard" className={buttonVariants({ variant: "outline", size: "sm" })}>
-            Back to dashboard
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            {isUnlocked(status.step) ? (
+              <Link href="/exam" className={buttonVariants({ variant: "primary", size: "sm" })}>
+                Go to exam <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            ) : (
+              <Button size="sm" disabled title="Unlocks after your payment is approved">
+                <Lock className="h-4 w-4" aria-hidden="true" /> Go to exam
+              </Button>
+            )}
+            <Link href="/dashboard" className={buttonVariants({ variant: "outline", size: "sm" })}>
+              Back to dashboard
+            </Link>
+          </div>
         ) : (
           <Button onClick={() => void proceed()} disabled={busy || !loaded}>
             {busy ? "Continuing..." : finished ? "Continue to payment" : "Skip to payment"}
@@ -182,10 +201,10 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
             onNext={() => near.next && select(near.next.lesson.id)}
             onProgress={onProgress}
           />
-          <CourseSidebar courses={courses} activeLessonId={active.lesson.id} onSelect={select} />
+          <CourseSidebar courses={courses} activeLessonId={active.lesson.id} onSelect={select} gated={gated} />
         </div>
       ) : (
-        <CourseList courses={courses} onOpen={select} />
+        <CourseList courses={courses} onOpen={select} gated={gated} />
       )}
     </PageShell>
   );

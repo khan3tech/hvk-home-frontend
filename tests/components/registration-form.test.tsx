@@ -77,13 +77,24 @@ describe("RegistrationForm", () => {
     await user.type(screen.getByLabelText(/Pincode/), "012345");
     await user.type(screen.getByLabelText(/Create Password/), "short");
     await user.type(screen.getByLabelText(/Confirm Password/), "different");
+    await user.click(screen.getByRole("checkbox"));
     await user.click(screen.getByRole("button", { name: /Create Account/ }));
 
     expect(await screen.findByText("Enter a valid 6 digit pincode")).toBeInTheDocument();
     expect(screen.getByText("Use at least 8 characters")).toBeInTheDocument();
     expect(screen.getByText("Passwords do not match")).toBeInTheDocument();
-    expect(screen.getByText("Please accept the terms to continue")).toBeInTheDocument();
     expect(register).not.toHaveBeenCalled();
+  });
+
+  it("keeps Create Account off until the terms are accepted", async () => {
+    const user = userEvent.setup();
+    renderForm();
+    const button = screen.getByRole("button", { name: /Create Account/ });
+    expect(button).toBeDisabled();
+    await user.click(screen.getByRole("checkbox"));
+    expect(button).toBeEnabled();
+    await user.click(screen.getByRole("checkbox"));
+    expect(button).toBeDisabled();
   });
 
   it("shows API field errors under the matching fields", async () => {

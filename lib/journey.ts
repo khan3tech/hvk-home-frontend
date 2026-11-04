@@ -24,6 +24,11 @@ export const STEP_ACTION: Record<OnboardingStep, string> = {
   completed: "View result",
 };
 
+/** The exam and the rest of the videos open once the fee is paid (the step has reached exam_ready). */
+export function isUnlocked(step: OnboardingStep): boolean {
+  return stepIndex(step) >= stepIndex("exam_ready");
+}
+
 /** Stages when staff approve payments: there is no demo before payment, so registration leads straight to approval. */
 export const STAGES_MANUAL: { label: string; steps: OnboardingStep[] }[] = [
   { label: "Registered", steps: ["registered"] },
@@ -58,7 +63,7 @@ export function homeFor(role: Role, next?: string | null): string {
   return safeNext && !safeNext.startsWith("/admin") ? safeNext : "/dashboard";
 }
 
-/** The course videos: reachable once the fee is paid (the step has reached exam_ready). */
+/** The course videos. Always reachable; in manual-payment mode only each course's first video plays before approval. */
 export const LEARNING_PAGE = "/learning";
 
 /** Pages always reachable by a signed-in candidate regardless of step. */
@@ -73,7 +78,7 @@ export function redirectForStep(pathname: string, step: OnboardingStep): string 
   if (FREE_PAGES.includes(pathname)) return null;
   const own = STEP_ROUTE[step];
   if (pathname === own) return null;
-  if (pathname === LEARNING_PAGE) return stepIndex(step) >= stepIndex("exam_ready") ? null : own;
+  if (pathname === LEARNING_PAGE) return null;
   const reached = stepIndex(step) >= stepIndex("feedback_submitted");
   if ((pathname === "/result" || pathname === "/thank-you") && reached) return null;
   const isStepPage = Object.values(STEP_ROUTE).includes(pathname);

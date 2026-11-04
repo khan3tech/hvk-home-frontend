@@ -268,6 +268,8 @@ export interface LearningLesson {
   completed: boolean;
   /** Where playback resumes. */
   positionSeconds: number;
+  /** First video of its course: free to watch before the payment is approved (manual-payment mode). */
+  preview: boolean;
 }
 
 export interface LearningCourse {
@@ -327,4 +329,19 @@ export interface PlaybackLink {
   /** Short-lived signed video link. */
   url: string;
   expiresAt: string;
+}
+
+export const ENQUIRY_STATUSES = ["new", "in_progress", "resolved"] as const;
+export type EnquiryStatus = (typeof ENQUIRY_STATUSES)[number];
+
+/** A message sent through the website's "Talk to us" form. */
+export interface Enquiry {
+  id: string;
+  email: string;
+  /** E.164 */
+  phone: string;
+  message: string;
+  source: string;
+  status: EnquiryStatus;
+  createdAt: string | null;
 }

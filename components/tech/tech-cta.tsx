@@ -1,9 +1,8 @@
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
-import { TECH_CTA_WORDS, TECH_EMAIL, TECH_PHONES } from "@/lib/tech-constants";
+import { MapPin } from "lucide-react";
+import { TECH_ADDRESS, TECH_CTA_WORDS, TECH_EMAIL, TECH_PHONES } from "@/lib/tech-constants";
+import { TalkToUs } from "./tech-contact-modal";
 import { TechEyebrow, TechWordStack } from "./tech-ui";
-
-const MAILTO = `mailto:${TECH_EMAIL}?subject=${encodeURIComponent("Enquiry for HVK")}`;
 
 export function TechCta() {
   return (
@@ -30,12 +29,7 @@ export function TechCta() {
             Have a project, idea or requirement? We&apos;d love to hear from you.
           </p>
           <div className="mt-6 flex flex-wrap gap-4">
-            <a
-              href={MAILTO}
-              className="inline-flex items-center gap-2 rounded-full bg-gold px-6 py-2.5 text-sm font-semibold text-[#1a140b] transition hover:bg-gold-deep hover:text-white"
-            >
-              Talk To Us <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </a>
+            <TalkToUs />
             <a
               href="#services"
               className="inline-flex items-center rounded-full border border-[#16130f] px-6 py-2.5 text-sm font-semibold transition hover:bg-[#16130f] hover:text-cream"
@@ -53,6 +47,10 @@ export function TechCta() {
               {TECH_EMAIL}
             </a>
           </p>
+          <address className="mt-3 flex max-w-md items-start gap-2 text-sm not-italic text-[#3d3730]">
+            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold-deep" aria-hidden="true" />
+            <span>{TECH_ADDRESS}</span>
+          </address>
         </div>
 
         <div className="hidden lg:block">

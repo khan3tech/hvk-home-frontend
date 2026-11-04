@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { CheckCircle2, Clock, Loader2, RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { CheckCircle2, Clock, Loader2, PlayCircle, RefreshCw } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { errorMessage } from "@/lib/api/client";
 import { formatAmount } from "@/lib/razorpay";
 import { usePaymentConfig } from "@/lib/use-payment-config";
@@ -95,6 +96,9 @@ export function ManualPayment({ config, pollMs = APPROVAL_POLL_MS }: { config: P
           {checking ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <RefreshCw className="h-4 w-4" aria-hidden="true" />}
           Check approval status
         </Button>
+        <Link href="/learning" className={buttonVariants({ variant: "outline" })}>
+          <PlayCircle className="h-4 w-4" aria-hidden="true" /> Watch free preview videos
+        </Link>
         <p role="status" className="text-sm text-muted dark:text-slate-400">
           {message}
         </p>
