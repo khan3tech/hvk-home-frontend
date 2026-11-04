@@ -57,7 +57,9 @@ test("candidate journey: register → demo → pay → exam → feedback → res
   await page.getByRole("button", { name: "Submit feedback" }).click();
 
   await expect(page).toHaveURL(/\/thank-you$/);
-  await page.getByRole("link", { name: "View result status" }).click();
+  // The thank-you screen has no result button; the result page is still reachable.
+  await expect(page.getByRole("link", { name: /result/i })).toHaveCount(0);
+  await page.goto("/result");
   await expect(page.getByText(/isn't published yet/)).toBeVisible();
 
   api.resultPublished = true;
