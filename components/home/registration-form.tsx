@@ -212,7 +212,7 @@ export function RegistrationForm({
               className={cn(
                 isDialog
                   ? // Compact popup: shorter inputs, tighter labels, no room for a scrollbar on a normal screen.
-                    "mt-4 grid items-start gap-3 sm:grid-cols-2 [&_label]:mb-1 [&_input:not([type=checkbox])]:h-10 [&_button[aria-label$=password]]:top-0.5"
+                    "mt-3 grid items-start gap-x-3 gap-y-2 sm:grid-cols-2 [&_label]:mb-1 [&_input:not([type=checkbox])]:h-10 [&_button[aria-label$=password]]:top-0.5"
                   : "mt-6 space-y-5",
               )}
               noValidate

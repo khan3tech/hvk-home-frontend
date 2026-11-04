@@ -17,7 +17,7 @@ test("TA works a lead and a payment follow-up", async ({ page, baseURL }) => {
 
   await page.getByLabel("Status").selectOption("new");
   await expect(page).toHaveURL(/status=new/);
-  expect(api.leadQueries.at(-1)).toContain("status=new");
+  await expect.poll(() => api.leadQueries.at(-1)).toContain("status=new");
 
   await page.getByRole("link", { name: "Ravi Kumar" }).click();
   await expect(page.getByText("XYZ University")).toBeVisible();
