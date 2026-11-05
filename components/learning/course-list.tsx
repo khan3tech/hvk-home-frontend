@@ -1,11 +1,12 @@
 import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { courseStatus, formatTotal, resumeLesson } from "@/lib/learning";
-import type { LearningCourse } from "@/types/api";
+import type { LearningCourse, SkillExam } from "@/types/api";
+import { ExamAction, ExamStatus } from "./skill-exam-cards";
 
 const ACTION = { coming_soon: "Coming soon", not_started: "Start", in_progress: "Resume", completed: "Watch again" } as const;
 
-export function CourseList({ courses, onOpen, gated = false }: { courses: LearningCourse[]; onOpen: (lessonId: string) => void; gated?: boolean }) {
+export function CourseList({ courses, onOpen, gated = false, exams }: { courses: LearningCourse[]; onOpen: (lessonId: string) => void; gated?: boolean; exams?: Map<string, SkillExam> }) {
   return (
     <ul className="grid gap-4 sm:grid-cols-2">
       {courses.map((course) => {
@@ -14,6 +15,7 @@ export function CourseList({ courses, onOpen, gated = false }: { courses: Learni
         const percent = course.lessonCount > 0 ? Math.round((course.completedCount / course.lessonCount) * 100) : 0;
         const action = ACTION[courseStatus(course)];
         const previewing = gated && !course.comingSoon;
+        const exam = exams?.get(course.id);
         return (
           <li key={course.id} className="flex flex-col rounded-lg border border-slate-100 p-4 dark:border-white/10">
             <h2 className="flex items-center justify-between gap-2 text-base font-bold text-navy dark:text-white">
@@ -51,11 +53,17 @@ export function CourseList({ courses, onOpen, gated = false }: { courses: Learni
                 ) : null}
               </>
             )}
-            <div className="mt-4">
+            <div className="mt-4 flex flex-wrap items-center gap-2">
               <Button size="sm" disabled={!first} onClick={() => first && onOpen(first.id)} aria-label={`${previewing ? "Watch free preview of" : action} ${course.title}`}>
                 {previewing ? "Watch free preview" : action}
               </Button>
+              {exam ? <ExamAction exam={exam} /> : null}
             </div>
+            {exam ? (
+              <p className="mt-2">
+                <ExamStatus exam={exam} />
+              </p>
+            ) : null}
           </li>
         );
       })}
