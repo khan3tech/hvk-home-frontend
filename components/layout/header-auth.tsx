@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { LogOut, User } from "lucide-react";
 import { AuthLink } from "@/components/auth/auth-link";
 import { buttonVariants } from "@/components/ui/button";
-import { isStaff } from "@/lib/journey";
+import { isStaff, staffHome } from "@/lib/journey";
 import { useSession } from "@/lib/session/session-provider";
 import { cn } from "@/lib/utils";
 
@@ -50,7 +50,9 @@ export function HeaderAuth({ variant, onNavigate }: { variant: "desktop" | "mobi
     );
   }
 
-  const home = isStaff(candidate?.role) ? { href: "/admin", label: "TA Dashboard" } : { href: "/dashboard", label: "My Dashboard" };
+  const home = isStaff(candidate?.role)
+    ? { href: staffHome(candidate?.role), label: candidate?.role === "interiors" ? "Interiors Dashboard" : "TA Dashboard" }
+    : { href: "/dashboard", label: "My Dashboard" };
   const doSignOut = async () => {
     setBusy(true);
     await signOut();

@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import type { OnboardingStatus } from "@/types/api";
 import { portalApi } from "@/lib/api/portal";
 import { errorMessage } from "@/lib/api/client";
-import { isStaff, redirectForStep } from "@/lib/journey";
+import { canUseAdminPath, isStaff, redirectForStep, staffHome } from "@/lib/journey";
 import { useSession } from "@/lib/session/session-provider";
 import { StatusCard } from "./status-card";
 
@@ -44,11 +44,14 @@ export function PortalGate({ area, children }: { area: "candidate" | "admin"; ch
 
   const staff = isStaff(candidate?.role);
   const wrongArea = session === "authenticated" && (area === "admin" ? !staff : staff);
+  // Staff stay on the screens of their own role (the interiors role has only the Interiors screens).
+  const staffTarget = area === "admin" && session === "authenticated" && staff && !canUseAdminPath(candidate?.role, pathname) ? staffHome(candidate?.role) : null;
 
   React.useEffect(() => {
     if (session === "anonymous") router.replace(`/login?next=${encodeURIComponent(pathname)}`);
-    else if (wrongArea) router.replace(area === "admin" ? "/dashboard" : "/admin");
-  }, [session, wrongArea, area, pathname, router]);
+    else if (wrongArea) router.replace(area === "admin" ? "/dashboard" : staffHome(candidate?.role));
+    else if (staffTarget) router.replace(staffTarget);
+  }, [session, wrongArea, staffTarget, area, pathname, router, candidate?.role]);
 
   React.useEffect(() => {
     if (area !== "candidate" || session !== "authenticated" || staff) return;
@@ -94,7 +97,7 @@ export function PortalGate({ area, children }: { area: "candidate" | "admin"; ch
     );
   }
 
-  const ready = session === "authenticated" && !wrongArea && (area === "admin" || (value && !target));
+  const ready = session === "authenticated" && !wrongArea && !staffTarget && (area === "admin" || (value && !target));
   if (!ready) return <StatusCard tone="loading" title="Loading your account…" />;
   if (area === "admin") return <>{children}</>;
   return <JourneyContext.Provider value={value}>{children}</JourneyContext.Provider>;

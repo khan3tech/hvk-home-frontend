@@ -3,6 +3,9 @@ import { ArrowRight } from "lucide-react";
 import { TECH_SERVICES } from "@/lib/tech-constants";
 import { TechArrowCircle, TechEyebrow } from "./tech-ui";
 
+/** Services that have a site of their own: the card opens it in a new tab instead of scrolling to the contact section. */
+const OWN_SITE: Record<string, string> = { "HVK Interior": "/interiors" };
+
 export function TechServices() {
   return (
     <section id="services" className="scroll-mt-20 bg-tech-bg py-16 sm:py-20">
@@ -29,10 +32,13 @@ export function TechServices() {
         </div>
 
         <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          {TECH_SERVICES.map((service) => (
+          {TECH_SERVICES.map((service) => {
+            const ownSite = OWN_SITE[service.title];
+            return (
             <a
               key={service.title}
-              href="#contact"
+              href={ownSite ?? "#contact"}
+              {...(ownSite ? { target: "_blank", rel: "noopener" } : {})}
               className="group flex flex-col overflow-hidden rounded-md border border-white/15 bg-tech-panel transition duration-300 hover:-translate-y-1 hover:border-gold/70"
             >
               <div className="relative aspect-[4/3] overflow-hidden xl:aspect-[129/97]">
@@ -53,12 +59,14 @@ export function TechServices() {
                 <div className="mt-5 flex items-center justify-between">
                   <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gold">
                     Explore <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                    {ownSite ? <span className="sr-only">(opens in a new tab)</span> : null}
                   </span>
                   <TechArrowCircle className="h-8 w-8 group-hover:border-gold group-hover:text-gold-light" />
                 </div>
               </div>
             </a>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

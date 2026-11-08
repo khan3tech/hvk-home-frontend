@@ -77,3 +77,11 @@ export const enquirySchema = z.object({
   message: z.string().trim().min(10, "Tell us a little more (at least 10 characters)").max(2000, "Please keep it under 2000 characters"),
 });
 export type EnquiryFormInput = z.infer<typeof enquirySchema>;
+
+/** HVK Interiors: contact details for a quote request or a consultation. Mirrors the API (the API is authoritative). */
+export const interiorContactSchema = z.object({
+  name: z.string().trim().min(2, "Please enter your name").max(120, "Name is too long"),
+  phone: indianMobile,
+  email,
+});
+export type InteriorContactInput = z.infer<typeof interiorContactSchema>;
