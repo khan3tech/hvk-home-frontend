@@ -85,6 +85,7 @@ describe("Payment (US5)", () => {
     const user = userEvent.setup();
     const { statusCalls } = renderPortal(<PaymentPage />, { pathname: "/payment", step: "fee_pending" });
     await user.click(await screen.findByRole("button", { name: /Pay/ }));
+    await waitFor(() => expect(FakeRazorpay.last).not.toBeNull(), { timeout: 5000 });
     act(() => FakeRazorpay.last!.options.handler(SUCCESS));
 
     expect(await screen.findByRole("heading", { name: "Payment successful" })).toBeInTheDocument();
@@ -120,6 +121,7 @@ describe("Payment (US5)", () => {
     const user = userEvent.setup();
     renderPortal(<PaymentPage />, { pathname: "/payment", step: "fee_pending" });
     await user.click(await screen.findByRole("button", { name: /Pay/ }));
+    await waitFor(() => expect(FakeRazorpay.last).not.toBeNull(), { timeout: 5000 });
     act(() => FakeRazorpay.last!.options.modal.ondismiss());
     expect(await screen.findByText("Payment was cancelled. You can try again.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Pay/ })).toBeEnabled();
@@ -149,7 +151,7 @@ describe("Payment (US5)", () => {
     const user = userEvent.setup();
     renderPortal(<PaymentPage confirmPollMs={30} confirmTimeoutMs={2_000} />, { pathname: "/payment", step: "fee_pending" });
     await user.click(await screen.findByRole("button", { name: /Pay/ }));
-    await waitFor(() => expect(FakeRazorpay.last?.options).toBeDefined());
+    await waitFor(() => expect(FakeRazorpay.last?.options).toBeDefined(), { timeout: 5000 });
     act(() => FakeRazorpay.last!.options.handler(SUCCESS));
     expect(await screen.findByText(/We're confirming your payment/)).toBeInTheDocument();
     expect(await screen.findByRole("heading", { name: "Payment successful" })).toBeInTheDocument();
@@ -167,6 +169,7 @@ describe("Payment (US5)", () => {
     const user = userEvent.setup();
     renderPortal(<PaymentPage confirmPollMs={20} confirmTimeoutMs={150} />, { pathname: "/payment", step: "fee_pending" });
     await user.click(await screen.findByRole("button", { name: /Pay/ }));
+    await waitFor(() => expect(FakeRazorpay.last).not.toBeNull(), { timeout: 5000 });
     act(() => FakeRazorpay.last!.options.handler(SUCCESS));
     expect(await screen.findByRole("alert", {}, { timeout: 3_000 })).toHaveTextContent("contact support");
     expect(screen.getByRole("link", { name: "Back to dashboard" })).toBeInTheDocument();

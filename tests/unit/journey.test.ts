@@ -21,6 +21,12 @@ describe("journey routing", () => {
     expect(redirectForStep(path, step)).toBe(target);
   });
 
+  it("keeps the course videos page open at every step (the API limits what plays before payment)", () => {
+    for (const step of ["registered", "demo_pending", "fee_pending", "exam_ready", "exam_in_progress", "exam_completed", "feedback_submitted", "completed"] as const) {
+      expect(redirectForStep("/learning", step), step).toBeNull();
+    }
+  });
+
   it.each([
     ["/payment", "fee_pending"],
     ["/exam", "exam_in_progress"],

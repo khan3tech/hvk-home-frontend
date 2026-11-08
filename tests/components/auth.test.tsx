@@ -106,7 +106,7 @@ describe("Login with OTP", () => {
     );
     const user = userEvent.setup();
     render(<SessionProvider><LoginForm /></SessionProvider>);
-    await user.click(screen.getByRole("tab", { name: "Mobile OTP" }));
+    await user.click(screen.getByRole("tab", { name: "Mobile number" }));
     await user.type(screen.getByLabelText(/Mobile number/), "9876543210");
     await user.click(screen.getByRole("button", { name: "Send code" }));
 
@@ -127,7 +127,7 @@ describe("Login with OTP", () => {
     );
     const user = userEvent.setup();
     render(<SessionProvider><LoginForm /></SessionProvider>);
-    await user.click(screen.getByRole("tab", { name: "Mobile OTP" }));
+    await user.click(screen.getByRole("tab", { name: "Mobile number" }));
     await user.type(screen.getByLabelText(/Mobile number/), "9876543210");
     await user.click(screen.getByRole("button", { name: "Send code" }));
     await user.type(await screen.findByLabelText(/^Code/), "000000");
@@ -142,7 +142,7 @@ describe("Login with OTP", () => {
       server.use(http.post(`${API}/auth/otp/request`, () => ok({ challengeId: "ch-1", expiresInSeconds: 300 }, 202)));
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<SessionProvider><LoginForm /></SessionProvider>);
-      await user.click(screen.getByRole("tab", { name: "Mobile OTP" }));
+      await user.click(screen.getByRole("tab", { name: "Mobile number" }));
       await user.type(screen.getByLabelText(/Mobile number/), "9876543210");
       await user.click(screen.getByRole("button", { name: "Send code" }));
       await screen.findByText(/Resend in/);

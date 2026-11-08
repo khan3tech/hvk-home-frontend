@@ -15,6 +15,8 @@ export default defineConfig({
     // Matches the API base used by the MSW handlers.
     env: {
       NEXT_PUBLIC_API_BASE_URL: "http://api.test",
+      // The OTP sign-in code stays tested even though it is switched off in production for now.
+      NEXT_PUBLIC_MOBILE_OTP_ENABLED: "true",
     },
     coverage: {
       provider: "v8",

@@ -12,7 +12,7 @@ vi.mock("next/navigation", async () => (await import("../helpers/navigation")).n
 const { Learning } = await import("@/components/learning/learning");
 
 function lesson(id: string, over: Partial<LearningLesson> = {}): LearningLesson {
-  return { id, title: `Lesson ${id}`, sectionTitle: "Basics", sectionPosition: 1, position: 1, durationSeconds: 100, completed: false, positionSeconds: 0, ...over };
+  return { id, title: `Lesson ${id}`, sectionTitle: "Basics", sectionPosition: 1, position: 1, durationSeconds: 100, completed: false, positionSeconds: 0, preview: false, ...over };
 }
 
 function course(id: string, title: string, lessons: LearningLesson[]): LearningCourse {
@@ -25,6 +25,7 @@ function course(id: string, title: string, lessons: LearningLesson[]): LearningC
     lessonCount: lessons.length,
     completedCount: lessons.filter((l) => l.completed).length,
     durationSeconds: lessons.length * 100,
+    comingSoon: false,
     lessons,
   };
 }
@@ -32,6 +33,7 @@ function course(id: string, title: string, lessons: LearningLesson[]): LearningC
 function serve(courses: LearningCourse[]) {
   const calls = { skip: 0, complete: 0, progress: [] as unknown[] };
   server.use(
+    http.get(`${API}/tracks`, () => ok([])), // no tracks set up: every course is shown
     http.get(`${API}/courses`, () => ok(courses)),
     http.post(`${API}/lessons/:id/play`, ({ params }) => ok({ url: `https://cdn.test/${String(params.id)}.mp4`, expiresAt: "2030-01-01T00:00:00Z" })),
     http.put(`${API}/lessons/:id/progress`, async ({ params, request }) => {
@@ -124,7 +126,9 @@ describe("Learning (spec 004)", () => {
     const calls = serve(two());
     const user = userEvent.setup();
     renderPortal(<Learning />, { pathname: "/onboarding", step: "demo_pending" });
-    await user.click(await screen.findByRole("button", { name: "Skip to payment" }));
+    const proceed = await screen.findByRole("button", { name: "Skip to payment" });
+    await waitFor(() => expect(proceed).toBeEnabled());
+    await user.click(proceed);
     await waitFor(() => expect(nav.push).toHaveBeenCalledWith("/payment"));
     expect(calls).toMatchObject({ skip: 1, complete: 0 });
   });
@@ -133,9 +137,21 @@ describe("Learning (spec 004)", () => {
     const calls = serve([course("js", "JavaScript", [lesson("a", { completed: true })])]);
     const user = userEvent.setup();
     renderPortal(<Learning />, { pathname: "/onboarding", step: "demo_pending" });
-    await user.click(await screen.findByRole("button", { name: "Continue to payment" }));
+    const proceed = await screen.findByRole("button", { name: "Continue to payment" });
+    await waitFor(() => expect(proceed).toBeEnabled());
+    await user.click(proceed);
     await waitFor(() => expect(nav.push).toHaveBeenCalledWith("/payment"));
     expect(calls).toMatchObject({ skip: 0, complete: 1 });
+  });
+
+  it("in the hub (after payment) there is no payment step: a link back to the dashboard instead", async () => {
+    serve(two());
+    renderPortal(<Learning hub />, { pathname: "/learning", step: "exam_ready" });
+    expect(await screen.findByRole("button", { name: "Start JavaScript" })).toBeEnabled();
+    expect(screen.queryByRole("button", { name: /payment/ })).toBeNull();
+    expect(screen.getByRole("link", { name: "Back to dashboard" })).toHaveAttribute("href", "/dashboard");
+    expect(screen.getByText("My learning", { selector: "span" })).toBeInTheDocument();
+    expect(screen.queryByText(/continue to payment/i)).toBeNull();
   });
 
   it("with no courses it just offers to continue", async () => {
@@ -162,7 +178,9 @@ describe("Learning (spec 004)", () => {
     server.use(http.post(`${API}/onboarding/demo/skip`, () => fail(500, "INTERNAL_ERROR")));
     const user = userEvent.setup();
     renderPortal(<Learning />, { pathname: "/onboarding", step: "demo_pending" });
-    await user.click(await screen.findByRole("button", { name: "Skip to payment" }));
+    const proceed = await screen.findByRole("button", { name: "Skip to payment" });
+    await waitFor(() => expect(proceed).toBeEnabled());
+    await user.click(proceed);
     expect(await screen.findByRole("alert")).toHaveTextContent("Something went wrong on our side");
     expect(screen.getByRole("button", { name: "Skip to payment" })).toBeEnabled();
   });
@@ -187,5 +205,50 @@ describe("Learning (spec 004)", () => {
     fireEvent.error(container.querySelector("video")!);
     expect(await screen.findByRole("alert")).toHaveTextContent("could not be played");
     expect(plays).toBe(4);
+  });
+});
+
+describe("Free preview before payment approval (manual mode)", () => {
+  const manual = () =>
+    server.use(http.get(`${API}/payments/config`, () => ok({ mode: "manual", feeMinor: 49900, currency: "INR", instructions: "" })));
+  const preview = () => [course("js", "JavaScript", [lesson("a", { preview: true }), lesson("b")]), course("html", "HTML", [lesson("c", { preview: true })])];
+
+  it("offers only the first video of each course and keeps the exam locked", async () => {
+    serve(preview());
+    manual();
+    renderPortal(<Learning hub />, { pathname: "/learning", step: "fee_pending" });
+    expect(await screen.findByRole("button", { name: "Watch free preview of JavaScript" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Watch free preview of HTML" })).toBeEnabled();
+    expect(screen.getAllByText(/Free preview: video 1/)).toHaveLength(2);
+    expect(screen.getByRole("button", { name: /Go to exam/ })).toBeDisabled();
+
+    await userEvent.setup().click(screen.getByRole("button", { name: "Watch free preview of JavaScript" }));
+    const sidebar = await screen.findByRole("navigation", { name: "Course content" });
+    expect(within(sidebar).getByRole("button", { name: /Lesson a/ })).toBeEnabled();
+    expect(within(sidebar).getByRole("button", { name: /Lesson b/ })).toBeDisabled();
+  });
+
+  it("leaves coming-soon courses as coming soon", async () => {
+    serve([...preview(), { ...course("css", "CSS", []), comingSoon: true }]);
+    manual();
+    renderPortal(<Learning hub />, { pathname: "/learning", step: "fee_pending" });
+    expect(await screen.findByRole("button", { name: "Watch free preview of JavaScript" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Coming soon CSS" })).toBeDisabled();
+  });
+
+  it("unlocks every video and the exam once the payment is approved", async () => {
+    serve(preview());
+    manual();
+    renderPortal(<Learning hub />, { pathname: "/learning", step: "exam_ready" });
+    expect(await screen.findByRole("button", { name: "Start JavaScript" })).toBeEnabled();
+    expect(screen.queryByText(/Free preview: video 1/)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Go to exam/ })).toHaveAttribute("href", "/exam");
+  });
+
+  it("does not lock anything in online payment mode", async () => {
+    serve(preview());
+    renderPortal(<Learning />, { pathname: "/onboarding", step: "demo_pending" });
+    expect(await screen.findByRole("button", { name: "Start JavaScript" })).toBeEnabled();
+    expect(screen.queryByText(/Free preview: video 1/)).not.toBeInTheDocument();
   });
 });

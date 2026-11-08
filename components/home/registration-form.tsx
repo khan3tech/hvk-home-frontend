@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm, Controller, type Path } from "react-hook-form";
+import { useForm, useWatch, Controller, type Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowRight,
@@ -89,6 +89,9 @@ export function RegistrationForm({
       acceptTerms: false,
     },
   });
+
+  // The button stays off until the terms and privacy policy are accepted.
+  const termsAccepted = useWatch({ control, name: "acceptTerms" });
 
   async function onSubmit(data: CandidateRegistrationInput) {
     setFormError(null);
@@ -209,7 +212,7 @@ export function RegistrationForm({
               className={cn(
                 isDialog
                   ? // Compact popup: shorter inputs, tighter labels, no room for a scrollbar on a normal screen.
-                    "mt-4 grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-3 [&_label]:mb-1 [&_input:not([type=checkbox])]:h-10 [&_button[aria-label$=password]]:top-0.5"
+                    "mt-3 grid items-start gap-x-3 gap-y-2 sm:grid-cols-2 [&_label]:mb-1 [&_input:not([type=checkbox])]:h-10 [&_button[aria-label$=password]]:top-0.5"
                   : "mt-6 space-y-5",
               )}
               noValidate
@@ -299,7 +302,7 @@ export function RegistrationForm({
 
               <button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || !termsAccepted}
                 className={cn(
                   "flex w-full items-center justify-center gap-2 rounded-lg bg-bright-blue px-6 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary-blue disabled:cursor-not-allowed disabled:opacity-70",
                   isDialog ? "col-span-full py-3" : "py-4",

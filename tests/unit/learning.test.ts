@@ -15,7 +15,7 @@ import {
 import type { LearningCourse, LearningLesson } from "@/types/api";
 
 function lesson(id: string, over: Partial<LearningLesson> = {}): LearningLesson {
-  return { id, title: id, sectionTitle: "Intro", sectionPosition: 1, position: 1, durationSeconds: 100, completed: false, positionSeconds: 0, ...over };
+  return { id, title: id, sectionTitle: "Intro", sectionPosition: 1, position: 1, durationSeconds: 100, completed: false, positionSeconds: 0, preview: false, ...over };
 }
 
 function course(id: string, lessons: LearningLesson[]): LearningCourse {
@@ -28,6 +28,7 @@ function course(id: string, lessons: LearningLesson[]): LearningCourse {
     lessonCount: lessons.length,
     completedCount: lessons.filter((l) => l.completed).length,
     durationSeconds: lessons.reduce((n, l) => n + l.durationSeconds, 0),
+    comingSoon: false,
     lessons,
   };
 }
@@ -73,6 +74,7 @@ describe("progress", () => {
     expect(resumeLesson(course("x", []))).toBeNull();
   });
   it("derives course status", () => {
+    expect(courseStatus({ ...course("x", []), comingSoon: true })).toBe("coming_soon");
     expect(courseStatus(course("x", [lesson("a")]))).toBe("not_started");
     expect(courseStatus(course("x", [lesson("a", { positionSeconds: 5 })]))).toBe("in_progress");
     expect(courseStatus(course("x", [lesson("a", { completed: true })]))).toBe("completed");

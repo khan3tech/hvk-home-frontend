@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronDown, Circle, Play } from "lucide-react";
+import { Check, ChevronDown, Circle, Lock, Play } from "lucide-react";
 import { formatDuration, sectionsOf } from "@/lib/learning";
 import type { LearningCourse } from "@/types/api";
 
@@ -10,10 +10,13 @@ export function CourseSidebar({
   courses,
   activeLessonId,
   onSelect,
+  gated = false,
 }: {
   courses: LearningCourse[];
   activeLessonId: string;
   onSelect: (lessonId: string) => void;
+  /** Before payment approval: lessons other than each course's first are shown locked. */
+  gated?: boolean;
 }) {
   const activeCourseId = courses.find((c) => c.lessons.some((l) => l.id === activeLessonId))?.id;
   const [open, setOpen] = React.useState<Set<string>>(() => new Set(activeCourseId ? [activeCourseId] : []));
@@ -31,7 +34,15 @@ export function CourseSidebar({
     <nav aria-label="Course content" className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
       <ul className="space-y-2">
         {courses.map((course) => {
-          const expanded = open.has(course.id);
+          const expanded = open.has(course.id) && !course.comingSoon;
+          if (course.comingSoon) {
+            return (
+              <li key={course.id} className="flex items-center justify-between gap-2 rounded-lg border border-dashed border-slate-200 px-3 py-2.5 text-sm text-muted dark:border-white/15 dark:text-slate-400">
+                <span className="font-semibold">{course.title}</span>
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800 dark:bg-amber-400/15 dark:text-amber-300">Soon</span>
+              </li>
+            );
+          }
           return (
             <li key={course.id} className="rounded-lg border border-slate-100 dark:border-white/10">
               <button
@@ -57,19 +68,25 @@ export function CourseSidebar({
                       <ul>
                         {section.lessons.map((lesson) => {
                           const current = lesson.id === activeLessonId;
+                          const locked = gated && !lesson.preview;
                           return (
                             <li key={lesson.id}>
                               <button
                                 type="button"
                                 aria-current={current ? "true" : undefined}
+                                disabled={locked}
                                 onClick={() => onSelect(lesson.id)}
                                 className={`flex w-full items-start gap-2 px-3 py-2 text-left text-sm ${
                                   current
                                     ? "bg-light-blue font-semibold text-primary-blue dark:bg-white/10 dark:text-bright-blue"
-                                    : "text-navy hover:bg-light-blue/60 dark:text-slate-200 dark:hover:bg-white/5"
+                                    : locked
+                                      ? "cursor-not-allowed text-muted dark:text-slate-500"
+                                      : "text-navy hover:bg-light-blue/60 dark:text-slate-200 dark:hover:bg-white/5"
                                 }`}
                               >
-                                {current ? (
+                                {locked ? (
+                                  <Lock className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" aria-label="Locked until payment approval" />
+                                ) : current ? (
                                   <Play className="mt-0.5 h-4 w-4 shrink-0" aria-label="Playing" />
                                 ) : lesson.completed ? (
                                   <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-600" aria-label="Watched" />

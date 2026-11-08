@@ -134,6 +134,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
 
+/** Like `useSession`, but returns null outside a provider (for components that only personalise when signed in). */
+export function useOptionalSession(): SessionContextValue | null {
+  return React.useContext(SessionContext);
+}
+
 export function useSession(): SessionContextValue {
   const ctx = React.useContext(SessionContext);
   if (!ctx) throw new Error("useSession must be used inside <SessionProvider>");

@@ -183,7 +183,7 @@ export const QUICK_LINKS: NavLink[] = [
 
 export const FOOTER_SERVICE_LINKS: NavLink[] = SERVICES.map((service) => ({
   label: service.title,
-  href: "/registration#services",
+  href: `/services/${service.id}`,
 }));
 
 export const FOOTER_LINK_GROUPS: FooterLinkGroupData[] = [

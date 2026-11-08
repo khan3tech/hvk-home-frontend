@@ -82,6 +82,10 @@ export async function installFakeApi(page: Page, baseURL: string, initial: Parti
     switch (key) {
       case "GET /onboarding/status":
         return ok(route, { step: state.step, demoAction: null, nextStep: null });
+      case "GET /payments/config":
+        return ok(route, { mode: "razorpay", feeMinor: 49900, currency: "INR", instructions: "" });
+      case "GET /tracks":
+        return ok(route, []);
       case "GET /courses":
         return ok(route, [
           {
@@ -93,6 +97,7 @@ export async function installFakeApi(page: Page, baseURL: string, initial: Parti
             lessonCount: 1,
             completedCount: 0,
             durationSeconds: 60,
+            comingSoon: false,
             lessons: [{ id: "l1", title: "Variables", sectionTitle: "Basics", sectionPosition: 1, position: 1, durationSeconds: 60, completed: false, positionSeconds: 0 }],
           },
         ]);

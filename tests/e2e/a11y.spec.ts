@@ -32,6 +32,15 @@ test.describe("accessibility", () => {
     }
   });
 
+  test("service detail pages", async ({ page, baseURL }) => {
+    await installFakeApi(page, baseURL!);
+    for (const id of ["training-certification", "custom-solutions"]) {
+      await page.goto(`/services/${id}`);
+      await page.getByRole("heading", { level: 1 }).waitFor();
+      await expectAccessible(page);
+    }
+  });
+
   test("registration and sign-in popups", async ({ page, baseURL }) => {
     await installFakeApi(page, baseURL!);
     await page.goto("/registration");

@@ -155,6 +155,8 @@ describe("Thank-you and result (US7)", () => {
   it("thank-you explains the 24-hour result email", async () => {
     renderPortal(<ThankYou />, { pathname: "/thank-you", step: "feedback_submitted" });
     expect(await screen.findByText(/emailed to you within 24 hours/)).toBeInTheDocument();
+    // No shortcut to the result page from the thank-you screen.
+    expect(screen.queryByRole("link", { name: /result/i })).toBeNull();
   });
 
   it.each([
