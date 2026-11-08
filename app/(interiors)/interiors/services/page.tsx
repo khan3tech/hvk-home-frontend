@@ -14,7 +14,7 @@ export default function ServicesPage() {
       <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {INTERIOR_SERVICES.map((service, index) => (
           <li key={service.slug} className="flex flex-col overflow-hidden rounded-lg border border-[#d8dcd2] bg-white">
-            <Visual alt={service.title} index={index} icon={service.icon} className="h-40" />
+            <Visual image={service.image} alt={service.title} index={index} icon={service.icon} className="h-40" />
             <div className="flex flex-1 flex-col p-5">
               <h2 className="font-[family-name:var(--font-playfair)] text-lg font-bold text-[#0f3b32]">{service.title}</h2>
               <p className="mt-2 flex-1 text-sm leading-relaxed">{service.summary}</p>

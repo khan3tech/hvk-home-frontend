@@ -29,7 +29,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         / {service.title}
       </nav>
       <div className="mt-6 grid gap-10 md:grid-cols-2">
-        <Visual alt={service.title} index={index} icon={service.icon} className="aspect-[4/3] rounded-lg" />
+        <Visual image={service.image} priority alt={service.title} index={index} icon={service.icon} className="aspect-[4/3] rounded-lg" />
         <div>
           <h1 className="font-[family-name:var(--font-playfair)] text-4xl font-bold text-[#0f3b32]">{service.title}</h1>
           <p className="mt-4 text-sm leading-relaxed">{service.description}</p>

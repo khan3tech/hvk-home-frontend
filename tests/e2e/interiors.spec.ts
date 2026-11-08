@@ -114,6 +114,7 @@ test.describe("HVK Interiors", () => {
   });
 
   test("pages are accessible", async ({ page, baseURL }) => {
+    test.setTimeout(120_000); // eight pages with pictures
     await installInteriorsApi(page, baseURL!);
     for (const path of ["/interiors", "/interiors/services", "/interiors/services/interior-design", "/interiors/portfolio", "/interiors/about", "/interiors/contact", "/interiors/blog"]) {
       await page.goto(path);

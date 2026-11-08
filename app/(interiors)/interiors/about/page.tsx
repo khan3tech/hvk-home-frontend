@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Visual, SectionTitle, interiorsButton } from "@/components/interiors/ui";
-import { INTERIORS_BASE, INTERIOR_PROCESS } from "@/lib/interiors/content";
+import { INTERIORS_BASE, INTERIORS_IMAGES, INTERIOR_PROCESS } from "@/lib/interiors/content";
 
 export const metadata: Metadata = { title: "About us", description: "HVK Interiors turns spaces into beautiful, functional and affordable interiors." };
 
@@ -22,7 +22,7 @@ export default function AboutPage() {
             Estimate your interiors
           </Link>
         </div>
-        <Visual alt="Warm living room with natural textures" index={2} icon="sofa" className="aspect-[4/3] rounded-lg" />
+        <Visual image={INTERIORS_IMAGES.aboutLiving} alt="Warm living room with natural textures" index={2} icon="sofa" className="aspect-[4/3] rounded-lg" />
       </div>
       <section aria-labelledby="how-title" className="mt-16">
         <h2 id="how-title" className="font-[family-name:var(--font-playfair)] text-2xl font-bold text-[#0f3b32]">
