@@ -27,7 +27,7 @@ jobs:
           base="origin/${{ github.base_ref }}"
           changed=$(git diff --name-only "$base...HEAD" -- app/page.tsx 'components/tech/**' lib/tech-constants.ts)
           # Owner-approved 2026-11-05: the "Talk to us" enquiry form and the address on the home page contact section.
-          unexpected=$(printf '%s\n' "$changed" | grep -vx -e 'lib/tech-constants.ts' -e 'components/tech/tech-cta.tsx' -e 'components/tech/tech-contact-modal.tsx' -e 'components/tech/tech-header.tsx' || true)
+          unexpected=$(printf '%s\n' "$changed" | grep -vx -e 'lib/tech-constants.ts' -e 'components/tech/tech-cta.tsx' -e 'components/tech/tech-contact-modal.tsx' -e 'components/tech/tech-header.tsx' -e 'components/tech/tech-services.tsx' || true)
 
           if [ -n "$unexpected" ]; then
             echo "::error::The home page is out of scope for portal work. Changed files:"

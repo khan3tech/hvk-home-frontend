@@ -4,8 +4,23 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { PageHeading } from "@/components/portal/page-heading";
+import type { Role } from "@/types/api";
+import { useOptionalSession } from "@/lib/session/session-provider";
 
-const TABS = [
+interface Tab {
+  href: string;
+  label: string;
+  /** Active only on this exact path (the first Interiors tab is a prefix of the others). */
+  exact?: boolean;
+}
+
+const INTERIOR_TABS: Tab[] = [
+  { href: "/admin/interiors", label: "Interiors quotes", exact: true },
+  { href: "/admin/interiors/consultations", label: "Consultations" },
+  { href: "/admin/interiors/rate-card", label: "Rate card" },
+];
+
+const TA_TABS: Tab[] = [
   { href: "/admin/leads", label: "Leads" },
   { href: "/admin/payments", label: "Payments" },
   { href: "/admin/follow-ups", label: "Payment follow-ups" },
@@ -14,17 +29,26 @@ const TABS = [
   { href: "/admin/enquiries", label: "Enquiries" },
 ];
 
+/** The tabs a staff role sees: ta the candidate screens, interiors only the Interiors screens, admin all of them. */
+export function tabsFor(role: Role | undefined): Tab[] {
+  if (role === "interiors") return INTERIOR_TABS;
+  if (role === "admin") return [...TA_TABS, ...INTERIOR_TABS];
+  return TA_TABS;
+}
+
 /** TA dashboard frame with section tabs. */
 export function AdminShell({ title, children }: { title: string; children: React.ReactNode }) {
   const pathname = usePathname();
+  const candidate = useOptionalSession()?.candidate;
+  const tabs = tabsFor(candidate?.role);
   return (
     <section className="bg-app-bg py-10 dark:bg-dark-bg">
       <div className="container">
-        <span className="text-xs font-bold uppercase tracking-[0.15em] text-primary-blue dark:text-bright-blue">TA dashboard</span>
+        <span className="text-xs font-bold uppercase tracking-[0.15em] text-primary-blue dark:text-bright-blue">{candidate?.role === "interiors" ? "Interiors dashboard" : "TA dashboard"}</span>
         <PageHeading className="mt-2 text-2xl font-extrabold text-navy dark:text-white">{title}</PageHeading>
-        <nav aria-label="TA sections" className="mt-4 flex gap-2 overflow-x-auto border-b border-slate-200 dark:border-white/10">
-          {TABS.map((t) => {
-            const active = pathname.startsWith(t.href);
+        <nav aria-label="Staff sections" className="mt-4 flex gap-2 overflow-x-auto border-b border-slate-200 dark:border-white/10">
+          {tabs.map((t) => {
+            const active = t.exact ? pathname === t.href : pathname.startsWith(t.href);
             return (
               <Link
                 key={t.href}

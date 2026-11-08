@@ -53,13 +53,26 @@ export function stepIndex(step: OnboardingStep): number {
 }
 
 export function isStaff(role: Role | undefined): boolean {
-  return role === "ta" || role === "admin";
+  return role === "ta" || role === "admin" || role === "interiors";
+}
+
+/** The staff portal page each staff role starts on. */
+export function staffHome(role: Role | undefined): string {
+  return role === "interiors" ? "/admin/interiors" : "/admin";
+}
+
+/** The interiors role sees only the Interiors screens; ta sees everything except them; admin sees all. */
+export function canUseAdminPath(role: Role | undefined, pathname: string): boolean {
+  const interiorsArea = pathname === "/admin/interiors" || pathname.startsWith("/admin/interiors/");
+  if (role === "interiors") return interiorsArea;
+  if (role === "ta") return !interiorsArea;
+  return role === "admin";
 }
 
 /** Where to send a user after sign-in, honouring a safe same-site `next` path. */
 export function homeFor(role: Role, next?: string | null): string {
   const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : null;
-  if (isStaff(role)) return safeNext?.startsWith("/admin") ? safeNext : "/admin";
+  if (isStaff(role)) return safeNext?.startsWith("/admin") && canUseAdminPath(role, safeNext) ? safeNext : staffHome(role);
   return safeNext && !safeNext.startsWith("/admin") ? safeNext : "/dashboard";
 }
 

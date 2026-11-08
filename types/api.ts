@@ -15,7 +15,7 @@ export const ONBOARDING_STEPS = [
 ] as const;
 export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
 
-export type Role = "candidate" | "ta" | "admin";
+export type Role = "candidate" | "ta" | "admin" | "interiors";
 
 export interface ApiSuccess<T> {
   data: T;
