@@ -345,3 +345,97 @@ export interface Enquiry {
   status: EnquiryStatus;
   createdAt: string | null;
 }
+
+/** Course exams and domain exams (spec 007). */
+export type SkillExamScope = "course" | "domain";
+
+export interface SkillExamQuestionDraft {
+  id: string;
+  prompt: string;
+  marks: number;
+  options: { id: string; label: string; isCorrect: boolean }[];
+}
+
+export interface SkillExamInput {
+  scope: SkillExamScope;
+  courseId?: string;
+  domain?: string;
+  title: string;
+  description?: string;
+  durationMinutes: number;
+  passPercentage: number;
+  questions: SkillExamQuestionDraft[];
+}
+
+export interface SkillExamAdmin {
+  id: string;
+  scope: SkillExamScope;
+  courseId: string | null;
+  domain: string;
+  targetTitle: string;
+  title: string;
+  description: string;
+  durationMinutes: number;
+  passPercentage: number;
+  status: "draft" | "published" | "archived";
+  questionCount: number;
+  attemptCount: number;
+  publishedAt: string | null;
+}
+
+export interface SkillExamAdminDetail extends SkillExamAdmin {
+  questions: SkillExamQuestionDraft[];
+}
+
+export interface SkillExamTargets {
+  courses: { id: string; title: string; status: string; examId: string | null; examStatus: "draft" | "published" | null }[];
+  domains: { name: string; examId: string | null; examStatus: "draft" | "published" | null }[];
+}
+
+/** A published exam as a candidate sees it. */
+export interface SkillExam {
+  id: string;
+  scope: SkillExamScope;
+  courseId: string | null;
+  domain: string;
+  targetTitle: string;
+  title: string;
+  description: string;
+  durationMinutes: number;
+  passPercentage: number;
+  questionCount: number;
+  /** False until the payment is approved. */
+  unlocked: boolean;
+  attempts: number;
+  bestPercentage: number | null;
+  passed: boolean;
+  openAttemptId: string | null;
+}
+
+export interface SkillAttempt {
+  id: string;
+  examId: string;
+  title: string;
+  attemptNo: number;
+  status: "in_progress";
+  startedAt: string;
+  deadlineAt: string;
+  answers: Record<string, string>;
+  questions: { id: string; prompt: string; marks: number; options: { id: string; label: string }[] }[];
+}
+
+export interface SkillExamResult {
+  attemptId: string;
+  examId: string;
+  attemptNo: number;
+  score: number;
+  totalMarks: number;
+  percentage: number;
+  passed: boolean;
+  passPercentage: number;
+  correctCount: number;
+  questionCount: number;
+  completedAt: string | null;
+}
+
+export type SkillAttemptView = { state: "in_progress"; attempt: SkillAttempt } | { state: "submitted"; result: SkillExamResult };

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, Lock, Shuffle } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { learningApi } from "@/lib/api/learning";
+import { skillExamApi } from "@/lib/api/skill-exams";
 import { portalApi } from "@/lib/api/portal";
 import { errorMessage } from "@/lib/api/client";
 import { isUnlocked, STEP_ROUTE } from "@/lib/journey";
@@ -14,9 +15,10 @@ import { usePaymentConfig } from "@/lib/use-payment-config";
 import { FormMessage } from "@/components/portal/form-field";
 import { PageShell } from "@/components/portal/page-shell";
 import { useJourney } from "@/components/portal/portal-gate";
-import type { LearningCourse, LearningTrack, LessonProgressResult } from "@/types/api";
+import type { LearningCourse, LearningTrack, LessonProgressResult, SkillExam } from "@/types/api";
 import { CourseList } from "./course-list";
 import { CourseSidebar } from "./course-sidebar";
+import { DomainExamCard } from "./skill-exam-cards";
 import { LessonPlayer } from "./lesson-player";
 import { TrackList } from "./track-list";
 
@@ -32,12 +34,25 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
   const gated = config?.mode === "manual" && !isUnlocked(status.step);
   const [tracks, setTracks] = React.useState<LearningTrack[] | null>(null);
   const [courses, setCourses] = React.useState<LearningCourse[] | null>(null);
+  const [exams, setExams] = React.useState<SkillExam[]>([]);
   const [loadError, setLoadError] = React.useState<string | null>(null);
   const [choosing, setChoosing] = React.useState(false);
   const [openingId, setOpeningId] = React.useState<string | null>(null);
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  // Course and domain exams (spec 007); the page works without them if the call fails.
+  React.useEffect(() => {
+    let cancelled = false;
+    skillExamApi
+      .list()
+      .then((list) => !cancelled && setExams(list))
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   /** Shows `list`, opening the lesson named in the link if it is in it. */
   const show = React.useCallback((list: LearningCourse[]) => {
@@ -116,6 +131,10 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
   const active = openable && activeId ? findLesson(openable, activeId) : null;
   const near = openable && active ? neighbours(openable, active.lesson.id) : null;
   const showChooser = hasTracks && choosing;
+  const examsByCourse = React.useMemo(() => new Map(exams.filter((e) => e.scope === "course" && e.courseId).map((e) => [e.courseId!, e])), [exams]);
+  const domainExams = exams.filter((e) => e.scope === "domain");
+  // The chooser offers every domain exam; a chosen pathway offers the exam of its own domain.
+  const shownDomainExams = showChooser ? domainExams : current && !active ? domainExams.filter((e) => e.domain === current.domain) : [];
   const loaded = loadError !== null || showChooser || courses !== null;
 
   const title = showChooser ? "Choose your learning path" : active ? active.lesson.title : current ? current.title : hub ? "My learning" : "Learn before you start";
@@ -178,6 +197,14 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
       </div>
       <FormMessage>{error}</FormMessage>
 
+      {shownDomainExams.length > 0 ? (
+        <div className="mb-6 space-y-3">
+          {shownDomainExams.map((exam) => (
+            <DomainExamCard key={exam.id} exam={exam} />
+          ))}
+        </div>
+      ) : null}
+
       {loadError ? (
         <p role="alert" className="text-sm text-red-600 dark:text-red-400">
           {loadError} You can still continue to payment.
@@ -204,7 +231,7 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
           <CourseSidebar courses={courses} activeLessonId={active.lesson.id} onSelect={select} gated={gated} />
         </div>
       ) : (
-        <CourseList courses={courses} onOpen={select} gated={gated} />
+        <CourseList courses={courses} onOpen={select} gated={gated} exams={examsByCourse} />
       )}
     </PageShell>
   );

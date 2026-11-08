@@ -48,4 +48,6 @@ export function authResult(opts: { role?: Role; step?: OnboardingStep; token?: s
 export const defaultHandlers: RequestHandler[] = [
   // Online payment unless a test says otherwise.
   http.get(`${API}/payments/config`, () => ok({ mode: "razorpay", feeMinor: 49900, currency: "INR", instructions: "" })),
+  // No course or domain exams unless a test adds some.
+  http.get(`${API}/skill-exams`, () => ok([])),
 ];
