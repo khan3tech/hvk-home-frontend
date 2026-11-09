@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Calculator, CalendarCheck, Quote } from "lucide-react";
-import { INTERIORS_BASE, INTERIOR_PROJECTS, INTERIOR_SERVICES, INTERIOR_TESTIMONIALS } from "@/lib/interiors/content";
+import { INTERIORS_BASE, INTERIORS_IMAGES, INTERIOR_PROJECTS, INTERIOR_SERVICES, INTERIOR_TESTIMONIALS } from "@/lib/interiors/content";
 import { SectionTitle, ServiceIcon, Visual, interiorsButton, interiorsButtonLight } from "./ui";
 
 const HERO_POINTS = ["Instant estimate from your room sizes", "Free consultation and site visit", "Design, build and handover by one team"];
@@ -35,7 +35,7 @@ function Hero() {
             </Link>
           </div>
         </div>
-        <Visual alt="A bright living room with a curved sofa and warm wooden furniture" index={0} icon="sofa" className="aspect-[4/3] rounded-t-[8rem] rounded-b-xl shadow-xl" />
+        <Visual image={INTERIORS_IMAGES.hero} priority alt="A bright living room with a curved sofa and warm wooden furniture" index={0} icon="sofa" className="aspect-[4/3] rounded-t-[8rem] rounded-b-xl shadow-xl" />
       </div>
     </section>
   );
@@ -45,8 +45,8 @@ function About() {
   return (
     <section aria-labelledby="about-title" className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-16 md:grid-cols-2">
       <div className="grid grid-cols-2 gap-3">
-        <Visual alt="Bedroom with a round mirror and a console" index={1} icon="armchair" className="aspect-[3/4] rounded-md" />
-        <Visual alt="Living room with framed art and a sofa" index={2} icon="sofa" className="mt-8 aspect-[3/4] rounded-md" />
+        <Visual image={INTERIORS_IMAGES.aboutBedroom} alt="Bedroom with a round mirror and a console" index={1} icon="armchair" className="aspect-[3/4] rounded-md" />
+        <Visual image={INTERIORS_IMAGES.aboutLiving} alt="Living room with framed art and a sofa" index={2} icon="sofa" className="mt-8 aspect-[3/4] rounded-md" />
       </div>
       <div>
         <SectionTitle id="about-title">About Us</SectionTitle>
@@ -72,7 +72,7 @@ function Services() {
         <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {INTERIOR_SERVICES.map((service, index) => (
             <li key={service.slug} className="flex flex-col overflow-hidden rounded-lg border border-[#d8dcd2] bg-white">
-              <Visual alt={`${service.title}`} index={index} icon={service.icon} className="h-36" />
+              <Visual image={service.image} alt={service.title} index={index} icon={service.icon} className="h-36" />
               <div className="flex flex-1 flex-col p-4">
                 <h3 className="font-[family-name:var(--font-playfair)] text-base font-bold text-[#0f3b32]">{service.title}</h3>
                 <p className="mt-2 flex-1 text-xs leading-relaxed">{service.summary}</p>

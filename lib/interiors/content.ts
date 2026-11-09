@@ -31,6 +31,8 @@ export interface InteriorService {
   idealFor: string;
   timeline: string;
   icon: "sofa" | "hammer" | "ruler" | "armchair" | "paintbrush" | "clipboard" | "flower" | "compass";
+  /** Picture for the service card and page (AI-generated; files in /public/images/interiors). */
+  image: string;
 }
 
 export const INTERIOR_SERVICES: InteriorService[] = [
@@ -44,6 +46,7 @@ export const INTERIOR_SERVICES: InteriorService[] = [
     idealFor: "New apartments, villas, offices and shops.",
     timeline: "Design in 2 to 3 weeks; execution 6 to 12 weeks depending on the scope.",
     icon: "sofa",
+    image: "/images/interiors/service-interior-design.jpg",
   },
   {
     slug: "custom-fabrication",
@@ -55,6 +58,7 @@ export const INTERIOR_SERVICES: InteriorService[] = [
     idealFor: "Homes and commercial spaces that need storage or furniture that fits exactly.",
     timeline: "3 to 6 weeks from approval.",
     icon: "hammer",
+    image: "/images/interiors/service-custom-fabrication.jpg",
   },
   {
     slug: "floor-planning",
@@ -66,6 +70,7 @@ export const INTERIOR_SERVICES: InteriorService[] = [
     idealFor: "New homes before work starts, and homes that feel cramped.",
     timeline: "5 to 10 working days.",
     icon: "ruler",
+    image: "/images/interiors/service-floor-planning.jpg",
   },
   {
     slug: "modern-furniture",
@@ -76,6 +81,7 @@ export const INTERIOR_SERVICES: InteriorService[] = [
     idealFor: "Anyone furnishing a new home or refreshing a few rooms.",
     timeline: "2 to 8 weeks depending on the piece.",
     icon: "armchair",
+    image: "/images/interiors/service-modern-furniture.jpg",
   },
   {
     slug: "home-renovation",
@@ -87,6 +93,7 @@ export const INTERIOR_SERVICES: InteriorService[] = [
     idealFor: "Older homes and rooms that need a fresh start.",
     timeline: "3 to 10 weeks depending on the scope.",
     icon: "paintbrush",
+    image: "/images/interiors/service-home-renovation.jpg",
   },
   {
     slug: "site-inspection",
@@ -98,6 +105,7 @@ export const INTERIOR_SERVICES: InteriorService[] = [
     idealFor: "Buyers, owners and anyone planning work on a property.",
     timeline: "Visit within a few days; report in 2 to 3 working days.",
     icon: "clipboard",
+    image: "/images/interiors/service-site-inspection.jpg",
   },
   {
     slug: "soft-furnishing",
@@ -108,6 +116,7 @@ export const INTERIOR_SERVICES: InteriorService[] = [
     idealFor: "Finishing a room, or changing its mood without major work.",
     timeline: "1 to 3 weeks.",
     icon: "flower",
+    image: "/images/interiors/service-soft-furnishing.jpg",
   },
   {
     slug: "structural-drawing",
@@ -119,6 +128,7 @@ export const INTERIOR_SERVICES: InteriorService[] = [
     idealFor: "Builders, owners and contractors who need clear drawings before work starts.",
     timeline: "1 to 3 weeks depending on the size.",
     icon: "compass",
+    image: "/images/interiors/service-structural-drawing.jpg",
   },
 ];
 
@@ -135,17 +145,17 @@ export interface InteriorProject {
   city: string;
   areaSqft: number;
   summary: string;
-  /** Add a photo path under /public/images/interiors/ here; until then a styled placeholder is shown. */
+  /** Picture (AI-generated; file in /public/images/interiors). Without one, a styled placeholder is shown. */
   image?: string;
 }
 
 export const INTERIOR_PROJECTS: InteriorProject[] = [
-  { slug: "urban-artville", title: "The Urban Artville", room: "Staircase", style: "Modern", city: "Hyderabad", areaSqft: 1450, summary: "A bright duplex with a floating timber staircase as its centrepiece." },
-  { slug: "magnolia-whimsical-boxed", title: "Magnolia Whimsical Boxed", room: "Living room", style: "Contemporary", city: "Hyderabad", areaSqft: 1100, summary: "Soft neutrals, a statement console and layered textures in a compact living room." },
-  { slug: "decore-minimalism", title: "DeCore Minimalism", room: "Bedroom", style: "Minimal", city: "Visakhapatnam", areaSqft: 900, summary: "A calm bedroom with concealed storage, warm light and very few things on show." },
-  { slug: "oak-and-brass-kitchen", title: "Oak and Brass Kitchen", room: "Kitchen", style: "Modern", city: "Bengaluru", areaSqft: 150, summary: "A modular kitchen in oak laminate with brass handles and a quartz counter." },
-  { slug: "family-dining-hall", title: "Family Dining Hall", room: "Dining", style: "Classic", city: "Kurnool", areaSqft: 260, summary: "A six-seater dining area with a crockery unit and a warm pendant." },
-  { slug: "studio-office-floor", title: "Studio Office Floor", room: "Office", style: "Contemporary", city: "Hyderabad", areaSqft: 2200, summary: "An open workspace with acoustic ceiling panels and a small client lounge." },
+  { slug: "urban-artville", image: "/images/interiors/project-urban-artville.jpg", title: "The Urban Artville", room: "Staircase", style: "Modern", city: "Hyderabad", areaSqft: 1450, summary: "A bright duplex with a floating timber staircase as its centrepiece." },
+  { slug: "magnolia-whimsical-boxed", image: "/images/interiors/project-magnolia-whimsical-boxed.jpg", title: "Magnolia Whimsical Boxed", room: "Living room", style: "Contemporary", city: "Hyderabad", areaSqft: 1100, summary: "Soft neutrals, a statement console and layered textures in a compact living room." },
+  { slug: "decore-minimalism", image: "/images/interiors/project-decore-minimalism.jpg", title: "DeCore Minimalism", room: "Bedroom", style: "Minimal", city: "Visakhapatnam", areaSqft: 900, summary: "A calm bedroom with concealed storage, warm light and very few things on show." },
+  { slug: "oak-and-brass-kitchen", image: "/images/interiors/project-oak-and-brass-kitchen.jpg", title: "Oak and Brass Kitchen", room: "Kitchen", style: "Modern", city: "Bengaluru", areaSqft: 150, summary: "A modular kitchen in oak laminate with brass handles and a quartz counter." },
+  { slug: "family-dining-hall", image: "/images/interiors/project-family-dining-hall.jpg", title: "Family Dining Hall", room: "Dining", style: "Classic", city: "Kurnool", areaSqft: 260, summary: "A six-seater dining area with a crockery unit and a warm pendant." },
+  { slug: "studio-office-floor", image: "/images/interiors/project-studio-office-floor.jpg", title: "Studio Office Floor", room: "Office", style: "Contemporary", city: "Hyderabad", areaSqft: 2200, summary: "An open workspace with acoustic ceiling panels and a small client lounge." },
 ];
 
 export const INTERIOR_TESTIMONIALS = [
@@ -169,3 +179,10 @@ export const INTERIOR_FAQS = [
   { q: "Do you take up small projects such as one room?", a: "Yes. You can choose a single room or a few items such as a wardrobe or a TV unit." },
   { q: "Can I see the site visit before paying anything?", a: "The consultation and the site visit for a quote are free." },
 ];
+
+/** Pictures of the home and about pages. */
+export const INTERIORS_IMAGES = {
+  hero: "/images/interiors/hero.jpg",
+  aboutBedroom: "/images/interiors/about-bedroom.jpg",
+  aboutLiving: "/images/interiors/about-living.jpg",
+};

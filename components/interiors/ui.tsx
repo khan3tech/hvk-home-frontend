@@ -44,11 +44,11 @@ const GRADIENTS = [
  * A project or service picture. Shows the photo when there is one; until then a soft gradient with an icon,
  * so the pages look finished and a real photo can be dropped in later.
  */
-export function Visual({ image, alt, index = 0, icon, className }: { image?: string | undefined; alt: string; index?: number; icon?: InteriorService["icon"]; className?: string }) {
+export function Visual({ image, alt, index = 0, icon, className, priority = false }: { image?: string | undefined; alt: string; index?: number; icon?: InteriorService["icon"]; className?: string; priority?: boolean }) {
   if (image) {
     return (
       <div className={cn("relative overflow-hidden", className)}>
-        <Image src={image} alt={alt} fill sizes="(min-width: 1024px) 33vw, 100vw" className="object-cover" />
+        <Image src={image} alt={alt} fill sizes="(min-width: 1024px) 33vw, 100vw" className="object-cover" priority={priority} />
       </div>
     );
   }
