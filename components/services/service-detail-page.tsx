@@ -71,7 +71,7 @@ export function ServiceDetailPage({ detail }: { detail: ServiceDetail }) {
               </div>
               <p className="mt-4 text-xs text-muted dark:text-slate-400">Registration is free. Prefer to talk first? Call us and we will help you choose.</p>
             </div>
-            <ServicePoster icon={Icon} title={service.title} tagline={service.description} accent={detail.accent} badges={detail.badges} />
+            <ServicePoster icon={Icon} title={service.title} tagline={service.description} accent={detail.accent} poster={detail.poster} className="rounded-2xl shadow-card-hover" />
           </div>
         </div>
       </section>
