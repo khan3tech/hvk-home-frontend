@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { ArrowRight, Menu, X } from "lucide-react";
 import { TECH_NAV_LINKS } from "@/lib/tech-constants";
 import { cn } from "@/lib/utils";
@@ -59,6 +60,14 @@ export function TechHeader() {
               {link.label}
             </a>
           ))}
+          {/* The candidate registration site: a page of its own, so a normal link rather than a section anchor. */}
+          <Link
+            href="/registration"
+            onClick={() => setOpen(false)}
+            className="py-3 text-[0.95rem] font-medium text-gold-light transition-colors hover:text-white md:py-1 md:text-sm"
+          >
+            Our Talent Hub
+          </Link>
         </nav>
 
         <div className="flex items-center gap-3">

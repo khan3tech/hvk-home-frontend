@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Instagram, Linkedin, Youtube } from "lucide-react";
-import { TECH_FOOTER_GROUPS, TECH_SOCIAL_LINKS } from "@/lib/tech-constants";
+import { Instagram, Linkedin, Mail, MapPin, Phone, Youtube } from "lucide-react";
+import { TECH_ADDRESS, TECH_EMAIL, TECH_FOOTER_GROUPS, TECH_PHONES, TECH_SOCIAL_LINKS } from "@/lib/tech-constants";
 import { TechBrand } from "./tech-brand";
 import { TechSubscribe } from "./tech-subscribe";
 
@@ -45,6 +45,26 @@ export function TechFooter() {
                 capabilities. Together, we build a brighter tomorrow.
               </p>
             </div>
+            <address className="mt-6 max-w-sm space-y-2 text-xs not-italic text-tech-muted" aria-label="HVK office and contact details">
+              <p className="flex items-start gap-2">
+                <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold" aria-hidden="true" />
+                <span>{TECH_ADDRESS}</span>
+              </p>
+              {TECH_PHONES.map((phone) => (
+                <p key={phone.href} className="flex items-center gap-2">
+                  <Phone className="h-3.5 w-3.5 shrink-0 text-gold" aria-hidden="true" />
+                  <a href={phone.href} className="transition-colors hover:text-gold-light">
+                    {phone.label}
+                  </a>
+                </p>
+              ))}
+              <p className="flex items-center gap-2">
+                <Mail className="h-3.5 w-3.5 shrink-0 text-gold" aria-hidden="true" />
+                <a href={`mailto:${TECH_EMAIL}`} className="transition-colors hover:text-gold-light">
+                  {TECH_EMAIL}
+                </a>
+              </p>
+            </address>
             <ul className="mt-6 flex gap-4">
               {TECH_SOCIAL_LINKS.map((social) => {
                 const Icon = SOCIAL_ICONS[social.icon];
