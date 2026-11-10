@@ -29,33 +29,50 @@ export function ServiceDetailPage({ detail }: { detail: ServiceDetail }) {
 
   return (
     <>
-      <section className="bg-light-blue/40 py-12 dark:bg-dark-surface-alt/40 sm:py-16">
-        <div className="container grid items-center gap-10 lg:grid-cols-2">
-          <div>
-            <nav aria-label="Breadcrumb" className="text-xs font-semibold text-muted dark:text-slate-400">
-              <Link href="/registration" className="hover:text-bright-blue">Home</Link>
-              <span aria-hidden="true"> / </span>
-              <Link href="/registration#services" className="hover:text-bright-blue">Services</Link>
-              <span aria-hidden="true"> / </span>
-              <span aria-current="page" className="text-navy dark:text-white">{service.title}</span>
-            </nav>
-            <h1 className="mt-4 flex items-center gap-3 text-3xl font-extrabold text-navy dark:text-white sm:text-4xl">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-primary-blue shadow-card dark:bg-bright-blue/10 dark:text-bright-blue">
-                <Icon className="h-6 w-6" aria-hidden="true" />
-              </span>
-              {service.title}
-            </h1>
-            <p className="mt-4 text-lg leading-relaxed text-ink dark:text-slate-200">{detail.tagline}</p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <AuthLink view="register" href="/registration#registration" className={buttonVariants({ size: "lg" })}>
-                Register now <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </AuthLink>
-              <a href={PHONE_NUMBER_HREF} className={buttonVariants({ size: "lg", variant: "outline" })}>
-                <Phone className="h-4 w-4" aria-hidden="true" /> Talk to us
-              </a>
+      <section className="bg-light-blue/40 py-8 dark:bg-dark-surface-alt/40 sm:py-12">
+        <div className="container">
+          <nav aria-label="Breadcrumb" className="text-xs font-semibold text-muted dark:text-slate-400">
+            <Link href="/registration" className="hover:text-bright-blue">Home</Link>
+            <span aria-hidden="true"> / </span>
+            <Link href="/registration#services" className="hover:text-bright-blue">Services</Link>
+            <span aria-hidden="true"> / </span>
+            <span aria-current="page" className="text-navy dark:text-white">{service.title}</span>
+          </nav>
+
+          <div className="mt-6 grid items-start gap-10 lg:grid-cols-2">
+            <div>
+              <h1 className="flex items-center gap-3 text-3xl font-extrabold text-navy dark:text-white sm:text-4xl">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-primary-blue shadow-card dark:bg-bright-blue/10 dark:text-bright-blue">
+                  <Icon className="h-6 w-6" aria-hidden="true" />
+                </span>
+                {service.title}
+              </h1>
+              <p className="mt-4 text-lg leading-relaxed text-ink dark:text-slate-200">{detail.tagline}</p>
+              <p className="mt-3 text-base leading-relaxed text-muted dark:text-slate-300">{detail.cardSummary}</p>
+
+              <ul className="mt-5 space-y-2.5" aria-label={`Key points of ${service.title}`}>
+                {detail.highlights.slice(0, 3).map((item) => (
+                  <li key={item.title} className="flex items-start gap-3 text-sm text-ink dark:text-slate-200">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary-blue dark:text-bright-blue" aria-hidden="true" />
+                    <span>
+                      <strong className="font-semibold text-navy dark:text-white">{item.title}.</strong> {item.text}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-7 flex flex-wrap gap-3">
+                <AuthLink view="register" href="/registration#registration" className={buttonVariants({ size: "lg" })}>
+                  Register now <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </AuthLink>
+                <a href={PHONE_NUMBER_HREF} className={buttonVariants({ size: "lg", variant: "outline" })}>
+                  <Phone className="h-4 w-4" aria-hidden="true" /> Talk to us
+                </a>
+              </div>
+              <p className="mt-4 text-xs text-muted dark:text-slate-400">Registration is free. Prefer to talk first? Call us and we will help you choose.</p>
             </div>
+            <ServicePoster icon={Icon} title={service.title} tagline={service.description} accent={detail.accent} badges={detail.badges} />
           </div>
-          <ServicePoster icon={Icon} title={service.title} tagline={service.description} accent={detail.accent} badges={detail.badges} />
         </div>
       </section>
 
