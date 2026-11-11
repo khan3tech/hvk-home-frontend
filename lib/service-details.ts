@@ -1,3 +1,5 @@
+import type { PosterContent } from "@/components/services/service-poster";
+
 /**
  * Content for the service detail pages (/services/<id>). Ids match `SERVICES` in lib/constants.ts.
  * Wording is deliberately general: no statistics, partner names or job guarantees. HVK should review it
@@ -10,6 +12,8 @@ export interface ServiceDetail {
   accent: [string, string];
   /** Three short words shown as chips on the poster. */
   badges: [string, string, string];
+  /** The service poster: button text, second tagline line, three features and the 3D illustration. */
+  poster: PosterContent;
   /** A few sentences shown on the service card under the one-line description. */
   cardSummary: string;
   /** Sample certificate shown on the page (training only). Programmes are the names offered in the preview. */
@@ -36,6 +40,13 @@ export const SERVICE_DETAILS: ServiceDetail[] = [
     tagline: "Job-ready skills taught by practitioners, proven with an online assessment and a certificate.",
     accent: ["#1d4ed8", "#0ea5e9"],
     badges: ["Hands-on", "Assessed online", "Certificate"],
+    poster: {
+      cta: "Enroll Now",
+      lead: "Get certified. Grow faster.",
+      highlight: "#67e8f9",
+      image: "/images/posters/training-certification.webp",
+      features: [{ label: "Hands-on Learning", icon: "play" }, { label: "Recognized Certification", icon: "award" }, { label: "Better Career Opportunities", icon: "briefcase" }],
+    },
     metaDescription: "Industry-focused training programmes from HVK Tech, with hands-on practice, an online assessment and a completion certificate.",
     overview: [
       "Technology changes quickly, and employers now look for people who can build, test and ship real work, not only recall theory. Our training programmes teach the tools teams use today, and every concept is followed by practice you do yourself.",
@@ -77,6 +88,13 @@ export const SERVICE_DETAILS: ServiceDetail[] = [
     tagline: "Work on live projects with mentor reviews, and graduate with experience you can talk about.",
     accent: ["#6d28d9", "#2563eb"],
     badges: ["Live projects", "Mentored", "Real workflow"],
+    poster: {
+      cta: "Apply Now",
+      lead: "Learn by doing. Build your portfolio.",
+      highlight: "#fde68a",
+      image: "/images/posters/internship-programs.webp",
+      features: [{ label: "Live Project Work", icon: "laptop" }, { label: "Mentor Reviews", icon: "users" }, { label: "Project Report and Letter", icon: "file" }],
+    },
     metaDescription: "HVK Tech internship programmes: real-world projects, mentor code reviews and a team workflow, ending with a project report.",
     overview: [
       "Most entry-level roles ask for experience that classroom learning alone does not give. Our internships put you on a real project, with a team workflow, deadlines and reviews, so you learn how software is planned, built and delivered.",
@@ -113,6 +131,13 @@ export const SERVICE_DETAILS: ServiceDetail[] = [
     tagline: "Get interview-ready and connected to hiring companies, with honest, practical support.",
     accent: ["#047857", "#0ea5e9"],
     badges: ["Résumé", "Mock interviews", "Hiring connect"],
+    poster: {
+      cta: "Get Started",
+      lead: "Be interview-ready. Get noticed.",
+      highlight: "#fde68a",
+      image: "/images/posters/placement-assistance.webp",
+      features: [{ label: "Résumé Review", icon: "file" }, { label: "Mock Interviews", icon: "users" }, { label: "Company Introductions", icon: "briefcase" }],
+    },
     metaDescription: "Placement assistance from HVK Tech: résumé reviews, mock interviews, aptitude and technical preparation, and introductions to hiring companies.",
     overview: [
       "A good profile gets you shortlisted; a good interview gets you the offer. Placement assistance helps with both: we sharpen your résumé and portfolio, practise interviews with you, and introduce your profile to companies that are hiring.",
@@ -148,6 +173,13 @@ export const SERVICE_DETAILS: ServiceDetail[] = [
     tagline: "One-to-one mentorship to choose a direction, close skill gaps and plan the next step.",
     accent: ["#b45309", "#db2777"],
     badges: ["1-to-1", "Roadmap", "Skill gaps"],
+    poster: {
+      cta: "Book a Session",
+      lead: "Find your direction. Plan the next step.",
+      highlight: "#fde68a",
+      image: "/images/posters/career-guidance.webp",
+      features: [{ label: "One-to-one Sessions", icon: "users" }, { label: "Skill-gap Assessment", icon: "target" }, { label: "Personal Roadmap", icon: "map" }],
+    },
     metaDescription: "Career guidance from HVK Tech: one-to-one mentoring, a skill-gap assessment and a personal roadmap for technology careers.",
     overview: [
       "With so many roles and tools, it is hard to know what to learn first. Career guidance gives you a mentor to talk it through: where you are now, where you want to be, and the shortest sensible path between the two.",
@@ -183,6 +215,13 @@ export const SERVICE_DETAILS: ServiceDetail[] = [
     tagline: "Hands-on workshops and talks with industry practitioners, and a network to grow with.",
     accent: ["#be185d", "#7c3aed"],
     badges: ["Hands-on", "Experts", "Networking"],
+    poster: {
+      cta: "Join a Workshop",
+      lead: "Practise with experts. Meet your peers.",
+      highlight: "#fde68a",
+      image: "/images/posters/workshops-events.webp",
+      features: [{ label: "Practical Sessions", icon: "wrench" }, { label: "Industry Speakers", icon: "mic" }, { label: "Networking", icon: "users" }],
+    },
     metaDescription: "Workshops and events from HVK Tech: practical sessions with industry experts, hackathons and networking for students and professionals.",
     overview: [
       "Workshops are the fastest way to learn one useful skill in a day. Our sessions are practical: you code along, build something and leave with notes and a working example, guided by people who use the tools at work.",
@@ -217,6 +256,13 @@ export const SERVICE_DETAILS: ServiceDetail[] = [
     tagline: "Training and assessment designed around your college or organisation.",
     accent: ["#0f766e", "#1d4ed8"],
     badges: ["Tailored", "On-campus or online", "Reports"],
+    poster: {
+      cta: "Talk to Us",
+      lead: "Built around your campus or team.",
+      highlight: "#a5f3fc",
+      image: "/images/posters/custom-solutions.webp",
+      features: [{ label: "Tailored Curriculum", icon: "target" }, { label: "Flexible Delivery", icon: "monitor" }, { label: "Progress Reports", icon: "chart" }],
+    },
     metaDescription: "Custom training and assessment solutions from HVK Tech for colleges and organisations: tailored curriculum, trainers and exam reports.",
     overview: [
       "Every institution has different students, timetables and goals. Custom Solutions lets us build a programme around yours: the topics, the depth, the schedule and the way progress is measured.",

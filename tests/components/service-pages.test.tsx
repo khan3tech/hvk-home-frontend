@@ -1,5 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { splitTitle } from "@/components/services/service-poster";
 import { ServiceCard } from "@/components/home/service-card";
 import { ServiceDetailPage } from "@/components/services/service-detail-page";
 import { FOOTER_SERVICE_LINKS, SERVICES } from "@/lib/constants";
@@ -55,18 +56,36 @@ describe("ServiceDetailPage", () => {
 });
 
 describe("links to the detail pages", () => {
-  it("each service card links to its page", () => {
+  it("each service card links to its page and shows its light poster", () => {
     const service = SERVICES[0]!;
     render(<ServiceCard id={service.id} title={service.title} description={service.description} />);
     expect(screen.getByRole("link", { name: service.title })).toHaveAttribute("href", `/services/${service.id}`);
-    // The picture sits above the title and is decorative (the title already names it).
-    const image = document.querySelector("article img");
-    expect(image).toHaveAttribute("src", expect.stringContaining("team-2"));
+    // The poster above the title is decorative (the title already names it) and has the service's 3D illustration.
+    const poster = document.querySelector('article [data-poster="light"]');
+    expect(poster).not.toBeNull();
+    expect(poster).toHaveAttribute("aria-hidden", "true");
+    const image = poster!.querySelector("img");
+    expect(image).toHaveAttribute("src", expect.stringContaining("training-certification"));
     expect(image).toHaveAttribute("alt", "");
-    // More than the one-liner: a longer summary and highlight chips.
+    // The poster carries the three features; the card text is the longer summary.
+    for (const feature of SERVICE_DETAILS[0]!.poster.features) expect(poster).toHaveTextContent(feature.label);
     expect(screen.getByText(SERVICE_DETAILS[0]!.cardSummary)).toBeInTheDocument();
-    expect(screen.getByRole("list", { name: "Highlights" }).children).toHaveLength(3);
-    expect(document.querySelector("article svg.lucide-graduation-cap")).toBeNull(); // no icon any more
+  });
+
+  it("every service has a poster with its illustration, a button, a second line and three features", () => {
+    for (const detail of SERVICE_DETAILS) {
+      expect(detail.poster.image, detail.id).toBe(`/images/posters/${detail.id}.webp`);
+      expect(detail.poster.cta.length, detail.id).toBeGreaterThan(2);
+      expect(detail.poster.lead.length, detail.id).toBeGreaterThan(5);
+      expect(detail.poster.features, detail.id).toHaveLength(3);
+    }
+  });
+
+  it("splits the poster heading into two lines, keeping an ampersand with the first word", () => {
+    expect(splitTitle("Training & Certification")).toEqual(["Training &", "Certification"]);
+    expect(splitTitle("Workshops & Events")).toEqual(["Workshops &", "Events"]);
+    expect(splitTitle("Career Guidance")).toEqual(["Career", "Guidance"]);
+    expect(splitTitle("Custom Solutions")).toEqual(["Custom", "Solutions"]);
   });
 
   it("the footer lists every service with its page address", () => {
