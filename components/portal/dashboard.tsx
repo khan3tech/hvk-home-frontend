@@ -21,8 +21,8 @@ const HINTS: Record<string, string> = {
   completed: "Your result is ready.",
 };
 
-/** Wording while staff approve payments: nothing to pay online, the candidate waits for approval. */
-const MANUAL_HINT = "Pay the registration fee as described on the payment page. Once our team approves it, your videos and exam unlock.";
+/** Wording before the payment (manual mode): the candidate starts with the free videos; the fee appears only in the popup (spec 006, D6). */
+const MANUAL_HINT = "Watch the first video of every course for free. You can unlock the rest of the videos and your exams whenever you are ready.";
 const WAITING_STEPS = ["registered", "demo_pending", "fee_pending"];
 
 const tileClass =
@@ -68,15 +68,15 @@ export function Dashboard() {
         <div className="max-w-2xl">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/80">Next step</p>
           <h2 id="next-step-title" className="mt-2 text-2xl font-extrabold sm:text-3xl">
-            {waiting ? "Waiting for payment approval" : STEP_ACTION[step]}
+            {waiting ? "Start with the free videos" : STEP_ACTION[step]}
           </h2>
           <p className="mt-3 text-base leading-relaxed text-white/90">{waiting ? MANUAL_HINT : HINTS[step]}</p>
         </div>
         <Link
-          href={waiting ? "/payment" : STEP_ROUTE[step]}
+          href={waiting ? LEARNING_PAGE : STEP_ROUTE[step]}
           className="inline-flex h-12 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-white px-7 text-base font-semibold text-primary-blue shadow-sm transition-colors hover:bg-light-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary-blue"
         >
-          {waiting ? "View payment status" : STEP_ACTION[step]} <ArrowRight className="h-5 w-5" aria-hidden="true" />
+          {waiting ? "Watch free videos" : STEP_ACTION[step]} <ArrowRight className="h-5 w-5" aria-hidden="true" />
         </Link>
       </section>
 

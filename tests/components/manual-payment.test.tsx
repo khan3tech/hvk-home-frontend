@@ -86,16 +86,18 @@ describe("waiting for approval", () => {
 });
 
 describe("dashboard while staff approve payments", () => {
-  it("points to the payment status and uses the approval stages", async () => {
+  it("starts a candidate with the free videos: no payment status or amount on the dashboard", async () => {
     manual();
     renderPortal(<Dashboard />, { pathname: "/dashboard", step: "demo_pending" });
-    const link = await screen.findByRole("link", { name: /View payment status/ });
-    expect(link).toHaveAttribute("href", "/payment");
-    expect(screen.queryByRole("link", { name: /Watch demo/ })).toBeNull();
+    const link = await screen.findByRole("link", { name: /Watch free videos/ });
+    expect(link).toHaveAttribute("href", "/learning");
+    expect(screen.getByRole("heading", { name: "Start with the free videos" })).toBeInTheDocument();
+    expect(screen.queryByText(/Waiting for payment approval/)).toBeNull();
+    expect(screen.queryByRole("link", { name: /View payment status/ })).toBeNull();
+    expect(document.body.textContent).not.toMatch(/₹/);
     const stages = screen.getByRole("list", { name: "Your progress" });
     const labels = within(stages).getAllByRole("listitem").map((li) => (li.textContent ?? "").replace(/^\d+/, "").replace(/\s*\(.*\)\s*$/, "").trim());
     expect(labels).toEqual(["Registered", "Payment approval", "Exam", "Feedback", "Result"]);
-    expect(screen.getByText(/Once our team approves it/)).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /Course videos/ })).toBeNull();
   });
 
