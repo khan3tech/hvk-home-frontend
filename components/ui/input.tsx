@@ -15,7 +15,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {Icon ? (
           <Icon
             aria-hidden="true"
-            className="pointer-events-none absolute left-3.5 top-6 h-4.5 w-4.5 -translate-y-1/2 text-muted dark:text-slate-500"
+            className="pointer-events-none absolute left-3 top-6 h-3.5 w-3.5 -translate-y-1/2 text-muted dark:text-slate-500"
           />
         ) : null}
         <input
@@ -25,7 +25,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           aria-describedby={error ? `${id}-error` : undefined}
           className={cn(
             "h-12 w-full rounded-lg border border-slate-200 bg-white text-sm text-ink placeholder:text-slate-400 transition-colors duration-200 focus:border-bright-blue focus:outline-none focus:ring-2 focus:ring-bright-blue/20 dark:border-white/10 dark:bg-dark-surface-alt dark:text-slate-100 dark:placeholder:text-slate-500",
-            Icon ? "pl-10 pr-3.5" : "px-3.5",
+            Icon ? "pl-9 pr-3.5" : "px-3.5",
             error && "border-red-400 focus:border-red-500 focus:ring-red-100 dark:border-red-400/70",
             className
           )}
