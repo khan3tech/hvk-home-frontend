@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Award, Lock } from "lucide-react";
 import type { SkillExam } from "@/types/api";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { usePaymentPrompt } from "@/components/portal/payment-prompt";
 import { cn } from "@/lib/utils";
 
 export const skillExamHref = (examId: string) => `/skill-exam/${encodeURIComponent(examId)}`;
@@ -23,9 +24,11 @@ export function ExamStatus({ exam }: { exam: SkillExam }) {
 
 /** The exam button of one course or domain: a link once the payment is approved, a locked button before. */
 export function ExamAction({ exam, size = "sm", variant = "outline" }: { exam: SkillExam; size?: "sm" | "default"; variant?: "outline" | "primary" }) {
+  const prompt = usePaymentPrompt();
   if (!exam.unlocked) {
+    // Before the payment the button is still there: it opens the popup with the fee and the way to the payment page.
     return (
-      <Button size={size} variant="outline" disabled title="Unlocks after your payment is approved" aria-label={`Exam for ${exam.targetTitle} unlocks after payment approval`}>
+      <Button size={size} variant="outline" onClick={prompt.open} aria-label={`Unlock the exam for ${exam.targetTitle}`}>
         <Lock className="h-4 w-4" aria-hidden="true" /> Exam
       </Button>
     );
@@ -47,7 +50,7 @@ export function DomainExamCard({ exam }: { exam: SkillExam }) {
           <h2 className="text-base font-bold text-navy dark:text-white">{exam.targetTitle}: domain exam</h2>
           <p className="mt-0.5 text-sm text-muted dark:text-slate-400">
             Already know this domain? Skip the courses and take the domain exam directly · {exam.questionCount} questions · {exam.durationMinutes} min · pass mark {exam.passPercentage}%
-            {exam.unlocked ? "" : " · unlocks after payment approval"}
+            {exam.unlocked ? "" : " · unlocks after payment"}
           </p>
           <ExamStatus exam={exam} />
         </div>

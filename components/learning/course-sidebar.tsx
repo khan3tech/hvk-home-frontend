@@ -74,18 +74,18 @@ export function CourseSidebar({
                               <button
                                 type="button"
                                 aria-current={current ? "true" : undefined}
-                                disabled={locked}
+                                aria-label={locked ? `${lesson.title} (locked until payment)` : undefined}
                                 onClick={() => onSelect(lesson.id)}
                                 className={`flex w-full items-start gap-2 px-3 py-2 text-left text-sm ${
                                   current
                                     ? "bg-light-blue font-semibold text-primary-blue dark:bg-white/10 dark:text-bright-blue"
                                     : locked
-                                      ? "cursor-not-allowed text-muted dark:text-slate-500"
+                                      ? "text-muted hover:bg-light-blue/60 dark:text-slate-500 dark:hover:bg-white/5"
                                       : "text-navy hover:bg-light-blue/60 dark:text-slate-200 dark:hover:bg-white/5"
                                 }`}
                               >
                                 {locked ? (
-                                  <Lock className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" aria-label="Locked until payment approval" />
+                                  <Lock className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
                                 ) : current ? (
                                   <Play className="mt-0.5 h-4 w-4 shrink-0" aria-label="Playing" />
                                 ) : lesson.completed ? (

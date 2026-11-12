@@ -52,6 +52,11 @@ export function stepIndex(step: OnboardingStep): number {
   return ONBOARDING_STEPS.indexOf(step);
 }
 
+/** Before the fee is paid or approved (registered, demo_pending, fee_pending). */
+export function isPrePayment(step: OnboardingStep): boolean {
+  return stepIndex(step) < stepIndex("exam_ready");
+}
+
 export function isStaff(role: Role | undefined): boolean {
   return role === "ta" || role === "admin" || role === "interiors";
 }
@@ -87,8 +92,14 @@ const FREE_PAGES = ["/dashboard", "/profile"];
  * or null when the page is allowed. Step pages are only reachable at their step; result and
  * thank-you stay reachable once the candidate has reached them.
  */
-export function redirectForStep(pathname: string, step: OnboardingStep): string | null {
+export function redirectForStep(pathname: string, step: OnboardingStep, manualPayments = false): string | null {
   if (FREE_PAGES.includes(pathname)) return null;
+  if (manualPayments && isPrePayment(step)) {
+    // Spec 006, D6: after registering, a candidate goes straight to the courses (no payment page and no amount). The payment
+    // page stays reachable for the "Pay" button of the popup; the other step pages lead back to the courses.
+    if (pathname === "/payment" || pathname === LEARNING_PAGE) return null;
+    return Object.values(STEP_ROUTE).includes(pathname) ? LEARNING_PAGE : null;
+  }
   const own = STEP_ROUTE[step];
   if (pathname === own) return null;
   if (pathname === LEARNING_PAGE) return null;

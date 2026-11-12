@@ -21,6 +21,22 @@ describe("journey routing", () => {
     expect(redirectForStep(path, step)).toBe(target);
   });
 
+  it("in manual-payment mode a candidate before payment goes to the courses; the payment page stays reachable", () => {
+    for (const step of ["registered", "demo_pending", "fee_pending"] as const) {
+      expect(redirectForStep("/onboarding", step, true), step).toBe("/learning");
+      expect(redirectForStep("/exam", step, true), step).toBe("/learning");
+      expect(redirectForStep("/feedback", step, true), step).toBe("/learning");
+      expect(redirectForStep("/payment", step, true), step).toBeNull();
+      expect(redirectForStep("/learning", step, true), step).toBeNull();
+      expect(redirectForStep("/dashboard", step, true), step).toBeNull();
+      expect(redirectForStep("/exam/managed/e1", step, true), step).toBeNull(); // not a step page
+    }
+    // after approval nothing changes: the normal rules apply
+    expect(redirectForStep("/payment", "exam_ready", true)).toBe("/exam");
+    expect(redirectForStep("/onboarding", "demo_pending", false)).toBeNull();
+    expect(redirectForStep("/exam", "fee_pending", false)).toBe("/payment");
+  });
+
   it("keeps the course videos page open at every step (the API limits what plays before payment)", () => {
     for (const step of ["registered", "demo_pending", "fee_pending", "exam_ready", "exam_in_progress", "exam_completed", "feedback_submitted", "completed"] as const) {
       expect(redirectForStep("/learning", step), step).toBeNull();

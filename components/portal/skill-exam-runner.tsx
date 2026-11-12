@@ -22,7 +22,7 @@ export function formatClock(totalSeconds: number): string {
   return h > 0 ? `${h}:${pad(m)}:${pad(s % 60)}` : `${m}:${pad(s % 60)}`;
 }
 
-type Phase = { kind: "loading" } | { kind: "blocked"; message: string } | { kind: "taking"; attempt: SkillAttempt } | { kind: "done"; result: SkillExamResult };
+type Phase = { kind: "loading" } | { kind: "blocked"; message: string; payment?: boolean } | { kind: "taking"; attempt: SkillAttempt } | { kind: "done"; result: SkillExamResult };
 
 /** A course or domain exam: start (or resume), answer one question at a time, submit, see the result at once, retake. */
 export function SkillExamRunner({ examId }: { examId: string }) {
@@ -36,13 +36,14 @@ export function SkillExamRunner({ examId }: { examId: string }) {
       .then((attempt) => !cancelled && setPhase({ kind: "taking", attempt }))
       .catch((err: unknown) => {
         if (cancelled) return;
+        const payment = err instanceof ApiError && err.code === "PAYMENT_REQUIRED";
         const message =
-          err instanceof ApiError && err.code === "PAYMENT_REQUIRED"
-            ? "The exams unlock after our team approves your payment."
+          payment
+            ? "The exams unlock after you pay the registration fee."
             : err instanceof ApiError && err.status === 404
               ? "This exam is not available."
               : errorMessage(err);
-        setPhase({ kind: "blocked", message });
+        setPhase({ kind: "blocked", message, payment });
       });
     return () => {
       cancelled = true;
@@ -54,9 +55,16 @@ export function SkillExamRunner({ examId }: { examId: string }) {
     return (
       <StatusCard tone="error" title="We can't open this exam">
         <p>{phase.message}</p>
-        <Link href={LEARNING_PAGE} className={cn(buttonVariants({ variant: "outline" }), "mt-5")}>
-          Back to my learning
-        </Link>
+        <div className="mt-5 flex flex-wrap justify-center gap-3">
+          {phase.payment ? (
+            <Link href="/payment" className={buttonVariants({})}>
+              Go to payment
+            </Link>
+          ) : null}
+          <Link href={LEARNING_PAGE} className={buttonVariants({ variant: "outline" })}>
+            Back to my learning
+          </Link>
+        </div>
       </StatusCard>
     );
   }

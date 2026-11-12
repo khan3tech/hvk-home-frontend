@@ -125,7 +125,8 @@ describe("Taking a course or domain exam", () => {
   it("explains a locked exam when the payment is not approved yet", async () => {
     server.use(http.post(`${API}/skill-exams/ex1/start`, () => fail(409, "PAYMENT_REQUIRED")));
     render(<SkillExamRunner examId="ex1" />);
-    expect(await screen.findByText("The exams unlock after our team approves your payment.")).toBeInTheDocument();
+    expect(await screen.findByText("The exams unlock after you pay the registration fee.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Go to payment" })).toHaveAttribute("href", "/payment");
     expect(screen.getByRole("link", { name: "Back to my learning" })).toHaveAttribute("href", "/learning");
   });
 });
@@ -169,11 +170,10 @@ describe("Exams on the learning page", () => {
     expect(screen.getByText("Passed · best 85%")).toBeInTheDocument();
   });
 
-  it("locks the exam buttons until the payment is approved", async () => {
+  it("keeps the exam buttons locked until the payment: a button instead of a link (it opens the payment popup)", async () => {
     serve([exam({ unlocked: false })]);
     renderPortal(<Learning hub />, { pathname: "/learning", step: "fee_pending" });
-    const locked = await screen.findByRole("button", { name: /Exam for HTML unlocks after payment approval/ });
-    expect(locked).toBeDisabled();
+    expect(await screen.findByRole("button", { name: "Unlock the exam for HTML" })).toBeEnabled();
     expect(screen.queryByRole("link", { name: /Take exam/ })).not.toBeInTheDocument();
   });
 

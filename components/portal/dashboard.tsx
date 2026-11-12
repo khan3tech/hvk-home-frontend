@@ -73,7 +73,7 @@ export function Dashboard() {
           <p className="mt-3 text-base leading-relaxed text-white/90">{waiting ? MANUAL_HINT : HINTS[step]}</p>
         </div>
         <Link
-          href={STEP_ROUTE[step]}
+          href={waiting ? "/payment" : STEP_ROUTE[step]}
           className="inline-flex h-12 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-white px-7 text-base font-semibold text-primary-blue shadow-sm transition-colors hover:bg-light-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary-blue"
         >
           {waiting ? "View payment status" : STEP_ACTION[step]} <ArrowRight className="h-5 w-5" aria-hidden="true" />
