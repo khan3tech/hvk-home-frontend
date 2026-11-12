@@ -220,12 +220,12 @@ describe("Free preview before payment approval (manual mode)", () => {
     expect(await screen.findByRole("button", { name: "Watch free preview of JavaScript" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "Watch free preview of HTML" })).toBeEnabled();
     expect(screen.getAllByText(/Free preview: video 1/)).toHaveLength(2);
-    expect(screen.getByRole("button", { name: /Go to exam/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Go to exam/ })).toBeEnabled(); // opens the payment popup (payment-prompt.test.tsx)
 
     await userEvent.setup().click(screen.getByRole("button", { name: "Watch free preview of JavaScript" }));
     const sidebar = await screen.findByRole("navigation", { name: "Course content" });
     expect(within(sidebar).getByRole("button", { name: /Lesson a/ })).toBeEnabled();
-    expect(within(sidebar).getByRole("button", { name: /Lesson b/ })).toBeDisabled();
+    expect(within(sidebar).getByRole("button", { name: /Lesson b \(locked until payment\)/ })).toBeEnabled(); // opens the payment popup
   });
 
   it("leaves coming-soon courses as coming soon", async () => {

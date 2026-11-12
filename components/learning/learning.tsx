@@ -14,6 +14,7 @@ import { allCompleted, applyProgress, findLesson, neighbours, openableCourses } 
 import { usePaymentConfig } from "@/lib/use-payment-config";
 import { FormMessage } from "@/components/portal/form-field";
 import { PageShell } from "@/components/portal/page-shell";
+import { usePaymentPrompt } from "@/components/portal/payment-prompt";
 import { useJourney } from "@/components/portal/portal-gate";
 import type { LearningCourse, LearningTrack, LessonProgressResult, SkillExam } from "@/types/api";
 import { CourseList } from "./course-list";
@@ -30,6 +31,7 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
   const router = useRouter();
   const { status } = useJourney();
   const { config } = usePaymentConfig();
+  const prompt = usePaymentPrompt();
   // Manual-payment mode, payment not approved yet: only the first video of each course plays; the exam is locked.
   const gated = config?.mode === "manual" && !isUnlocked(status.step);
   const [tracks, setTracks] = React.useState<LearningTrack[] | null>(null);
@@ -82,17 +84,37 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
     };
   }, [show]);
 
-  const select = React.useCallback((lessonId: string | null) => {
-    setActiveId(lessonId);
-    const url = new URL(window.location.href);
-    if (lessonId) url.searchParams.set("lesson", lessonId);
-    else url.searchParams.delete("lesson");
-    window.history.replaceState(null, "", url);
-  }, []);
+  const select = React.useCallback(
+    (lessonId: string | null) => {
+      // A locked video does not open: the popup offers the payment instead.
+      if (lessonId && gated && courses) {
+        const ref = findLesson(courses, lessonId);
+        if (ref && !ref.lesson.preview) {
+          prompt.open();
+          return;
+        }
+      }
+      setActiveId(lessonId);
+      const url = new URL(window.location.href);
+      if (lessonId) url.searchParams.set("lesson", lessonId);
+      else url.searchParams.delete("lesson");
+      window.history.replaceState(null, "", url);
+    },
+    [gated, courses, prompt],
+  );
 
-  const onProgress = React.useCallback((progress: LessonProgressResult) => {
-    setCourses((prev) => (prev ? applyProgress(prev, progress) : prev));
-  }, []);
+  // After a free video is finished, the popup offers the rest (once per video).
+  const prompted = React.useRef(new Set<string>());
+  const onProgress = React.useCallback(
+    (progress: LessonProgressResult) => {
+      setCourses((prev) => (prev ? applyProgress(prev, progress) : prev));
+      if (gated && progress.completed && !prompted.current.has(progress.lessonId)) {
+        prompted.current.add(progress.lessonId);
+        prompt.open();
+      }
+    },
+    [gated, prompt],
+  );
 
   async function choose(track: LearningTrack) {
     setError(null);
@@ -129,7 +151,8 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
   const current = tracks?.find((t) => t.selected) ?? null;
   const openable = courses ? openableCourses(courses, gated) : null;
   const active = openable && activeId ? findLesson(openable, activeId) : null;
-  const near = openable && active ? neighbours(openable, active.lesson.id) : null;
+  // Next and Previous follow every video; going to a locked one opens the payment popup (see select).
+  const near = courses && active ? neighbours(courses, active.lesson.id) : null;
   const showChooser = hasTracks && choosing;
   const examsByCourse = React.useMemo(() => new Map(exams.filter((e) => e.scope === "course" && e.courseId).map((e) => [e.courseId!, e])), [exams]);
   const domainExams = exams.filter((e) => e.scope === "domain");
@@ -180,7 +203,7 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
                 Go to exam <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             ) : (
-              <Button size="sm" disabled title="Unlocks after your payment is approved">
+              <Button size="sm" onClick={prompt.open}>
                 <Lock className="h-4 w-4" aria-hidden="true" /> Go to exam
               </Button>
             )}

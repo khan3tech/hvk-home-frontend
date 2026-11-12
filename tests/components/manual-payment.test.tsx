@@ -50,11 +50,11 @@ describe("PaymentSwitch", () => {
     expect(await screen.findByText("online payment")).toBeInTheDocument();
   });
 
-  it("covers the first step too (candidates start at the demo step)", async () => {
+  it("does not show the payment instructions at the first step: the candidate goes to the courses", async () => {
     manual();
     renderPortal(<PaymentSwitch online={<p>videos</p>} />, { pathname: "/onboarding", step: "demo_pending" });
-    expect(await screen.findByRole("heading", { name: "Waiting for payment approval" })).toBeInTheDocument();
-    expect(screen.queryByText("videos")).toBeNull();
+    await waitFor(() => expect(nav.replace).toHaveBeenCalledWith("/learning"));
+    expect(screen.queryByRole("heading", { name: "Waiting for payment approval" })).toBeNull();
   });
 });
 
@@ -90,7 +90,7 @@ describe("dashboard while staff approve payments", () => {
     manual();
     renderPortal(<Dashboard />, { pathname: "/dashboard", step: "demo_pending" });
     const link = await screen.findByRole("link", { name: /View payment status/ });
-    expect(link).toHaveAttribute("href", "/onboarding");
+    expect(link).toHaveAttribute("href", "/payment");
     expect(screen.queryByRole("link", { name: /Watch demo/ })).toBeNull();
     const stages = screen.getByRole("list", { name: "Your progress" });
     const labels = within(stages).getAllByRole("listitem").map((li) => (li.textContent ?? "").replace(/^\d+/, "").replace(/\s*\(.*\)\s*$/, "").trim());

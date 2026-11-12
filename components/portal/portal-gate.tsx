@@ -2,11 +2,12 @@
 
 import * as React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import type { OnboardingStatus } from "@/types/api";
+import type { OnboardingStatus, PaymentConfig } from "@/types/api";
 import { portalApi } from "@/lib/api/portal";
 import { errorMessage } from "@/lib/api/client";
-import { canUseAdminPath, isStaff, redirectForStep, staffHome } from "@/lib/journey";
+import { canUseAdminPath, isPrePayment, isStaff, redirectForStep, staffHome } from "@/lib/journey";
 import { useSession } from "@/lib/session/session-provider";
+import { PaymentPromptProvider } from "./payment-prompt";
 import { StatusCard } from "./status-card";
 
 interface JourneyContextValue {
@@ -35,6 +36,8 @@ export function PortalGate({ area, children }: { area: "candidate" | "admin"; ch
   // step must not drive redirects for the new page (that caused a redirect ping-pong).
   const [journey, setJourney] = React.useState<{ status: OnboardingStatus; path: string } | null>(null);
   const [loadError, setLoadError] = React.useState<string | null>(null);
+  // How candidates pay right now. In manual mode a new candidate is sent to the courses, not to a payment page.
+  const [payment, setPayment] = React.useState<{ config: PaymentConfig | null; done: boolean }>({ config: null, done: false });
 
   const reload = React.useCallback(async () => {
     const next = await portalApi.onboardingStatus();
@@ -71,8 +74,23 @@ export function PortalGate({ area, children }: { area: "candidate" | "admin"; ch
     };
   }, [area, session, staff, pathname]);
 
+  React.useEffect(() => {
+    if (area !== "candidate" || session !== "authenticated" || staff) return;
+    let cancelled = false;
+    portalApi
+      .paymentConfig()
+      .then((config) => !cancelled && setPayment({ config, done: true }))
+      .catch(() => !cancelled && setPayment({ config: null, done: true })); // an older API behaves as online payment
+    return () => {
+      cancelled = true;
+    };
+  }, [area, session, staff]);
+
   const fresh = journey && journey.path === pathname ? journey.status : null;
-  const target = area === "candidate" && fresh ? redirectForStep(pathname, fresh.step) : null;
+  const manual = payment.config?.mode === "manual";
+  const target = area === "candidate" && fresh ? redirectForStep(pathname, fresh.step, manual) : null;
+  // Before the fee is paid the right page depends on the payment mode, so wait for it.
+  const waitingForMode = area === "candidate" && fresh !== null && isPrePayment(fresh.step) && !payment.done;
   React.useEffect(() => {
     if (target) router.replace(target);
   }, [target, router]);
@@ -97,8 +115,14 @@ export function PortalGate({ area, children }: { area: "candidate" | "admin"; ch
     );
   }
 
-  const ready = session === "authenticated" && !wrongArea && !staffTarget && (area === "admin" || (value && !target));
+  const ready = session === "authenticated" && !wrongArea && !staffTarget && (area === "admin" || (value && !target && !waitingForMode));
   if (!ready) return <StatusCard tone="loading" title="Loading your account…" />;
   if (area === "admin") return <>{children}</>;
-  return <JourneyContext.Provider value={value}>{children}</JourneyContext.Provider>;
+  return (
+    <JourneyContext.Provider value={value}>
+      <PaymentPromptProvider config={payment.config} locked={value ? isPrePayment(value.status.step) : false}>
+        {children}
+      </PaymentPromptProvider>
+    </JourneyContext.Provider>
+  );
 }
