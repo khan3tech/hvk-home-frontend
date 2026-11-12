@@ -78,7 +78,7 @@ const SearchableSelect = React.forwardRef<
     <div className="relative" ref={containerRef}>
       <MapPin
         aria-hidden="true"
-        className="pointer-events-none absolute left-3.5 top-6 h-4.5 w-4.5 -translate-y-1/2 text-muted dark:text-slate-500"
+        className="pointer-events-none absolute left-3 top-6 h-3.5 w-3.5 -translate-y-1/2 text-muted dark:text-slate-500"
       />
       <input
         id={id}
@@ -91,7 +91,7 @@ const SearchableSelect = React.forwardRef<
         aria-invalid={!!error}
         autoComplete="off"
         className={cn(
-          "h-12 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-9 text-sm text-ink placeholder:text-slate-400 transition-colors duration-200 focus:border-bright-blue focus:outline-none focus:ring-2 focus:ring-bright-blue/20 dark:border-white/10 dark:bg-dark-surface-alt dark:text-slate-100 dark:placeholder:text-slate-500",
+          "h-12 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-9 text-sm text-ink placeholder:text-slate-400 transition-colors duration-200 focus:border-bright-blue focus:outline-none focus:ring-2 focus:ring-bright-blue/20 dark:border-white/10 dark:bg-dark-surface-alt dark:text-slate-100 dark:placeholder:text-slate-500",
           error && "border-red-400 focus:border-red-500 focus:ring-red-100 dark:border-red-400/70"
         )}
         placeholder={placeholder}
