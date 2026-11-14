@@ -23,8 +23,8 @@ import type {
 export const SITE_NAME = "HVK Tech Online Examination";
 export const SITE_TAGLINE = "Innovate | Build | Grow";
 export const COMPANY_WEBSITE_URL = "https://www.hvkinfotech.com";
-export const PHONE_NUMBER = "+91 98765 43210";
-export const PHONE_NUMBER_HREF = "tel:+919876543210";
+export const PHONE_NUMBER = "+91 76720 10292";
+export const PHONE_NUMBER_HREF = "tel:+917672010292";
 export const CONTACT_EMAIL = "info@hvkinfotech.com";
 export const OFFICE_LOCATION = "HIG 216, Beside Bank of Baroda, 2nd Floor, Phase 1 & 2, Kukatpally, Hyderabad, Telangana 500072";
 export const WORKING_HOURS = "Mon - Sat: 9:00 AM - 6:00 PM";

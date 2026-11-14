@@ -8,6 +8,7 @@ import type { Exam as ExamDTO } from "@/types/api";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { portalApi } from "@/lib/api/portal";
 import { errorMessage } from "@/lib/api/client";
+import { PHONE_NUMBER, PHONE_NUMBER_HREF } from "@/lib/constants";
 import { STEP_ROUTE } from "@/lib/journey";
 import { cn } from "@/lib/utils";
 import { FormMessage } from "./form-field";
@@ -184,8 +185,11 @@ function ManagedExam({ exam }: { exam: ExamDTO }) {
         <div role="alert" className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-400/30 dark:bg-amber-950/30 dark:text-amber-100">
           <p className="font-semibold">Your exam link has expired.</p>
           <p className="mt-1">
-            The link was valid for 24 hours{exam.linkExpiresAt ? ` (until ${formatIST(exam.linkExpiresAt)} IST)` : ""}. Contact us and
-            we&apos;ll send you a new one.
+            The link was valid for 24 hours{exam.linkExpiresAt ? ` (until ${formatIST(exam.linkExpiresAt)} IST)` : ""}. Contact us on{" "}
+            <a href={PHONE_NUMBER_HREF} className="font-semibold underline">
+              {PHONE_NUMBER}
+            </a>{" "}
+            and we&apos;ll send you a new one.
           </p>
         </div>
       );

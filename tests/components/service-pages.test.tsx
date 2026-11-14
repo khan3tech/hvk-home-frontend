@@ -35,7 +35,7 @@ describe("ServiceDetailPage", () => {
       expect(screen.getByRole("heading", { name })).toBeInTheDocument();
     }
     expect(screen.getAllByRole("link", { name: /Register now/ })[0]).toHaveAttribute("href", "/registration#registration");
-    expect(screen.getAllByRole("link", { name: /Talk to us|Call us/ })[0]).toHaveAttribute("href", "tel:+919876543210");
+    expect(screen.getAllByRole("link", { name: /Talk to us|Call us/ })[0]).toHaveAttribute("href", "tel:+917672010292");
     expect(screen.getByAltText(detail.photo.alt)).toBeInTheDocument();
     expect(screen.getAllByRole("listitem").length).toBeGreaterThan(20);
   });
