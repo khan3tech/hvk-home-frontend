@@ -91,6 +91,7 @@ export function FollowUps() {
                     <p className="font-semibold text-navy dark:text-white">{fu.candidate?.fullName ?? "Unknown candidate"}</p>
                     <p className="text-sm text-muted">
                       {fu.candidate?.phone ? <a href={`tel:${fu.candidate.phone}`} className="hover:underline">{fu.candidate.phone}</a> : "—"}
+                      {fu.candidate?.email ? <> · <a href={`mailto:${fu.candidate.email}`} className="break-all hover:underline">{fu.candidate.email}</a></> : ""}
                       {fu.candidate?.city ? ` · ${fu.candidate.city}` : ""} · due {formatDateTime(fu.dueAt)}
                     </p>
                     {fu.outcome ? <p className="mt-1 text-sm text-navy dark:text-white">Outcome: {fu.outcome}</p> : null}
