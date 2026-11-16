@@ -229,9 +229,21 @@ export interface CandidateSummary {
   onboardingStep: OnboardingStep;
 }
 
+/** Contact details of a lead imported from a spreadsheet. */
+export interface LeadContact {
+  fullName: string;
+  email: string | null;
+  phone: string | null;
+  city: string | null;
+  college: string | null;
+}
+
 export interface TaLead {
   id: string;
+  /** "import" = added from a spreadsheet by staff; `candidate` stays null until that person registers. */
+  source: "registration" | "import";
   candidate: CandidateSummary | null;
+  contact: LeadContact | null;
   status: LeadStatus;
   assignedTo: string | null;
   lastContactAt: string | null;

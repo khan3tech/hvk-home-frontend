@@ -11,6 +11,7 @@ import { adminApi } from "@/lib/api/admin";
 import { errorMessage } from "@/lib/api/client";
 import { formatDateTime, LEAD_STATUS_LABEL, STEP_LABEL } from "@/lib/ta";
 import { AdminShell, cardClass, selectClass, StatusBadge } from "./admin-shell";
+import { LeadImport } from "./lead-import";
 
 const LIMIT = 20;
 
@@ -26,6 +27,7 @@ export function LeadsList() {
 
   const [data, setData] = React.useState<Page<TaLead> | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const [reload, setReload] = React.useState(0);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -46,7 +48,7 @@ export function LeadsList() {
     return () => {
       cancelled = true;
     };
-  }, [status, from, to, page]);
+  }, [status, from, to, page, reload]);
 
   function setFilter(next: Record<string, string | undefined>) {
     const q = new URLSearchParams(params.toString());
@@ -62,6 +64,7 @@ export function LeadsList() {
 
   return (
     <AdminShell title="Leads">
+      <LeadImport onImported={() => setReload((n) => n + 1)} />
       <form className={`${cardClass} flex flex-wrap items-end gap-4`} aria-label="Filter leads" onSubmit={(e) => e.preventDefault()}>
         <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
           Status
@@ -73,11 +76,11 @@ export function LeadsList() {
           </select>
         </label>
         <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
-          Registered from
+          Added from
           <input type="date" className={selectClass} value={from} onChange={(e) => setFilter({ from: e.target.value || undefined })} />
         </label>
         <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
-          Registered to
+          Added to
           <input type="date" className={selectClass} value={to} onChange={(e) => setFilter({ to: e.target.value || undefined })} />
         </label>
         {status || from || to ? (
@@ -106,7 +109,7 @@ export function LeadsList() {
                 <th scope="col" className="px-5 py-3">City</th>
                 <th scope="col" className="px-5 py-3">Journey</th>
                 <th scope="col" className="px-5 py-3">Lead status</th>
-                <th scope="col" className="px-5 py-3">Registered</th>
+                <th scope="col" className="px-5 py-3">Added</th>
               </tr>
             </thead>
             <tbody>
@@ -115,25 +118,28 @@ export function LeadsList() {
                   <td colSpan={7} className="px-5 py-8 text-center text-muted">No leads match these filters.</td>
                 </tr>
               ) : (
-                data.items.map((lead) => (
+                data.items.map((lead) => {
+                  const person = lead.candidate ?? lead.contact;
+                  return (
                   <tr key={lead.id} className="border-b border-slate-50 last:border-0 dark:border-white/5">
                     <td className="px-5 py-3 font-semibold">
                       <Link href={`/admin/leads/${lead.id}`} className="text-primary-blue hover:underline dark:text-bright-blue">
-                        {lead.candidate?.fullName ?? "Unknown"}
+                        {person?.fullName ?? "Unknown"}
                       </Link>
                     </td>
                     <td className="px-5 py-3">
-                      {lead.candidate?.email ? (
-                        <a href={`mailto:${lead.candidate.email}`} className="break-all hover:underline">{lead.candidate.email}</a>
+                      {person?.email ? (
+                        <a href={`mailto:${person.email}`} className="break-all hover:underline">{person.email}</a>
                       ) : "—"}
                     </td>
-                    <td className="px-5 py-3">{lead.candidate?.phone ?? "—"}</td>
-                    <td className="px-5 py-3">{lead.candidate?.city ?? "—"}</td>
-                    <td className="px-5 py-3">{lead.candidate ? STEP_LABEL[lead.candidate.onboardingStep] : "—"}</td>
+                    <td className="px-5 py-3">{person?.phone ?? "—"}</td>
+                    <td className="px-5 py-3">{person?.city ?? "—"}</td>
+                    <td className="px-5 py-3">{lead.candidate ? STEP_LABEL[lead.candidate.onboardingStep] : "Imported, not registered"}</td>
                     <td className="px-5 py-3"><StatusBadge>{LEAD_STATUS_LABEL[lead.status]}</StatusBadge></td>
                     <td className="px-5 py-3 text-muted">{formatDateTime(lead.createdAt)}</td>
                   </tr>
-                ))
+                  );
+                })
               )}
             </tbody>
           </table>
