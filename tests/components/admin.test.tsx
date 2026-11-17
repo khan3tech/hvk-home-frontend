@@ -28,7 +28,9 @@ const summary = {
 };
 const lead = (overrides: Partial<TaLead> = {}): TaLead => ({
   id: "lead-1",
+  source: "registration",
   candidate: summary,
+  contact: null,
   status: "new",
   assignedTo: null,
   lastContactAt: null,
@@ -71,6 +73,65 @@ describe("Leads list (US8)", () => {
     expect(row).toHaveTextContent("New");
     expect(Object.fromEntries(new URL(url).searchParams)).toEqual({ status: "new", page: "2", limit: "20" });
     expect(screen.getByText(/21 leads · page 2 of 2/)).toBeInTheDocument();
+  });
+
+  it("shows an imported lead from its spreadsheet contact details", async () => {
+    nav.search = new URLSearchParams();
+    const imported = lead({
+      id: "lead-2",
+      source: "import",
+      candidate: null,
+      contact: { fullName: "Asha Rao", email: "asha@example.com", phone: "+919876543210", city: "Pune", college: null },
+    });
+    server.use(http.get(`${API}/admin/ta-leads`, () => ok({ items: [imported], page: 1, limit: 20, total: 1 })));
+    renderPortal(<LeadsList />, { pathname: "/admin/leads", step: "completed", role: "ta", area: "admin" });
+    const row = (await screen.findByRole("link", { name: "Asha Rao" })).closest("tr")!;
+    expect(row).toHaveTextContent("asha@example.com");
+    expect(row).toHaveTextContent("+919876543210");
+    expect(row).toHaveTextContent("Imported, not registered");
+  });
+
+  it("imports a CSV, maps skipped rows back to sheet rows and reloads the list", async () => {
+    nav.search = new URLSearchParams();
+    let listCalls = 0;
+    let sent: unknown = null;
+    server.use(
+      http.get(`${API}/admin/ta-leads`, () => {
+        listCalls += 1;
+        return ok({ items: [], page: 1, limit: 20, total: 0 });
+      }),
+      http.post(`${API}/admin/ta-leads/import`, async ({ request }) => {
+        sent = await request.json();
+        return ok({ batchId: "b1", created: 1, skipped: [{ row: 2, reason: "registered", message: "Already registered" }] }, 201);
+      }),
+    );
+    const user = userEvent.setup();
+    renderPortal(<LeadsList />, { pathname: "/admin/leads", step: "completed", role: "ta", area: "admin" });
+    await screen.findByText("No leads match these filters.");
+    const csv = "Name,Email,Phone\nAsha,asha@example.com,9876543210\n,lost@example.com,\nRavi,ravi@example.com,\n";
+    await user.upload(screen.getByLabelText("Spreadsheet of leads"), new File([csv], "leads.csv", { type: "text/csv" }));
+    expect(await screen.findByText(/Columns found: Name, Email, Phone/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Import 2 leads" }));
+    expect(await screen.findByText("1 lead added, 2 skipped.")).toBeInTheDocument();
+    expect(sent).toEqual({
+      rows: [
+        { fullName: "Asha", email: "asha@example.com", phone: "9876543210" },
+        { fullName: "Ravi", email: "ravi@example.com" },
+      ],
+    });
+    expect(screen.getByText(/Row 3: Invalid \(Name is missing\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Row 4: Already registered/)).toBeInTheDocument();
+    await waitFor(() => expect(listCalls).toBe(2));
+  });
+
+  it("rejects files it cannot read", async () => {
+    nav.search = new URLSearchParams();
+    server.use(http.get(`${API}/admin/ta-leads`, () => ok({ items: [], page: 1, limit: 20, total: 0 })));
+    const user = userEvent.setup({ applyAccept: false });
+    renderPortal(<LeadsList />, { pathname: "/admin/leads", step: "completed", role: "ta", area: "admin" });
+    await screen.findByText("No leads match these filters.");
+    await user.upload(screen.getByLabelText("Spreadsheet of leads"), new File(["x"], "leads.docx"));
+    expect(await screen.findByText(/save it as \.xlsx or CSV/)).toBeInTheDocument();
   });
 
   it("changing a filter updates the URL and resets the page", async () => {

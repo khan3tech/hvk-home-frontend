@@ -118,7 +118,7 @@ export function LeadDetail({ id }: { id: string }) {
   }
 
   return (
-    <AdminShell title={c?.fullName ?? "Lead"}>
+    <AdminShell title={c?.fullName ?? lead.contact?.fullName ?? "Lead"}>
       <Link href="/admin/leads" className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-primary-blue hover:underline dark:text-bright-blue">
         <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All leads
       </Link>
@@ -135,6 +135,22 @@ export function LeadDetail({ id }: { id: string }) {
                 ["City / State", [c.city, c.state].filter(Boolean).join(", ") || "—"],
                 ["Journey", STEP_LABEL[c.onboardingStep]],
                 ["Registered", formatDateTime(lead.createdAt)],
+              ].map(([k, v]) => (
+                <div key={k as string} className="flex justify-between gap-3">
+                  <dt className="text-muted">{k}</dt>
+                  <dd className="text-right font-medium text-navy dark:text-white">{v}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : lead.contact ? (
+            <dl className="mt-3 space-y-2 text-sm">
+              {[
+                ["Email", lead.contact.email ? <a key="e" href={`mailto:${lead.contact.email}`} className="text-primary-blue hover:underline">{lead.contact.email}</a> : "—"],
+                ["Phone", lead.contact.phone ? <a key="p" href={`tel:${lead.contact.phone}`} className="text-primary-blue hover:underline">{lead.contact.phone}</a> : "—"],
+                ["College", lead.contact.college ?? "—"],
+                ["City", lead.contact.city ?? "—"],
+                ["Journey", "Imported, not registered yet"],
+                ["Added", formatDateTime(lead.createdAt)],
               ].map(([k, v]) => (
                 <div key={k as string} className="flex justify-between gap-3">
                   <dt className="text-muted">{k}</dt>
