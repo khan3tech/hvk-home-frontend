@@ -220,7 +220,7 @@ describe("Free preview before payment approval (manual mode)", () => {
     expect(await screen.findByRole("button", { name: "Watch free preview of JavaScript" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "Watch free preview of HTML" })).toBeEnabled();
     expect(screen.getAllByText(/Free preview: video 1/)).toHaveLength(2);
-    expect(screen.getByRole("button", { name: /Go to exam/ })).toBeEnabled(); // opens the payment popup (payment-prompt.test.tsx)
+    expect(screen.queryByRole("button", { name: /Go to exam/ })).not.toBeInTheDocument(); // exams are reached from the exam cards and the dashboard
 
     await userEvent.setup().click(screen.getByRole("button", { name: "Watch free preview of JavaScript" }));
     const sidebar = await screen.findByRole("navigation", { name: "Course content" });
@@ -242,7 +242,7 @@ describe("Free preview before payment approval (manual mode)", () => {
     renderPortal(<Learning hub />, { pathname: "/learning", step: "exam_ready" });
     expect(await screen.findByRole("button", { name: "Start JavaScript" })).toBeEnabled();
     expect(screen.queryByText(/Free preview: video 1/)).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Go to exam/ })).toHaveAttribute("href", "/exam");
+    expect(screen.queryByRole("link", { name: /Go to exam/ })).not.toBeInTheDocument();
   });
 
   it("does not lock anything in online payment mode", async () => {
