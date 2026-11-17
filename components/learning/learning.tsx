@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Lock, Shuffle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Shuffle } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { learningApi } from "@/lib/api/learning";
 import { skillExamApi } from "@/lib/api/skill-exams";
@@ -156,8 +156,11 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
   const showChooser = hasTracks && choosing;
   const examsByCourse = React.useMemo(() => new Map(exams.filter((e) => e.scope === "course" && e.courseId).map((e) => [e.courseId!, e])), [exams]);
   const domainExams = exams.filter((e) => e.scope === "domain");
-  // The chooser offers every domain exam; a chosen pathway offers the exam of its own domain.
-  const shownDomainExams = showChooser ? domainExams : current && !active ? domainExams.filter((e) => e.domain === current.domain) : [];
+  // Every domain exam is offered (outside a lesson); the chosen pathway's own domain comes first.
+  const shownDomainExams =
+    showChooser || (current && !active) || (!hasTracks && !active)
+      ? [...domainExams].sort((a, b) => Number(b.domain === current?.domain) - Number(a.domain === current?.domain))
+      : [];
   const loaded = loadError !== null || showChooser || courses !== null;
 
   const title = showChooser ? "Choose your learning path" : active ? active.lesson.title : current ? current.title : hub ? "My learning" : "Learn before you start";
@@ -198,15 +201,6 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
         )}
         {hub ? (
           <div className="flex flex-wrap items-center gap-2">
-            {isUnlocked(status.step) ? (
-              <Link href="/exam" className={buttonVariants({ variant: "primary", size: "sm" })}>
-                Go to exam <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-            ) : (
-              <Button size="sm" onClick={prompt.open}>
-                <Lock className="h-4 w-4" aria-hidden="true" /> Go to exam
-              </Button>
-            )}
             <Link href="/dashboard" className={buttonVariants({ variant: "outline", size: "sm" })}>
               Back to dashboard
             </Link>

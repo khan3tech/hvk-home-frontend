@@ -12,6 +12,7 @@ vi.mock("next/navigation", async () => (await import("../helpers/navigation")).n
 const { SkillExamRunner, formatClock } = await import("@/components/portal/skill-exam-runner");
 const { SkillExams } = await import("@/components/admin/skill-exams");
 const { Learning } = await import("@/components/learning/learning");
+const { Exam } = await import("@/components/portal/exam");
 
 const attempt = (over: Partial<SkillAttempt> = {}): SkillAttempt => ({
   id: "att1",
@@ -184,6 +185,60 @@ describe("Exams on the learning page", () => {
     const card = await screen.findByRole("region", { name: "Full Stack Development domain exam" });
     expect(within(card).getByText(/Skip the courses and take the domain exam directly/)).toBeInTheDocument();
     expect(within(card).getByRole("link", { name: "Take exam for Full Stack Development" })).toHaveAttribute("href", "/skill-exam/dx");
+  });
+});
+
+const domainExam = (id: string, domain: string, over: Partial<SkillExam> = {}) =>
+  exam({ id, scope: "domain", courseId: null, domain, targetTitle: domain, questionCount: 100, durationMinutes: 120, ...over });
+
+describe("Go to exam: choose a domain", () => {
+  it("lists every domain exam, then every course exam, and keeps the registration exam on the page", async () => {
+    server.use(
+      http.get(`${API}/skill-exams`, () =>
+        ok([
+          exam({ id: "c-py", courseId: "py", targetTitle: "Python" }),
+          domainExam("d-fs", "Full Stack Development"),
+          domainExam("d-ai", "AI Engineering", { attempts: 1, bestPercentage: 72, passed: true }),
+          domainExam("d-ds", "Data Science"),
+          exam({ id: "c-java", courseId: "java", targetTitle: "Core Java" }),
+        ]),
+      ),
+      http.get(`${API}/exams/current`, () => ok({ attemptId: "att-1", status: "link_issued", examUrl: "https://exam.test/start", completedAt: null })),
+    );
+    renderPortal(<Exam />, { pathname: "/exam", step: "exam_ready" });
+
+    const domains = await screen.findByRole("region", { name: "Which domain do you want to be tested on?" });
+    const domainNames = within(domains).getAllByRole("heading", { level: 3 }).map((h) => h.textContent);
+    expect(domainNames).toEqual(["AI Engineering", "Data Science", "Full Stack Development"]);
+    expect(within(domains).getByRole("link", { name: "Take exam for Data Science" })).toHaveAttribute("href", "/skill-exam/d-ds");
+    expect(within(domains).getByRole("link", { name: "Retake exam for AI Engineering" })).toBeInTheDocument();
+    expect(within(domains).getAllByText(/100 questions · 120 min · pass mark 40%/)).toHaveLength(3);
+
+    const courses = screen.getByRole("region", { name: "Or test one course" });
+    expect(within(courses).getByRole("link", { name: "Take exam for Core Java" })).toHaveAttribute("href", "/skill-exam/c-java");
+    expect(within(courses).getByRole("link", { name: "Take exam for Python" })).toBeInTheDocument();
+
+    const registration = screen.getByRole("region", { name: "Your registration exam" });
+    expect(await within(registration).findByRole("link", { name: /Start exam/ })).toHaveAttribute("href", "https://exam.test/start");
+  });
+
+  it("locks the exams before payment", async () => {
+    server.use(http.get(`${API}/skill-exams`, () => ok([domainExam("d-fs", "Full Stack Development", { unlocked: false })])));
+    renderPortal(<Exam />, { pathname: "/exam", step: "exam_ready" });
+    expect(await screen.findByRole("button", { name: "Unlock the exam for Full Stack Development" })).toBeEnabled();
+    expect(screen.getByText(/unlocks after payment/)).toBeInTheDocument();
+  });
+
+  it("shows every domain on the learning page too, with the chosen pathway's domain first", async () => {
+    const track = { id: "t1", title: "Data path", slug: "data", description: "", position: 1, domain: "Data Science", domainPosition: 1, available: true, selected: true, courseCount: 2, lessonCount: 2, completedCount: 0, durationSeconds: 200, courses: [] };
+    server.use(
+      http.get(`${API}/tracks`, () => ok([track])),
+      http.get(`${API}/courses`, () => ok([course("html", "HTML")])),
+      http.get(`${API}/skill-exams`, () => ok([domainExam("d-fs", "Full Stack Development"), domainExam("d-ds", "Data Science")])),
+    );
+    renderPortal(<Learning hub />, { pathname: "/learning", step: "exam_ready" });
+    const cards = await screen.findAllByRole("region", { name: /domain exam$/ });
+    expect(cards.map((c) => c.getAttribute("aria-label"))).toEqual(["Data Science domain exam", "Full Stack Development domain exam"]);
   });
 });
 

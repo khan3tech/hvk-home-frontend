@@ -126,23 +126,15 @@ describe("the payment popup (manual mode, before the payment is approved)", () =
     expect(progress).toContainEqual(expect.objectContaining({ id: "a", completed: true }));
   });
 
-  it("opens when the candidate tries to go to the exam, and again after it was closed", async () => {
-    serve();
-    const user = userEvent.setup();
-    renderPortal(<Learning hub />, { pathname: "/learning", step: "demo_pending" });
-    await user.click(await screen.findByRole("button", { name: /Go to exam/ }));
-    const dialog = await popup();
-    await user.click(within(dialog).getByRole("button", { name: "Not now" }));
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-    await user.click(screen.getByRole("button", { name: /Go to exam/ }));
-    expect(await popup()).toBeInTheDocument();
-  });
-
-  it("opens from a course or domain exam button", async () => {
+  it("opens from a course or domain exam button, and again after it was closed", async () => {
     serve({ exams: [exam()] });
     const user = userEvent.setup();
     renderPortal(<Learning hub />, { pathname: "/learning", step: "demo_pending" });
     await user.click(await screen.findByRole("button", { name: "Unlock the exam for JavaScript" }));
+    const dialog = await popup();
+    await user.click(within(dialog).getByRole("button", { name: "Not now" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    await user.click(screen.getByRole("button", { name: "Unlock the exam for JavaScript" }));
     expect(await popup()).toBeInTheDocument();
   });
 
@@ -150,7 +142,6 @@ describe("the payment popup (manual mode, before the payment is approved)", () =
     serve({ exams: [exam({ unlocked: true })] });
     const user = userEvent.setup();
     renderPortal(<Learning hub />, { pathname: "/learning", step: "exam_ready" });
-    expect(await screen.findByRole("link", { name: /Go to exam/ })).toHaveAttribute("href", "/exam");
     expect(await screen.findByRole("link", { name: "Take exam for JavaScript" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Start JavaScript" }));
     const sidebar = await screen.findByRole("navigation", { name: "Course content" });

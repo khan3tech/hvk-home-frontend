@@ -10,6 +10,7 @@ import { portalApi } from "@/lib/api/portal";
 import { errorMessage } from "@/lib/api/client";
 import { STEP_ROUTE } from "@/lib/journey";
 import { cn } from "@/lib/utils";
+import { ExamChooser } from "./exam-chooser";
 import { FormMessage } from "./form-field";
 import { PageShell } from "./page-shell";
 import { useJourney } from "./portal-gate";
@@ -108,53 +109,64 @@ export function Exam({ pollMs = COMPLETION_POLL_MS, pendingPollMs = PENDING_POLL
     }
   }
 
-  const intro = managed
-    ? "Your payment is confirmed. Your exam link is personal to you and works for 24 hours — we've also emailed it."
+  const registrationIntro = managed
+    ? "Your exam link is personal to you and works for 24 hours — we've also emailed it."
     : status.step === "exam_in_progress"
       ? "Your exam is in progress. Finish it in the exam window."
-      : "Your payment is confirmed. The exam opens in a new tab — we've also emailed you the link.";
+      : "The exam opens in a new tab — we've also emailed you the link.";
 
   return (
-    <PageShell eyebrow="Step 4 of 6" title="Your exam" intro={intro}>
-      {!exam && !error ? (
-        <p role="status" className="flex items-center gap-2 text-sm text-muted">
-          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Loading your exam...
-        </p>
-      ) : null}
+    <PageShell
+      eyebrow="Step 4 of 6"
+      title="Choose your exam"
+      intro="Pick the domain you want to be tested on, or a single course. Your registration exam is further down this page."
+      width="max-w-5xl"
+    >
+      <ExamChooser />
 
-      {exam && managed ? <ManagedExam exam={exam} /> : null}
+      <section aria-labelledby="registration-exam-heading" className="mt-10 border-t border-slate-100 pt-8 dark:border-white/10">
+        <h2 id="registration-exam-heading" className="text-lg font-bold text-navy dark:text-white">Your registration exam</h2>
+        {exam ? <p className="mb-4 mt-1 text-sm text-muted dark:text-slate-400">{registrationIntro}</p> : null}
+        {!exam && !error ? (
+          <p role="status" className="mt-2 flex items-center gap-2 text-sm text-muted">
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Loading your exam...
+          </p>
+        ) : null}
 
-      {exam && !managed && exam.examUrl ? (
-        <div className="space-y-5">
-          <a
-            href={exam.examUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(buttonVariants({ variant: "primary", size: "lg" }), "w-full")}
-          >
-            Start exam <ExternalLink className="h-4 w-4" aria-hidden="true" />
-          </a>
+        {exam && managed ? <ManagedExam exam={exam} /> : null}
 
-          {waiting ? (
-            <div role="status" className="flex items-start gap-3 rounded-lg bg-light-blue/40 p-4 text-sm dark:bg-dark-surface-alt">
-              <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-primary-blue" aria-hidden="true" />
-              <p className="text-navy dark:text-white">
-                Waiting for the exam platform to confirm your submission. This page updates automatically — you
-                can also come back later from your dashboard.
-              </p>
-            </div>
-          ) : (
-            <div className="rounded-lg border border-slate-100 p-4 dark:border-white/10">
-              <p className="text-sm text-muted dark:text-slate-400">Finished the exam? Let us know and we&apos;ll take you to feedback once it&apos;s confirmed.</p>
-              <Button variant="outline" className="mt-3" onClick={() => void claim()}>
-                <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> I&apos;ve finished the exam
-              </Button>
-            </div>
-          )}
-        </div>
-      ) : null}
+        {exam && !managed && exam.examUrl ? (
+          <div className="space-y-5">
+            <a
+              href={exam.examUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(buttonVariants({ variant: "primary", size: "lg" }), "w-full")}
+            >
+              Start exam <ExternalLink className="h-4 w-4" aria-hidden="true" />
+            </a>
 
-      <FormMessage>{error}</FormMessage>
+            {waiting ? (
+              <div role="status" className="flex items-start gap-3 rounded-lg bg-light-blue/40 p-4 text-sm dark:bg-dark-surface-alt">
+                <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-primary-blue" aria-hidden="true" />
+                <p className="text-navy dark:text-white">
+                  Waiting for the exam platform to confirm your submission. This page updates automatically — you
+                  can also come back later from your dashboard.
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-lg border border-slate-100 p-4 dark:border-white/10">
+                <p className="text-sm text-muted dark:text-slate-400">Finished the exam? Let us know and we&apos;ll take you to feedback once it&apos;s confirmed.</p>
+                <Button variant="outline" className="mt-3" onClick={() => void claim()}>
+                  <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> I&apos;ve finished the exam
+                </Button>
+              </div>
+            )}
+          </div>
+        ) : null}
+
+        <FormMessage>{error}</FormMessage>
+      </section>
     </PageShell>
   );
 }
