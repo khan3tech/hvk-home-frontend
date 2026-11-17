@@ -101,6 +101,7 @@ export function LeadsList() {
             <thead className="border-b border-slate-100 text-xs uppercase tracking-wide text-muted dark:border-white/10">
               <tr>
                 <th scope="col" className="px-5 py-3">Candidate</th>
+                <th scope="col" className="px-5 py-3">Email</th>
                 <th scope="col" className="px-5 py-3">Phone</th>
                 <th scope="col" className="px-5 py-3">City</th>
                 <th scope="col" className="px-5 py-3">Journey</th>
@@ -111,7 +112,7 @@ export function LeadsList() {
             <tbody>
               {data.items.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-5 py-8 text-center text-muted">No leads match these filters.</td>
+                  <td colSpan={7} className="px-5 py-8 text-center text-muted">No leads match these filters.</td>
                 </tr>
               ) : (
                 data.items.map((lead) => (
@@ -120,6 +121,11 @@ export function LeadsList() {
                       <Link href={`/admin/leads/${lead.id}`} className="text-primary-blue hover:underline dark:text-bright-blue">
                         {lead.candidate?.fullName ?? "Unknown"}
                       </Link>
+                    </td>
+                    <td className="px-5 py-3">
+                      {lead.candidate?.email ? (
+                        <a href={`mailto:${lead.candidate.email}`} className="break-all hover:underline">{lead.candidate.email}</a>
+                      ) : "—"}
                     </td>
                     <td className="px-5 py-3">{lead.candidate?.phone ?? "—"}</td>
                     <td className="px-5 py-3">{lead.candidate?.city ?? "—"}</td>
