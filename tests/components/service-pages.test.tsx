@@ -1,9 +1,10 @@
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { splitTitle } from "@/components/services/service-poster";
 import { ServiceCard } from "@/components/home/service-card";
 import { ServiceDetailPage } from "@/components/services/service-detail-page";
-import { FOOTER_SERVICE_LINKS, SERVICES } from "@/lib/constants";
+import { CONTACT_EMAIL, FOOTER_SERVICE_LINKS, SERVICES } from "@/lib/constants";
 import { SERVICE_DETAILS } from "@/lib/service-details";
 
 describe("service content", () => {
@@ -34,10 +35,20 @@ describe("ServiceDetailPage", () => {
     for (const name of ["What this service is", "Everything included", "Your journey, step by step", "Common questions", "Ready to get started?"]) {
       expect(screen.getByRole("heading", { name })).toBeInTheDocument();
     }
-    expect(screen.getAllByRole("link", { name: /Register now/ })[0]).toHaveAttribute("href", "/registration#registration");
-    expect(screen.getAllByRole("link", { name: /Talk to us|Call us/ })[0]).toHaveAttribute("href", "tel:+919876543210");
+    expect(screen.getAllByRole("link", { name: /Sign up/ })[0]).toHaveAttribute("href", "/registration#registration");
+    expect(screen.getByRole("button", { name: "Talk to us" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Call us" })).toBeInTheDocument();
     expect(screen.getByAltText(detail.photo.alt)).toBeInTheDocument();
     expect(screen.getAllByRole("listitem").length).toBeGreaterThan(20);
+  });
+
+  it("Talk to us shows both phone numbers and the email", async () => {
+    render(<ServiceDetailPage detail={SERVICE_DETAILS[0]!} />);
+    expect(screen.queryByRole("link", { name: /76720 10292/ })).not.toBeInTheDocument();
+    await userEvent.setup().click(screen.getByRole("button", { name: "Talk to us" }));
+    expect(screen.getByRole("link", { name: "+91 76720 10292" })).toHaveAttribute("href", "tel:+917672010292");
+    expect(screen.getByRole("link", { name: "+91 90106 40569" })).toHaveAttribute("href", "tel:+919010640569");
+    expect(screen.getByRole("link", { name: CONTACT_EMAIL })).toHaveAttribute("href", `mailto:${CONTACT_EMAIL}`);
   });
 
   it("links to the five other services, never to itself", () => {

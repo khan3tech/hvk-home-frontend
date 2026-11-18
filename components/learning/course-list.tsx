@@ -15,7 +15,8 @@ export function CourseList({ courses, onOpen, gated = false, exams }: { courses:
         const percent = course.lessonCount > 0 ? Math.round((course.completedCount / course.lessonCount) * 100) : 0;
         const action = ACTION[courseStatus(course)];
         const previewing = gated && !course.comingSoon;
-        const exam = exams?.get(course.id);
+        // No exam until the course has videos: a coming-soon course has nothing to be tested on yet.
+        const exam = course.comingSoon ? undefined : exams?.get(course.id);
         return (
           <li key={course.id} className="flex flex-col rounded-lg border border-slate-100 p-4 dark:border-white/10">
             <h2 className="flex items-center justify-between gap-2 text-base font-bold text-navy dark:text-white">

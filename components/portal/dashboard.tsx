@@ -57,7 +57,7 @@ export function Dashboard() {
     <PageShell
       eyebrow="My dashboard"
       title={`Welcome, ${candidate?.fullName.split(" ")[0] ?? "there"}`}
-      intro="See where you are in the programme and pick up where you left off."
+      intro="Start your progress and see what's next on your exam."
       width="max-w-6xl"
     >
       <div className="py-2 sm:py-4">

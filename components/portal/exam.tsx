@@ -119,7 +119,7 @@ export function Exam({ pollMs = COMPLETION_POLL_MS, pendingPollMs = PENDING_POLL
     <PageShell
       eyebrow="Step 4 of 6"
       title="Choose your exam"
-      intro="Pick the domain you want to be tested on, or a single course. Your registration exam is further down this page."
+      intro="Choose a domain for your exam. The registration exam is listed below."
       width="max-w-5xl"
     >
       <ExamChooser />
