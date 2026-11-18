@@ -30,7 +30,7 @@ export const PHONE_NUMBERS: { label: string; href: string }[] = [
 ];
 export const PHONE_NUMBER = PHONE_NUMBERS[0]!.label;
 export const PHONE_NUMBER_HREF = PHONE_NUMBERS[0]!.href;
-export const CONTACT_EMAIL = "info@hvkinfotech.com";
+export const CONTACT_EMAIL = "info@hvktech.in";
 export const OFFICE_LOCATION = "HIG 216, Beside Bank of Baroda, 2nd Floor, Phase 1 & 2, Kukatpally, Hyderabad, Telangana 500072";
 export const WORKING_HOURS = "Mon - Sat: 9:00 AM - 6:00 PM";
 
