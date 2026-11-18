@@ -13,6 +13,9 @@ const nextConfig = {
   // Legacy flows from the previous backend (payment links, magic-link exam access).
   async redirects() {
     return [
+      // The bare domain serves the same build, whose API calls go to www: different origin, CORS error.
+      // Send it to www so pages and API share one origin.
+      { source: "/:path*", has: [{ type: "host", value: "hvktech.in" }], destination: "https://www.hvktech.in/:path*", permanent: true },
       { source: "/registration/callback", destination: "/dashboard", permanent: false },
       { source: "/exam/access/:token", destination: "/login?next=/exam", permanent: false },
     ];
