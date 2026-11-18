@@ -4,6 +4,7 @@ import * as React from "react";
 import { Controller, useForm, type Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { pincodeField, pinStateIssue, pinStateRefine, placeName, stateField } from "@/lib/address";
 import { Building2, GraduationCap, Lock, Mail, MapPinned, Phone, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { SearchableSelect } from "@/components/ui/select";
@@ -18,11 +19,11 @@ import { PageShell } from "./page-shell";
 const profileSchema = z.object({
   fullName: z.string().trim().min(2, "Please enter your full name").max(100),
   college: z.string().trim().min(2, "Please enter your college").max(150),
-  place: z.string().trim().min(2, "Please enter your locality").max(100),
-  city: z.string().trim().min(2, "Please enter your city").max(100),
-  state: z.string().trim().min(2, "Please select your state"),
-  pincode: z.string().trim().regex(/^[1-9]\d{5}$/, "Enter a valid 6 digit pincode"),
-});
+  place: placeName("locality"),
+  city: placeName("city"),
+  state: stateField,
+  pincode: pincodeField,
+}).refine(pinStateRefine, pinStateIssue);
 type ProfileInput = z.infer<typeof profileSchema>;
 
 /** View and edit the allowlisted profile fields (email and phone are read-only). */
