@@ -14,6 +14,32 @@ const { SkillExams } = await import("@/components/admin/skill-exams");
 const { Learning } = await import("@/components/learning/learning");
 const { Exam } = await import("@/components/portal/exam");
 
+/** Fake media: a track is an EventTarget that can fire "ended" like a real one. */
+class FakeTrack extends EventTarget {
+  stopped = false;
+  stop() {
+    this.stopped = true;
+  }
+  getSettings() {
+    return { displaySurface: "monitor" };
+  }
+}
+const fakeStream = () => {
+  const track = new FakeTrack();
+  return { track, stream: { getVideoTracks: () => [track], getTracks: () => [track] } as unknown as MediaStream };
+};
+const media = { camera: fakeStream(), screen: fakeStream() };
+const proctor = vi.hoisted(() => ({
+  requestCamera: vi.fn(),
+  requestScreen: vi.fn(),
+  loadFaceDetector: vi.fn(),
+  enterFullscreen: vi.fn(),
+  exitFullscreen: vi.fn(),
+  isFullscreen: vi.fn(),
+  stop: vi.fn(),
+}));
+vi.mock("@/lib/exam/proctoring", () => ({ proctoring: proctor, MAX_FACE_WARNINGS: 3 }));
+
 const attempt = (over: Partial<SkillAttempt> = {}): SkillAttempt => ({
   id: "att1",
   examId: "ex1",
@@ -22,6 +48,7 @@ const attempt = (over: Partial<SkillAttempt> = {}): SkillAttempt => ({
   status: "in_progress",
   startedAt: new Date().toISOString(),
   deadlineAt: new Date(Date.now() + 20 * 60_000).toISOString(),
+  sessionKey: "key-1",
   answers: {},
   questions: [
     { id: "q1", prompt: "What does HTML stand for?", marks: 1, options: [{ id: "q1-a", label: "HyperText Markup Language" }, { id: "q1-b", label: "High Tech Modern Language" }] },
@@ -33,20 +60,23 @@ const attempt = (over: Partial<SkillAttempt> = {}): SkillAttempt => ({
 const result = (over: Partial<SkillExamResult> = {}): SkillExamResult => ({
   attemptId: "att1",
   examId: "ex1",
-  attemptNo: 1,
-  score: 1,
-  totalMarks: 2,
-  percentage: 50,
-  passed: true,
-  passPercentage: 40,
-  correctCount: 1,
-  questionCount: 2,
+  title: "HTML exam",
+  outcome: "qualified",
   completedAt: new Date().toISOString(),
+  feedbackGiven: false,
   ...over,
 });
 
 beforeEach(() => {
   nav.reset();
+  media.camera = fakeStream();
+  media.screen = fakeStream();
+  proctor.requestCamera.mockImplementation(async () => media.camera.stream);
+  proctor.requestScreen.mockImplementation(async () => media.screen.stream);
+  proctor.loadFaceDetector.mockResolvedValue({ check: async () => null });
+  proctor.enterFullscreen.mockResolvedValue(undefined);
+  proctor.exitFullscreen.mockResolvedValue(undefined);
+  proctor.isFullscreen.mockReturnValue(true);
 });
 
 describe("formatClock", () => {
@@ -58,77 +88,167 @@ describe("formatClock", () => {
   });
 });
 
-describe("Taking a course or domain exam", () => {
-  it("answers, submits and shows the result at once, then lets the candidate retake", async () => {
+describe("Taking a course or domain exam (proctored, one attempt)", () => {
+  const listWith = (over: Partial<SkillExam> = {}) => http.get(`${API}/skill-exams`, () => ok([exam({ id: "ex1", ...over })]));
+
+  /** Accepts the terms, turns on the camera, shares the screen and starts. */
+  async function getReady(user: ReturnType<typeof userEvent.setup>) {
+    const start = await screen.findByRole("button", { name: "Start exam in fullscreen" });
+    expect(start).toBeDisabled();
+    await user.click(screen.getByLabelText("I have read and agree to the exam terms and conditions"));
+    await user.click(screen.getByRole("button", { name: "Turn on camera" }));
+    expect(await screen.findByRole("button", { name: "Camera ready" })).toBeDisabled();
+    expect(start).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Share entire screen" }));
+    expect(await screen.findByRole("button", { name: "Screen shared" })).toBeDisabled();
+    await user.click(start);
+  }
+
+  it("shows the terms, needs camera, entire screen and fullscreen, then answers with the session key and shows Qualified", async () => {
     const saved: unknown[] = [];
-    let starts = 0;
     server.use(
-      http.post(`${API}/skill-exams/ex1/start`, () => {
-        starts += 1;
-        return ok(attempt({ attemptNo: starts }), 201);
-      }),
+      listWith(),
+      http.post(`${API}/skill-exams/ex1/start`, () => ok(attempt(), 201)),
       http.put(`${API}/skill-exam-attempts/att1/answers/:qid`, async ({ params, request }) => {
-        saved.push([params.qid, ((await request.json()) as { selectedOptionId: string }).selectedOptionId]);
+        saved.push([params.qid, ((await request.json()) as { selectedOptionId: string }).selectedOptionId, request.headers.get("X-Exam-Session")]);
         return ok({ questionId: String(params.qid), selectedOptionId: "x" });
       }),
-      http.post(`${API}/skill-exam-attempts/att1/submit`, () => ok(result())),
+      http.post(`${API}/skill-exam-attempts/att1/submit`, ({ request }) => (request.headers.get("X-Exam-Session") === "key-1" ? ok(result()) : fail(409, "EXAM_ENDED"))),
     );
     const user = userEvent.setup();
     render(<SkillExamRunner examId="ex1" />);
+    expect(await screen.findByRole("heading", { name: "Exam terms and conditions" })).toBeInTheDocument();
+    expect(screen.getByText(/Switching to another tab or app, leaving fullscreen, refreshing or closing the page ends the exam/)).toBeInTheDocument();
+    await getReady(user);
+    expect(proctor.enterFullscreen).toHaveBeenCalled();
 
     expect(await screen.findByText("What does HTML stand for?")).toBeInTheDocument();
-    expect(screen.getByText(/Question 1 of 2/)).toBeInTheDocument();
     await user.click(screen.getByLabelText("HyperText Markup Language"));
     await user.click(screen.getByRole("button", { name: "Next" }));
     await user.click(await screen.findByLabelText("<a>"));
-    expect(saved).toEqual([["q1", "q1-a"], ["q2", "q2-a"]]);
+    expect(saved).toEqual([["q1", "q1-a", "key-1"], ["q2", "q2-a", "key-1"]]);
 
     await user.click(screen.getByRole("button", { name: "Submit exam" }));
-    expect(await screen.findByText("You passed!")).toBeInTheDocument();
-    expect(screen.getByText("50%")).toBeInTheDocument();
-    expect(screen.getByText(/1 of 2 correct/)).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: /Retake exam/ }));
-    expect(await screen.findByText("Attempt 2")).toBeInTheDocument();
-    expect(starts).toBe(2);
+    expect(await screen.findByRole("heading", { name: "Qualified" })).toBeInTheDocument();
+    expect(screen.getByText("Congratulations!")).toBeInTheDocument();
+    expect(screen.getByText(/Please visit our branch for further process on your placement offer/)).toBeInTheDocument();
+    expect(screen.queryByText(/%|Retake|retake/)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Back to Dashboard" })).toHaveAttribute("href", "/dashboard");
+    expect(screen.queryByRole("link", { name: /Back to my learning/ })).not.toBeInTheDocument();
+    expect(media.camera.track.stopped || proctor.stop.mock.calls.length > 0).toBe(true);
   });
 
-  it("asks before submitting with unanswered questions", async () => {
-    let submitted = 0;
+  it("asks before submitting with unanswered questions, then shows Disqualified with Feedback", async () => {
+    let feedback: unknown = null;
     server.use(
+      listWith(),
       http.post(`${API}/skill-exams/ex1/start`, () => ok(attempt(), 201)),
-      http.post(`${API}/skill-exam-attempts/att1/submit`, () => {
-        submitted += 1;
-        return ok(result({ percentage: 0, passed: false, correctCount: 0, score: 0 }));
+      http.post(`${API}/skill-exam-attempts/att1/submit`, () => ok(result({ outcome: "disqualified" }))),
+      http.post(`${API}/skill-exam-attempts/att1/feedback`, async ({ request }) => {
+        feedback = await request.json();
+        return ok(result({ outcome: "disqualified", feedbackGiven: true }), 201);
       }),
     );
     const user = userEvent.setup();
     render(<SkillExamRunner examId="ex1" />);
+    await getReady(user);
     await screen.findByText("What does HTML stand for?");
     await user.click(screen.getByRole("button", { name: "Go to question 2" }));
     await user.click(screen.getByRole("button", { name: "Submit exam" }));
     expect(await screen.findByRole("alertdialog")).toHaveTextContent("Submit with 2 unanswered?");
-    await user.click(screen.getByRole("button", { name: "Keep answering" }));
-    expect(submitted).toBe(0);
-    await user.click(screen.getByRole("button", { name: "Submit exam" }));
     await user.click(screen.getByRole("button", { name: "Submit now" }));
-    expect(await screen.findByText("Not passed this time")).toBeInTheDocument();
-    expect(submitted).toBe(1);
+
+    expect(await screen.findByRole("heading", { name: "Disqualified" })).toBeInTheDocument();
+    expect(screen.getByText("Don't worry.")).toBeInTheDocument();
+    expect(screen.getByText("Contact our support team for further process.")).toBeInTheDocument();
+    expect(screen.queryByText(/Attempt 1|Not passed|retake/i)).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Feedback" }));
+    await user.click(screen.getByLabelText("4 out of 5"));
+    await user.type(screen.getByLabelText(/Comments/), "Good questions");
+    await user.click(screen.getByRole("button", { name: "Send feedback" }));
+    expect(await screen.findByText("Thank you for your feedback.")).toBeInTheDocument();
+    expect(feedback).toEqual({ rating: 4, comments: "Good questions" });
   });
 
-  it("resumes an open attempt with the answers already given", async () => {
-    server.use(http.post(`${API}/skill-exams/ex1/start`, () => ok(attempt({ answers: { q1: "q1-b" } }), 201)));
+  it("ends the exam when the candidate switches tab, and shows Contact us instead of Continue", async () => {
+    let ended: unknown = null;
+    server.use(
+      listWith(),
+      http.post(`${API}/skill-exams/ex1/start`, () => ok(attempt(), 201)),
+      http.post(`${API}/skill-exam-attempts/att1/terminate`, async ({ request }) => {
+        ended = await request.json();
+        return ok(result({ outcome: "terminated" }));
+      }),
+    );
+    const user = userEvent.setup();
     render(<SkillExamRunner examId="ex1" />);
-    expect(await screen.findByLabelText("High Tech Modern Language")).toBeChecked();
-    expect(screen.getByText(/1 answered/)).toBeInTheDocument();
+    await getReady(user);
+    await screen.findByText("What does HTML stand for?");
+
+    const visibility = vi.spyOn(document, "visibilityState", "get").mockReturnValue("hidden");
+    document.dispatchEvent(new Event("visibilitychange"));
+    visibility.mockRestore();
+    expect(await screen.findByRole("heading", { name: "Your exam has ended" })).toBeInTheDocument();
+    expect(screen.getByText(/You switched to another tab or app/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Contact us" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Continue/ })).not.toBeInTheDocument();
+    await waitFor(() => expect(ended).toEqual({ reason: "tab_hidden" }));
+  });
+
+  it("ends the exam when screen sharing stops", async () => {
+    let ended: unknown = null;
+    server.use(
+      listWith(),
+      http.post(`${API}/skill-exams/ex1/start`, () => ok(attempt(), 201)),
+      http.post(`${API}/skill-exam-attempts/att1/terminate`, async ({ request }) => {
+        ended = await request.json();
+        return ok(result({ outcome: "terminated" }));
+      }),
+    );
+    const user = userEvent.setup();
+    render(<SkillExamRunner examId="ex1" />);
+    await getReady(user);
+    await screen.findByText("What does HTML stand for?");
+    media.screen.track.dispatchEvent(new Event("ended"));
+    expect(await screen.findByText(/Screen sharing was stopped/)).toBeInTheDocument();
+    await waitFor(() => expect(ended).toEqual({ reason: "screen_share_stopped" }));
+  });
+
+  it("does not continue an exam the candidate comes back to: it is ended", async () => {
+    let ended: unknown = null;
+    server.use(
+      listWith({ state: "in_progress", attemptId: "att1" }),
+      http.post(`${API}/skill-exam-attempts/att1/terminate`, async ({ request }) => {
+        ended = await request.json();
+        return ok(result({ outcome: "terminated" }));
+      }),
+    );
+    render(<SkillExamRunner examId="ex1" />);
+    expect(await screen.findByRole("heading", { name: "Your exam has ended" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Contact us" })).toBeInTheDocument();
+    expect(ended).toEqual({ reason: "left_exam" });
+    expect(proctor.requestCamera).not.toHaveBeenCalled();
+  });
+
+  it("shows other exams as taken once the candidate has had their one exam", async () => {
+    server.use(listWith({ state: "locked" }));
+    render(<SkillExamRunner examId="ex1" />);
+    expect(await screen.findByRole("heading", { name: "You have already taken your exam" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Back to Dashboard" })).toBeInTheDocument();
+  });
+
+  it("shows the outcome of a finished exam", async () => {
+    server.use(listWith({ state: "disqualified", attemptId: "att1" }), http.get(`${API}/skill-exam-attempts/att1`, () => ok({ state: "submitted", result: result({ outcome: "disqualified", feedbackGiven: true }) })));
+    render(<SkillExamRunner examId="ex1" />);
+    expect(await screen.findByRole("heading", { name: "Disqualified" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Feedback" })).not.toBeInTheDocument();
   });
 
   it("explains a locked exam when the payment is not approved yet", async () => {
-    server.use(http.post(`${API}/skill-exams/ex1/start`, () => fail(409, "PAYMENT_REQUIRED")));
+    server.use(listWith({ unlocked: false }));
     render(<SkillExamRunner examId="ex1" />);
     expect(await screen.findByText("The exams unlock after you pay the registration fee.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Go to payment" })).toHaveAttribute("href", "/payment");
-    expect(screen.getByRole("link", { name: "Back to my learning" })).toHaveAttribute("href", "/learning");
   });
 });
 
@@ -141,13 +261,10 @@ const exam = (over: Partial<SkillExam> = {}): SkillExam => ({
   title: "HTML exam",
   description: "",
   durationMinutes: 30,
-  passPercentage: 40,
   questionCount: 10,
   unlocked: true,
-  attempts: 0,
-  bestPercentage: null,
-  passed: false,
-  openAttemptId: null,
+  state: "available",
+  attemptId: null,
   ...over,
 });
 
@@ -164,11 +281,11 @@ describe("Exams on the learning page", () => {
   }
 
   it("puts an exam button on each course that has one, with the best result", async () => {
-    serve([exam(), exam({ id: "ex2", courseId: "js", targetTitle: "JavaScript", attempts: 2, bestPercentage: 85, passed: true })]);
+    serve([exam({ state: "locked" }), exam({ id: "ex2", courseId: "js", targetTitle: "JavaScript", state: "qualified", attemptId: "a2" })]);
     renderPortal(<Learning hub />, { pathname: "/learning", step: "exam_ready" });
-    expect(await screen.findByRole("link", { name: "Take exam for HTML" })).toHaveAttribute("href", "/skill-exam/ex1");
-    expect(screen.getByRole("link", { name: "Retake exam for JavaScript" })).toHaveAttribute("href", "/skill-exam/ex2");
-    expect(screen.getByText("Passed · best 85%")).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: /Exam for HTML is locked/ })).toBeDisabled();
+    expect(screen.getByRole("link", { name: "View result for JavaScript" })).toHaveAttribute("href", "/skill-exam/ex2");
+    expect(screen.getByText("Qualified")).toBeInTheDocument();
   });
 
   it("keeps the exam buttons locked until the payment: a button instead of a link (it opens the payment popup)", async () => {
@@ -198,7 +315,7 @@ describe("Go to exam: choose a domain", () => {
         ok([
           exam({ id: "c-py", courseId: "py", targetTitle: "Python" }),
           domainExam("d-fs", "Full Stack Development"),
-          domainExam("d-ai", "AI Engineering", { attempts: 1, bestPercentage: 72, passed: true }),
+          domainExam("d-ai", "AI Engineering", { state: "qualified", attemptId: "a1" }),
           domainExam("d-ds", "Data Science"),
           exam({ id: "c-java", courseId: "java", targetTitle: "Core Java" }),
         ]),
@@ -211,8 +328,9 @@ describe("Go to exam: choose a domain", () => {
     const domainNames = within(domains).getAllByRole("heading", { level: 3 }).map((h) => h.textContent);
     expect(domainNames).toEqual(["AI Engineering", "Data Science", "Full Stack Development"]);
     expect(within(domains).getByRole("link", { name: "Take exam for Data Science" })).toHaveAttribute("href", "/skill-exam/d-ds");
-    expect(within(domains).getByRole("link", { name: "Retake exam for AI Engineering" })).toBeInTheDocument();
-    expect(within(domains).getAllByText(/100 questions · 120 min · pass mark 40%/)).toHaveLength(3);
+    expect(within(domains).getByRole("link", { name: "View result for AI Engineering" })).toBeInTheDocument();
+    expect(within(domains).getAllByText(/^100 questions · 120 min$/)).toHaveLength(3);
+    expect(screen.queryByText(/pass mark/)).not.toBeInTheDocument();
 
     const courses = screen.getByRole("region", { name: "Or test one course" });
     expect(within(courses).getByRole("link", { name: "Take exam for Core Java" })).toHaveAttribute("href", "/skill-exam/c-java");

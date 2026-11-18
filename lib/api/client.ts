@@ -46,6 +46,8 @@ export interface ApiOptions {
   session?: boolean;
   signal?: AbortSignal;
   headers?: Record<string, string>;
+  /** Let the request finish while the page is closing (exam "candidate left" reports). */
+  keepalive?: boolean;
 }
 
 function buildUrl(path: string, query?: ApiOptions["query"]): string {
@@ -89,6 +91,7 @@ async function send(path: string, opts: ApiOptions, token: string | null): Promi
       body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
       credentials: opts.session ? "include" : "omit",
       signal: opts.signal,
+      keepalive: opts.keepalive,
     });
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") throw err;
