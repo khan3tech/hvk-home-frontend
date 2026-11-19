@@ -1,4 +1,5 @@
 import type {
+  MySkillAttempt,
   Page,
   SkillAttempt,
   SkillExamAttemptAdmin,
@@ -18,6 +19,8 @@ const enc = encodeURIComponent;
 /** Candidate side of the course and domain exams (spec 007). */
 export const skillExamApi = {
   list: () => apiFetch<SkillExam[]>("/skill-exams"),
+  /** Exams this candidate has taken, newest first. */
+  mine: () => apiFetch<MySkillAttempt[]>("/skill-exam-attempts"),
   start: (examId: string) => apiFetch<SkillAttempt>(`/skill-exams/${enc(examId)}/start`, { method: "POST" }),
   attempt: (attemptId: string) => apiFetch<SkillAttemptView>(`/skill-exam-attempts/${enc(attemptId)}`),
   answer: (attemptId: string, questionId: string, selectedOptionId: string, sessionKey: string) =>

@@ -33,10 +33,10 @@ const courses = () => [course("js", "JavaScript", [lesson("a", { preview: true }
 
 const FEE = { mode: "manual", feeMinor: 299900, currency: "INR", instructions: "Pay at the office." } as const;
 
-function serve(opts: { exams?: SkillExam[]; progress?: unknown[] } = {}) {
+function serve(opts: { exams?: SkillExam[]; progress?: unknown[]; tracks?: unknown[] } = {}) {
   server.use(
     http.get(`${API}/payments/config`, () => ok(FEE)),
-    http.get(`${API}/tracks`, () => ok([])),
+    http.get(`${API}/tracks`, () => ok(opts.tracks ?? [])),
     http.get(`${API}/courses`, () => ok(courses())),
     http.get(`${API}/skill-exams`, () => ok(opts.exams ?? [])),
     http.post(`${API}/lessons/:id/play`, ({ params }) => ok({ url: `https://cdn.test/${String(params.id)}.mp4`, expiresAt: "2030-01-01T00:00:00Z" })),
@@ -48,10 +48,13 @@ function serve(opts: { exams?: SkillExam[]; progress?: unknown[] } = {}) {
   );
 }
 
+const MERN = { id: "t1", title: "MERN Stack", slug: "mern", description: "", position: 1, domain: "Full Stack Development", domainPosition: 1, available: true, selected: true, courseCount: 2, lessonCount: 2, completedCount: 0, durationSeconds: 200, courses: [] };
+
 const exam = (over: Partial<SkillExam> = {}): SkillExam => ({
   id: "ex1",
   scope: "course",
   courseId: "js",
+  trackId: null,
   domain: "",
   targetTitle: "JavaScript",
   title: "JavaScript exam",
@@ -123,24 +126,24 @@ describe("the payment popup (manual mode, before the payment is approved)", () =
     expect(progress).toContainEqual(expect.objectContaining({ id: "a", completed: true }));
   });
 
-  it("opens from a course or domain exam button, and again after it was closed", async () => {
-    serve({ exams: [exam()] });
+  it("opens from the learning path's exam button, and again after it was closed", async () => {
+    serve({ exams: [exam({ scope: "track", courseId: null, trackId: "t1", targetTitle: "MERN Stack" })], tracks: [MERN] });
     const user = userEvent.setup();
     renderPortal(<Learning hub />, { pathname: "/learning", step: "demo_pending" });
-    await user.click(await screen.findByRole("button", { name: "Unlock the exam for JavaScript" }));
+    await user.click(await screen.findByRole("button", { name: "Unlock the exam for MERN Stack" }));
     const dialog = await popup();
     await user.click(within(dialog).getByRole("button", { name: "Not now" }));
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-    await user.click(screen.getByRole("button", { name: "Unlock the exam for JavaScript" }));
+    await user.click(screen.getByRole("button", { name: "Unlock the exam for MERN Stack" }));
     expect(await popup()).toBeInTheDocument();
   });
 
   it("shows nothing once the payment is approved: every video opens and the exam is a link", async () => {
-    serve({ exams: [exam({ unlocked: true })] });
+    serve({ exams: [exam({ unlocked: true, scope: "track", courseId: null, trackId: "t1", targetTitle: "MERN Stack" })], tracks: [MERN] });
     const user = userEvent.setup();
     renderPortal(<Learning hub />, { pathname: "/learning", step: "exam_ready" });
-    expect(await screen.findByRole("link", { name: "Take exam for JavaScript" })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Start JavaScript" }));
+    expect(await screen.findByRole("link", { name: "Take exam for MERN Stack" })).toBeInTheDocument();
+    await user.click(await screen.findByRole("button", { name: "Start JavaScript" }));
     const sidebar = await screen.findByRole("navigation", { name: "Course content" });
     await user.click(within(sidebar).getByRole("button", { name: /Lesson b/ }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();

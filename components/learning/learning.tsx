@@ -19,7 +19,7 @@ import { useJourney } from "@/components/portal/portal-gate";
 import type { LearningCourse, LearningTrack, LessonProgressResult, SkillExam } from "@/types/api";
 import { CourseList } from "./course-list";
 import { CourseSidebar } from "./course-sidebar";
-import { DomainExamCard } from "./skill-exam-cards";
+import { TrackExamCard } from "./skill-exam-cards";
 import { LessonPlayer } from "./lesson-player";
 import { TrackList } from "./track-list";
 
@@ -154,13 +154,8 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
   // Next and Previous follow every video; going to a locked one opens the payment popup (see select).
   const near = courses && active ? neighbours(courses, active.lesson.id) : null;
   const showChooser = hasTracks && choosing;
-  const examsByCourse = React.useMemo(() => new Map(exams.filter((e) => e.scope === "course" && e.courseId).map((e) => [e.courseId!, e])), [exams]);
-  const domainExams = exams.filter((e) => e.scope === "domain");
-  // Every domain exam is offered (outside a lesson); the chosen pathway's own domain comes first.
-  const shownDomainExams =
-    showChooser || (current && !active) || (!hasTracks && !active)
-      ? [...domainExams].sort((a, b) => Number(b.domain === current?.domain) - Number(a.domain === current?.domain))
-      : [];
+  // One exam per learning path (owner decision): the open path shows its own exam, nothing else.
+  const trackExam = current && !active && !showChooser ? (exams.find((e) => e.scope === "track" && e.trackId === current.id) ?? null) : null;
   const loaded = loadError !== null || showChooser || courses !== null;
 
   const title = showChooser ? "Choose your learning path" : active ? active.lesson.title : current ? current.title : hub ? "My learning" : "Learn before you start";
@@ -214,11 +209,9 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
       </div>
       <FormMessage>{error}</FormMessage>
 
-      {shownDomainExams.length > 0 ? (
-        <div className="mb-6 space-y-3">
-          {shownDomainExams.map((exam) => (
-            <DomainExamCard key={exam.id} exam={exam} />
-          ))}
+      {trackExam ? (
+        <div className="mb-6">
+          <TrackExamCard exam={trackExam} />
         </div>
       ) : null}
 
@@ -248,7 +241,7 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
           <CourseSidebar courses={courses} activeLessonId={active.lesson.id} onSelect={select} gated={gated} />
         </div>
       ) : (
-        <CourseList courses={courses} onOpen={select} gated={gated} exams={examsByCourse} />
+        <CourseList courses={courses} onOpen={select} gated={gated} />
       )}
     </PageShell>
   );
