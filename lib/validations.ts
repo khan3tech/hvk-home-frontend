@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { pincodeField, pinStateIssue, pinStateRefine, placeName, stateField } from "./address";
 
 /** Client-side rules mirror the Candidate Platform API (UX only — the API is authoritative). */
 
@@ -24,10 +25,10 @@ export const candidateRegistrationSchema = z
     email,
     contactNumber: indianMobile,
     college: z.string().trim().min(2, "Please enter your college or university").max(150, "Name is too long"),
-    place: z.string().trim().min(2, "Please enter your locality").max(100, "Locality is too long"),
-    city: z.string().trim().min(2, "Please enter your city").max(100, "City is too long"),
-    state: z.string().trim().min(2, "Please select your state"),
-    pincode: z.string().trim().regex(/^[1-9]\d{5}$/, "Enter a valid 6 digit pincode"),
+    place: placeName("locality"),
+    city: placeName("city"),
+    state: stateField,
+    pincode: pincodeField,
     password,
     confirmPassword: z.string(),
     acceptTerms: z.boolean().refine((v) => v, "Please accept the terms to continue"),
@@ -35,7 +36,8 @@ export const candidateRegistrationSchema = z
   .refine((v) => v.password === v.confirmPassword, {
     path: ["confirmPassword"],
     message: "Passwords do not match",
-  });
+  })
+  .refine(pinStateRefine, pinStateIssue);
 
 export type CandidateRegistrationInput = z.infer<typeof candidateRegistrationSchema>;
 

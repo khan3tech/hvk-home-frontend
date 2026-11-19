@@ -1,3 +1,4 @@
+import { INDIAN_STATES as ADDRESS_STATES } from "./address";
 import {
   GraduationCap,
   Code2,
@@ -196,38 +197,4 @@ export const FOOTER_LINK_GROUPS: FooterLinkGroupData[] = [
   { title: "Our Services", links: FOOTER_SERVICE_LINKS },
 ];
 
-export const INDIAN_STATES: string[] = [
-  "Andhra Pradesh",
-  "Arunachal Pradesh",
-  "Assam",
-  "Bihar",
-  "Chhattisgarh",
-  "Goa",
-  "Gujarat",
-  "Haryana",
-  "Himachal Pradesh",
-  "Jharkhand",
-  "Karnataka",
-  "Kerala",
-  "Madhya Pradesh",
-  "Maharashtra",
-  "Manipur",
-  "Meghalaya",
-  "Mizoram",
-  "Nagaland",
-  "Odisha",
-  "Punjab",
-  "Rajasthan",
-  "Sikkim",
-  "Tamil Nadu",
-  "Telangana",
-  "Tripura",
-  "Uttar Pradesh",
-  "Uttarakhand",
-  "West Bengal",
-  "Delhi (NCT)",
-  "Jammu and Kashmir",
-  "Ladakh",
-  "Chandigarh",
-  "Puducherry",
-];
+export const INDIAN_STATES: string[] = [...ADDRESS_STATES];
