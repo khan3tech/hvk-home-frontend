@@ -5,8 +5,7 @@ import {
   CONTACT_EMAIL,
   FOOTER_LINK_GROUPS,
   OFFICE_LOCATION,
-  PHONE_NUMBER,
-  PHONE_NUMBER_HREF,
+  PHONE_NUMBERS,
   SITE_NAME,
   SITE_TAGLINE,
   SOCIAL_LINKS,
@@ -90,12 +89,14 @@ export function Footer() {
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-bright-blue" aria-hidden="true" />
               <span>{OFFICE_LOCATION}</span>
             </li>
-            <li className="flex items-center gap-2.5">
-              <Phone className="h-4 w-4 shrink-0 text-bright-blue" aria-hidden="true" />
-              <a href={PHONE_NUMBER_HREF} className="hover:text-bright-blue">
-                {PHONE_NUMBER}
-              </a>
-            </li>
+            {PHONE_NUMBERS.map((p) => (
+              <li key={p.href} className="flex items-center gap-2.5">
+                <Phone className="h-4 w-4 shrink-0 text-bright-blue" aria-hidden="true" />
+                <a href={p.href} className="hover:text-bright-blue">
+                  {p.label}
+                </a>
+              </li>
+            ))}
             <li className="flex items-center gap-2.5">
               <Mail className="h-4 w-4 shrink-0 text-bright-blue" aria-hidden="true" />
               <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-bright-blue">

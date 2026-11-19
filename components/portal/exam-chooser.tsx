@@ -4,6 +4,7 @@ import * as React from "react";
 import { Award, BookOpen, Loader2 } from "lucide-react";
 import type { SkillExam } from "@/types/api";
 import { ExamAction, ExamStatus } from "@/components/learning/skill-exam-cards";
+import { learningApi } from "@/lib/api/learning";
 import { skillExamApi } from "@/lib/api/skill-exams";
 import { errorMessage } from "@/lib/api/client";
 import { FormMessage } from "./form-field";
@@ -20,9 +21,14 @@ export function ExamChooser() {
 
   React.useEffect(() => {
     let cancelled = false;
-    skillExamApi
-      .list()
-      .then((list) => !cancelled && setExams(list))
+    // Courses without videos yet ("coming soon") get no exam here: nothing to learn from yet.
+    // If the course list cannot be loaded, every exam is shown rather than none.
+    Promise.all([skillExamApi.list(), learningApi.courses().catch(() => null)])
+      .then(([list, courses]) => {
+        if (cancelled) return;
+        const soon = new Set((courses ?? []).filter((c) => c.comingSoon).map((c) => c.id));
+        setExams(list.filter((e) => !(e.scope === "course" && e.courseId && soon.has(e.courseId))));
+      })
       .catch((err: unknown) => !cancelled && setError(errorMessage(err)));
     return () => {
       cancelled = true;
@@ -49,8 +55,7 @@ export function ExamChooser() {
     <div className="space-y-8">
       {domains.length > 0 ? (
         <section aria-labelledby="domain-exams-heading">
-          <h2 id="domain-exams-heading" className="text-lg font-bold text-navy dark:text-white">Which domain do you want to be tested on?</h2>
-          <p className="mt-1 text-sm text-muted dark:text-slate-400">A domain exam covers the whole field. You can take any domain, as often as you like.</p>
+          <h2 id="domain-exams-heading" className="text-lg font-bold text-navy dark:text-white">Which domain do you want to take test?</h2>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {domains.map((exam) => (
               <li

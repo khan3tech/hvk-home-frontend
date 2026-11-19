@@ -207,7 +207,7 @@ describe("Go to exam: choose a domain", () => {
     );
     renderPortal(<Exam />, { pathname: "/exam", step: "exam_ready" });
 
-    const domains = await screen.findByRole("region", { name: "Which domain do you want to be tested on?" });
+    const domains = await screen.findByRole("region", { name: "Which domain do you want to take test?" });
     const domainNames = within(domains).getAllByRole("heading", { level: 3 }).map((h) => h.textContent);
     expect(domainNames).toEqual(["AI Engineering", "Data Science", "Full Stack Development"]);
     expect(within(domains).getByRole("link", { name: "Take exam for Data Science" })).toHaveAttribute("href", "/skill-exam/d-ds");
@@ -220,6 +220,27 @@ describe("Go to exam: choose a domain", () => {
 
     const registration = screen.getByRole("region", { name: "Your registration exam" });
     expect(await within(registration).findByRole("link", { name: /Start exam/ })).toHaveAttribute("href", "https://exam.test/start");
+  });
+
+  it("leaves out the exam of a course that is still coming soon", async () => {
+    server.use(
+      http.get(`${API}/skill-exams`, () => ok([exam({ id: "c-html", courseId: "html", targetTitle: "HTML" }), exam({ id: "c-css", courseId: "css", targetTitle: "CSS" })])),
+      http.get(`${API}/courses`, () => ok([course("html", "HTML"), { ...course("css", "CSS"), comingSoon: true, lessons: [], lessonCount: 0 }])),
+    );
+    renderPortal(<Exam />, { pathname: "/exam", step: "exam_ready" });
+    expect(await screen.findByRole("link", { name: "Take exam for HTML" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Take exam for CSS" })).not.toBeInTheDocument();
+  });
+
+  it("shows no exam button on a coming-soon course on the learning page", async () => {
+    server.use(
+      http.get(`${API}/tracks`, () => ok([])),
+      http.get(`${API}/courses`, () => ok([course("html", "HTML"), { ...course("css", "CSS"), comingSoon: true, lessons: [], lessonCount: 0 }])),
+      http.get(`${API}/skill-exams`, () => ok([exam({ id: "c-html", courseId: "html" }), exam({ id: "c-css", courseId: "css", targetTitle: "CSS" })])),
+    );
+    renderPortal(<Learning hub />, { pathname: "/learning", step: "exam_ready" });
+    expect(await screen.findByRole("link", { name: "Take exam for HTML" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Take exam for CSS" })).not.toBeInTheDocument();
   });
 
   it("locks the exams before payment", async () => {

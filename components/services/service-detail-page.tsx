@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Check, ChevronDown, Phone } from "lucide-react";
+import { ArrowRight, Check, ChevronDown } from "lucide-react";
 import { AuthLink } from "@/components/auth/auth-link";
 import { buttonVariants } from "@/components/ui/button";
 import { CertificatePreview } from "@/components/services/certificate-preview";
 import { ServicePoster } from "@/components/services/service-poster";
-import { PHONE_NUMBER_HREF, SERVICES } from "@/lib/constants";
+import { SERVICES } from "@/lib/constants";
+import { ContactMenu } from "@/components/layout/contact-menu";
 import { SERVICE_DETAILS, type ServiceDetail } from "@/lib/service-details";
 import { cn } from "@/lib/utils";
 
@@ -63,11 +64,9 @@ export function ServiceDetailPage({ detail }: { detail: ServiceDetail }) {
 
               <div className="mt-7 flex flex-wrap gap-3">
                 <AuthLink view="register" href="/registration#registration" className={buttonVariants({ size: "lg" })}>
-                  Register now <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  Sign up <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </AuthLink>
-                <a href={PHONE_NUMBER_HREF} className={buttonVariants({ size: "lg", variant: "outline" })}>
-                  <Phone className="h-4 w-4" aria-hidden="true" /> Talk to us
-                </a>
+                <ContactMenu label="Talk to us" className={buttonVariants({ size: "lg", variant: "outline" })} />
               </div>
               <p className="mt-4 text-xs text-muted dark:text-slate-400">Registration is free. Prefer to talk first? Call us and we will help you choose.</p>
             </div>
@@ -225,11 +224,13 @@ export function ServiceDetailPage({ detail }: { detail: ServiceDetail }) {
           </div>
           <div className="flex flex-wrap gap-3">
             <AuthLink view="register" href="/registration#registration" className={buttonVariants({ size: "lg" })}>
-              Register now <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              Sign up <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </AuthLink>
-            <a href={PHONE_NUMBER_HREF} className={cn(buttonVariants({ size: "lg", variant: "outline" }), "border-white bg-transparent text-white hover:bg-white/10 dark:border-white dark:bg-transparent dark:text-white")}>
-              <Phone className="h-4 w-4" aria-hidden="true" /> Call us
-            </a>
+            <ContactMenu
+              label="Call us"
+              className={cn(buttonVariants({ size: "lg", variant: "outline" }), "border-white bg-transparent text-white hover:bg-white/10 dark:border-white dark:bg-transparent dark:text-white")}
+              panelClassName="md:left-auto md:right-0"
+            />
           </div>
         </div>
       </section>

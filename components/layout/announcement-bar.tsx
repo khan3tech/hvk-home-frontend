@@ -1,6 +1,7 @@
+import * as React from "react";
 import Link from "next/link";
 import { HelpCircle, Phone } from "lucide-react";
-import { PHONE_NUMBER, PHONE_NUMBER_HREF, SOCIAL_LINKS } from "@/lib/constants";
+import { PHONE_NUMBERS, SOCIAL_LINKS } from "@/lib/constants";
 
 export function AnnouncementBar() {
   return (
@@ -36,13 +37,17 @@ export function AnnouncementBar() {
             <HelpCircle className="h-3.5 w-3.5" aria-hidden="true" />
             Need Help?
           </Link>
-          <a
-            href={PHONE_NUMBER_HREF}
-            className="flex items-center gap-1.5 font-semibold text-navy transition-colors hover:text-primary-blue dark:text-white dark:hover:text-bright-blue"
-          >
+          <span className="flex items-center gap-1.5 font-semibold text-navy dark:text-white">
             <Phone className="h-3.5 w-3.5" aria-hidden="true" />
-            <span className="whitespace-nowrap">{PHONE_NUMBER}</span>
-          </a>
+            {PHONE_NUMBERS.map((p, i) => (
+              <React.Fragment key={p.href}>
+                {i > 0 ? <span className="hidden text-muted sm:inline" aria-hidden="true">/</span> : null}
+                <a href={p.href} className={`whitespace-nowrap transition-colors hover:text-primary-blue dark:hover:text-bright-blue${i > 0 ? " hidden sm:inline" : ""}`}>
+                  {p.label}
+                </a>
+              </React.Fragment>
+            ))}
+          </span>
         </div>
       </div>
     </div>
