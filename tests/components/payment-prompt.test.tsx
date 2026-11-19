@@ -57,13 +57,10 @@ const exam = (over: Partial<SkillExam> = {}): SkillExam => ({
   title: "JavaScript exam",
   description: "",
   durationMinutes: 30,
-  passPercentage: 40,
   questionCount: 10,
   unlocked: false,
-  attempts: 0,
-  bestPercentage: null,
-  passed: false,
-  openAttemptId: null,
+  state: "available",
+  attemptId: null,
   ...over,
 });
 

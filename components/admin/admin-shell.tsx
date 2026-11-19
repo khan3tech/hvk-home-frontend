@@ -26,6 +26,7 @@ const TA_TABS: Tab[] = [
   { href: "/admin/follow-ups", label: "Payment follow-ups" },
   { href: "/admin/exams", label: "Examinations" },
   { href: "/admin/skill-exams", label: "Course & domain exams" },
+  { href: "/admin/exam-results", label: "Exam results" },
   { href: "/admin/enquiries", label: "Enquiries" },
 ];
 

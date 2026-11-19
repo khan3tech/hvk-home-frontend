@@ -405,6 +405,9 @@ export interface SkillExamTargets {
 }
 
 /** A published exam as a candidate sees it. */
+/** The candidate's state for one exam. One exam per candidate: others are "locked" once one is taken. */
+export type SkillExamState = "available" | "locked" | "in_progress" | "qualified" | "disqualified" | "terminated";
+
 export interface SkillExam {
   id: string;
   scope: SkillExamScope;
@@ -414,14 +417,11 @@ export interface SkillExam {
   title: string;
   description: string;
   durationMinutes: number;
-  passPercentage: number;
   questionCount: number;
   /** False until the payment is approved. */
   unlocked: boolean;
-  attempts: number;
-  bestPercentage: number | null;
-  passed: boolean;
-  openAttemptId: string | null;
+  state: SkillExamState;
+  attemptId: string | null;
 }
 
 export interface SkillAttempt {
@@ -432,22 +432,39 @@ export interface SkillAttempt {
   status: "in_progress";
   startedAt: string;
   deadlineAt: string;
+  /** Only from start: proves answers come from this exam window. */
+  sessionKey: string;
   answers: Record<string, string>;
   questions: { id: string; prompt: string; marks: number; options: { id: string; label: string }[] }[];
 }
 
+/** What the candidate sees after an exam: no score and no pass mark. */
 export interface SkillExamResult {
   attemptId: string;
   examId: string;
-  attemptNo: number;
-  score: number;
-  totalMarks: number;
-  percentage: number;
-  passed: boolean;
-  passPercentage: number;
-  correctCount: number;
-  questionCount: number;
+  title: string;
+  outcome: "qualified" | "disqualified" | "terminated";
   completedAt: string | null;
+  feedbackGiven: boolean;
 }
 
-export type SkillAttemptView = { state: "in_progress"; attempt: SkillAttempt } | { state: "submitted"; result: SkillExamResult };
+export type SkillAttemptView = { state: "submitted" | "terminated"; result: SkillExamResult };
+
+export type SkillTerminationReason = "tab_hidden" | "fullscreen_exit" | "screen_share_stopped" | "face_violations" | "camera_lost" | "left_exam";
+
+/** Staff view of one exam attempt (Exam results page). */
+export interface SkillExamAttemptAdmin {
+  id: string;
+  candidate: { id: string; fullName: string; email: string; phone: string } | null;
+  exam: { id: string; title: string } | null;
+  state: "in_progress" | "qualified" | "disqualified" | "terminated";
+  percentage: number | null;
+  correctCount: number | null;
+  questionCount: number | null;
+  startedAt: string;
+  completedAt: string | null;
+  terminationReason: SkillTerminationReason | null;
+  releasedAt: string | null;
+  canAllowNewAttempt: boolean;
+  feedback: { rating: number; comments: string; at: string } | null;
+}

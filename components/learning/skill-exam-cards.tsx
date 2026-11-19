@@ -7,35 +7,56 @@ import { cn } from "@/lib/utils";
 
 export const skillExamHref = (examId: string) => `/skill-exam/${encodeURIComponent(examId)}`;
 
-function actionLabel(exam: SkillExam): string {
-  if (exam.attempts === 0) return exam.openAttemptId ? "Continue exam" : "Take exam";
-  return exam.openAttemptId ? "Continue exam" : "Retake exam";
-}
+/** "100 questions · 120 min". No pass mark is shown to candidates (owner decision). */
+export const examFacts = (exam: SkillExam) => `${exam.questionCount} questions · ${exam.durationMinutes} min`;
 
-/** Result line under an exam button: "Passed · best 80%" or "Best 30% · pass mark 40%". */
+const STATE_LABEL: Partial<Record<SkillExam["state"], string>> = {
+  qualified: "Qualified",
+  disqualified: "Disqualified",
+  terminated: "Exam ended",
+  in_progress: "Exam ended",
+};
+
+/** Outcome chip once the candidate has taken this exam: Qualified, Disqualified or Exam ended. */
 export function ExamStatus({ exam }: { exam: SkillExam }) {
-  if (exam.attempts === 0 || exam.bestPercentage === null) return null;
+  const label = STATE_LABEL[exam.state];
+  if (!label) return null;
   return (
-    <span className={cn("text-xs font-semibold", exam.passed ? "text-green-700 dark:text-green-400" : "text-muted dark:text-slate-400")}>
-      {exam.passed ? `Passed · best ${exam.bestPercentage}%` : `Best ${exam.bestPercentage}% · pass mark ${exam.passPercentage}%`}
+    <span
+      className={cn(
+        "text-xs font-semibold",
+        exam.state === "qualified" ? "text-green-700 dark:text-green-400" : exam.state === "disqualified" ? "text-red-700 dark:text-red-400" : "text-amber-700 dark:text-amber-400",
+      )}
+    >
+      {label}
     </span>
   );
 }
 
-/** The exam button of one course or domain: a link once the payment is approved, a locked button before. */
+/**
+ * The button of one exam. One exam per candidate: once one is taken, the others show "Locked" (disabled);
+ * the taken one shows "View result". Before the payment it opens the payment popup.
+ */
 export function ExamAction({ exam, size = "sm", variant = "outline" }: { exam: SkillExam; size?: "sm" | "default"; variant?: "outline" | "primary" }) {
   const prompt = usePaymentPrompt();
   if (!exam.unlocked) {
-    // Before the payment the button is still there: it opens the popup with the fee and the way to the payment page.
     return (
       <Button size={size} variant="outline" onClick={prompt.open} aria-label={`Unlock the exam for ${exam.targetTitle}`}>
         <Lock className="h-4 w-4" aria-hidden="true" /> Exam
       </Button>
     );
   }
+  if (exam.state === "locked") {
+    return (
+      <Button size={size} variant="outline" disabled aria-label={`Exam for ${exam.targetTitle} is locked: you have already taken an exam`} title="You have already taken an exam">
+        <Lock className="h-4 w-4" aria-hidden="true" /> Locked
+      </Button>
+    );
+  }
+  const label = exam.state === "available" ? "Take exam" : "View result";
   return (
-    <Link href={skillExamHref(exam.id)} className={buttonVariants({ variant, size })} aria-label={`${actionLabel(exam)} for ${exam.targetTitle}`}>
-      {actionLabel(exam)}
+    <Link href={skillExamHref(exam.id)} className={buttonVariants({ variant, size })} aria-label={`${label} for ${exam.targetTitle}`}>
+      {label}
     </Link>
   );
 }
@@ -49,7 +70,7 @@ export function DomainExamCard({ exam }: { exam: SkillExam }) {
         <div>
           <h2 className="text-base font-bold text-navy dark:text-white">{exam.targetTitle}: domain exam</h2>
           <p className="mt-0.5 text-sm text-muted dark:text-slate-400">
-            Already know this domain? Skip the courses and take the domain exam directly · {exam.questionCount} questions · {exam.durationMinutes} min · pass mark {exam.passPercentage}%
+            Already know this domain? Skip the courses and take the domain exam directly · {examFacts(exam)}
             {exam.unlocked ? "" : " · unlocks after payment"}
           </p>
           <ExamStatus exam={exam} />

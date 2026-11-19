@@ -3,13 +3,13 @@
 import * as React from "react";
 import { Award, BookOpen, Loader2 } from "lucide-react";
 import type { SkillExam } from "@/types/api";
-import { ExamAction, ExamStatus } from "@/components/learning/skill-exam-cards";
+import { ExamAction, ExamStatus, examFacts } from "@/components/learning/skill-exam-cards";
 import { learningApi } from "@/lib/api/learning";
 import { skillExamApi } from "@/lib/api/skill-exams";
 import { errorMessage } from "@/lib/api/client";
 import { FormMessage } from "./form-field";
 
-const facts = (e: SkillExam) => `${e.questionCount} questions · ${e.durationMinutes} min · pass mark ${e.passPercentage}%`;
+const facts = examFacts;
 
 /**
  * "Which exam do you want to take?": every published domain exam first, then every course exam.
