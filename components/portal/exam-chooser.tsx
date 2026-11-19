@@ -1,10 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Award, BookOpen, Loader2 } from "lucide-react";
+import { Award, Loader2 } from "lucide-react";
 import type { SkillExam } from "@/types/api";
 import { ExamAction, ExamStatus, examFacts } from "@/components/learning/skill-exam-cards";
-import { learningApi } from "@/lib/api/learning";
 import { skillExamApi } from "@/lib/api/skill-exams";
 import { errorMessage } from "@/lib/api/client";
 import { FormMessage } from "./form-field";
@@ -12,8 +11,8 @@ import { FormMessage } from "./form-field";
 const facts = examFacts;
 
 /**
- * "Which exam do you want to take?": every published domain exam first, then every course exam.
- * Shown when a candidate clicks Go to exam; nothing is filtered by the candidate's chosen track.
+ * "Which domain do you want to take test?": one exam per learning path, grouped by domain.
+ * Shown when a candidate clicks Go to exam.
  */
 export function ExamChooser() {
   const [exams, setExams] = React.useState<SkillExam[] | null>(null);
@@ -21,14 +20,9 @@ export function ExamChooser() {
 
   React.useEffect(() => {
     let cancelled = false;
-    // Courses without videos yet ("coming soon") get no exam here: nothing to learn from yet.
-    // If the course list cannot be loaded, every exam is shown rather than none.
-    Promise.all([skillExamApi.list(), learningApi.courses().catch(() => null)])
-      .then(([list, courses]) => {
-        if (cancelled) return;
-        const soon = new Set((courses ?? []).filter((c) => c.comingSoon).map((c) => c.id));
-        setExams(list.filter((e) => !(e.scope === "course" && e.courseId && soon.has(e.courseId))));
-      })
+    skillExamApi
+      .list()
+      .then((list) => !cancelled && setExams(list))
       .catch((err: unknown) => !cancelled && setError(errorMessage(err)));
     return () => {
       cancelled = true;
@@ -44,66 +38,46 @@ export function ExamChooser() {
     );
   }
 
-  const byTitle = (a: SkillExam, b: SkillExam) => a.targetTitle.localeCompare(b.targetTitle);
-  const domains = exams.filter((e) => e.scope === "domain").sort(byTitle);
-  const courses = exams.filter((e) => e.scope === "course").sort(byTitle);
-  if (domains.length === 0 && courses.length === 0) {
-    return <p className="text-sm text-muted">No exams are open yet. Please check back soon.</p>;
-  }
+  // One exam per learning path, grouped under its domain (e.g. Full Stack Development: MERN Stack, MEAN Stack).
+  const paths = exams.filter((e) => e.scope === "track");
+  if (paths.length === 0) return <p className="text-sm text-muted">No exams are open yet. Please check back soon.</p>;
+  const domains = [...new Set(paths.map((e) => e.domain || "Other"))];
 
   return (
-    <div className="space-y-8">
-      {domains.length > 0 ? (
-        <section aria-labelledby="domain-exams-heading">
-          <h2 id="domain-exams-heading" className="text-lg font-bold text-navy dark:text-white">Which domain do you want to take test?</h2>
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-            {domains.map((exam) => (
-              <li
-                key={exam.id}
-                className="flex flex-col justify-between gap-3 rounded-xl2 border border-amber-200 bg-amber-50/70 p-5 dark:border-amber-400/20 dark:bg-amber-400/5"
-              >
-                <div className="flex items-start gap-3">
-                  <Award className="mt-0.5 h-6 w-6 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true" />
-                  <div>
-                    <h3 className="font-bold text-navy dark:text-white">{exam.targetTitle}</h3>
-                    <p className="mt-0.5 text-sm text-muted dark:text-slate-400">
-                      {facts(exam)}
-                      {exam.unlocked ? "" : " · unlocks after payment"}
-                    </p>
-                    <ExamStatus exam={exam} />
-                  </div>
-                </div>
-                <div>
-                  <ExamAction exam={exam} size="default" variant="primary" />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      {courses.length > 0 ? (
-        <section aria-labelledby="course-exams-heading">
-          <h2 id="course-exams-heading" className="text-lg font-bold text-navy dark:text-white">
-            {domains.length > 0 ? "Or test one course" : "Course exams"}
-          </h2>
-          <ul className="mt-4 divide-y divide-slate-100 rounded-xl2 border border-slate-100 dark:divide-white/10 dark:border-white/10">
-            {courses.map((exam) => (
-              <li key={exam.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
-                <div className="flex items-start gap-3">
-                  <BookOpen className="mt-0.5 h-5 w-5 shrink-0 text-primary-blue dark:text-bright-blue" aria-hidden="true" />
-                  <div>
-                    <p className="font-semibold text-navy dark:text-white">{exam.targetTitle}</p>
-                    <p className="text-xs text-muted dark:text-slate-400">{facts(exam)}</p>
-                    <ExamStatus exam={exam} />
-                  </div>
-                </div>
-                <ExamAction exam={exam} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-    </div>
+    <section aria-labelledby="domain-exams-heading">
+      <h2 id="domain-exams-heading" className="text-lg font-bold text-navy dark:text-white">Which domain do you want to take test?</h2>
+      <div className="mt-4 space-y-6">
+        {domains.map((domain) => (
+          <div key={domain} role="group" aria-label={domain}>
+            <h3 className="text-sm font-bold uppercase tracking-wide text-muted dark:text-slate-400">{domain}</h3>
+            <ul className="mt-2 grid gap-3 sm:grid-cols-2">
+              {paths
+                .filter((e) => (e.domain || "Other") === domain)
+                .map((exam) => (
+                  <li
+                    key={exam.id}
+                    className="flex flex-col justify-between gap-3 rounded-xl2 border border-amber-200 bg-amber-50/70 p-5 dark:border-amber-400/20 dark:bg-amber-400/5"
+                  >
+                    <div className="flex items-start gap-3">
+                      <Award className="mt-0.5 h-6 w-6 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true" />
+                      <div>
+                        <h4 className="font-bold text-navy dark:text-white">{exam.targetTitle}</h4>
+                        <p className="mt-0.5 text-sm text-muted dark:text-slate-400">
+                          {facts(exam)}
+                          {exam.unlocked ? "" : " · unlocks after payment"}
+                        </p>
+                        <ExamStatus exam={exam} />
+                      </div>
+                    </div>
+                    <div>
+                      <ExamAction exam={exam} size="default" variant="primary" />
+                    </div>
+                  </li>
+                ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

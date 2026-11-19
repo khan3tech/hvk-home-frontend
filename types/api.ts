@@ -359,7 +359,7 @@ export interface Enquiry {
 }
 
 /** Course exams and domain exams (spec 007). */
-export type SkillExamScope = "course" | "domain";
+export type SkillExamScope = "course" | "domain" | "track";
 
 export interface SkillExamQuestionDraft {
   id: string;
@@ -412,6 +412,8 @@ export interface SkillExam {
   id: string;
   scope: SkillExamScope;
   courseId: string | null;
+  /** Set for a learning-path exam (scope "track"), the only kind offered to candidates. */
+  trackId: string | null;
   domain: string;
   targetTitle: string;
   title: string;
@@ -449,6 +451,18 @@ export interface SkillExamResult {
 }
 
 export type SkillAttemptView = { state: "submitted" | "terminated"; result: SkillExamResult };
+
+/** One exam the candidate has taken ("My examinations"): outcome only. */
+export interface MySkillAttempt {
+  attemptId: string;
+  examId: string;
+  title: string;
+  targetTitle: string;
+  state: "in_progress" | "qualified" | "disqualified" | "terminated";
+  startedAt: string;
+  completedAt: string | null;
+  feedbackGiven: boolean;
+}
 
 export type SkillTerminationReason = "tab_hidden" | "fullscreen_exit" | "screen_share_stopped" | "face_violations" | "camera_lost" | "left_exam";
 

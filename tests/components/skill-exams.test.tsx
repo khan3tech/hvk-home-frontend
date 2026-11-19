@@ -13,6 +13,7 @@ const { SkillExamRunner, formatClock } = await import("@/components/portal/skill
 const { SkillExams } = await import("@/components/admin/skill-exams");
 const { Learning } = await import("@/components/learning/learning");
 const { Exam } = await import("@/components/portal/exam");
+const { ManagedExamList } = await import("@/components/portal/managed-exam-list");
 
 /** Fake media: a track is an EventTarget that can fire "ended" like a real one. */
 class FakeTrack extends EventTarget {
@@ -256,6 +257,7 @@ const exam = (over: Partial<SkillExam> = {}): SkillExam => ({
   id: "ex1",
   scope: "course",
   courseId: "html",
+  trackId: null,
   domain: "",
   targetTitle: "HTML",
   title: "HTML exam",
@@ -271,8 +273,27 @@ const exam = (over: Partial<SkillExam> = {}): SkillExam => ({
 const lesson = (id: string) => ({ id, title: `Lesson ${id}`, sectionTitle: "Basics", sectionPosition: 1, position: 1, durationSeconds: 100, completed: false, positionSeconds: 0, preview: true });
 const course = (id: string, title: string): LearningCourse => ({ id, title, slug: id, description: "", position: 1, lessonCount: 1, completedCount: 0, durationSeconds: 100, comingSoon: false, lessons: [lesson(`${id}-l`)] });
 
-describe("Exams on the learning page", () => {
-  function serve(exams: SkillExam[], tracks: unknown[] = []) {
+const track = (id: string, title: string, domain: string, selected = false) => ({
+  id,
+  title,
+  slug: id,
+  description: "",
+  position: 1,
+  domain,
+  domainPosition: 1,
+  available: true,
+  selected,
+  courseCount: 2,
+  lessonCount: 2,
+  completedCount: 0,
+  durationSeconds: 200,
+  courses: [],
+});
+const pathExam = (id: string, trackId: string, title: string, domain: string, over: Partial<SkillExam> = {}) =>
+  exam({ id, scope: "track", courseId: null, trackId, domain, targetTitle: title, title: `${title} exam`, questionCount: 100, durationMinutes: 120, ...over });
+
+describe("Exams on the learning page: one exam per learning path", () => {
+  function serve(exams: SkillExam[], tracks: unknown[]) {
     server.use(
       http.get(`${API}/tracks`, () => ok(tracks)),
       http.get(`${API}/courses`, () => ok([course("html", "HTML"), course("js", "JavaScript")])),
@@ -280,104 +301,98 @@ describe("Exams on the learning page", () => {
     );
   }
 
-  it("puts an exam button on each course that has one, with the best result", async () => {
-    serve([exam({ state: "locked" }), exam({ id: "ex2", courseId: "js", targetTitle: "JavaScript", state: "qualified", attemptId: "a2" })]);
+  it("shows only the open path's exam: no other domains and no per-course exam buttons", async () => {
+    serve(
+      [pathExam("p-mern", "t1", "MERN Stack", "Full Stack Development"), pathExam("p-ds", "t2", "Data Science", "Data Science"), exam({ id: "c-html", courseId: "html" })],
+      [track("t1", "MERN Stack", "Full Stack Development", true), track("t2", "Data Science", "Data Science")],
+    );
     renderPortal(<Learning hub />, { pathname: "/learning", step: "exam_ready" });
-    expect(await screen.findByRole("button", { name: /Exam for HTML is locked/ })).toBeDisabled();
-    expect(screen.getByRole("link", { name: "View result for JavaScript" })).toHaveAttribute("href", "/skill-exam/ex2");
-    expect(screen.getByText("Qualified")).toBeInTheDocument();
+    const card = await screen.findByRole("region", { name: "MERN Stack exam" });
+    expect(within(card).getByText(/One exam for this learning path, covering its courses · 100 questions · 120 min/)).toBeInTheDocument();
+    expect(within(card).getByRole("link", { name: "Take exam for MERN Stack" })).toHaveAttribute("href", "/skill-exam/p-mern");
+    expect(screen.queryByRole("region", { name: "Data Science exam" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Take exam for HTML/ })).not.toBeInTheDocument();
+    expect(screen.queryByText(/domain exam/)).not.toBeInTheDocument();
   });
 
-  it("keeps the exam buttons locked until the payment: a button instead of a link (it opens the payment popup)", async () => {
-    serve([exam({ unlocked: false })]);
+  it("shows no exam while the candidate is still choosing a path", async () => {
+    serve([pathExam("p-mern", "t1", "MERN Stack", "Full Stack Development")], [track("t1", "MERN Stack", "Full Stack Development")]);
+    renderPortal(<Learning hub />, { pathname: "/learning", step: "exam_ready" });
+    expect(await screen.findByRole("heading", { name: "Choose your learning path" })).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: /exam$/ })).not.toBeInTheDocument();
+  });
+
+  it("keeps the path's exam locked until the payment (the button opens the payment popup)", async () => {
+    serve([pathExam("p-mern", "t1", "MERN Stack", "Full Stack Development", { unlocked: false })], [track("t1", "MERN Stack", "Full Stack Development", true)]);
     renderPortal(<Learning hub />, { pathname: "/learning", step: "fee_pending" });
-    expect(await screen.findByRole("button", { name: "Unlock the exam for HTML" })).toBeEnabled();
-    expect(screen.queryByRole("link", { name: /Take exam/ })).not.toBeInTheDocument();
-  });
-
-  it("offers the domain exam of the chosen pathway, to skip its courses", async () => {
-    const track = { id: "t1", title: "MERN Stack", slug: "mern", description: "", position: 1, domain: "Full Stack Development", domainPosition: 1, available: true, selected: true, courseCount: 2, lessonCount: 2, completedCount: 0, durationSeconds: 200, courses: [] };
-    serve([exam(), exam({ id: "dx", scope: "domain", courseId: null, domain: "Full Stack Development", targetTitle: "Full Stack Development", questionCount: 40, durationMinutes: 60 })], [track]);
-    renderPortal(<Learning hub />, { pathname: "/learning", step: "exam_ready" });
-    const card = await screen.findByRole("region", { name: "Full Stack Development domain exam" });
-    expect(within(card).getByText(/Skip the courses and take the domain exam directly/)).toBeInTheDocument();
-    expect(within(card).getByRole("link", { name: "Take exam for Full Stack Development" })).toHaveAttribute("href", "/skill-exam/dx");
+    expect(await screen.findByRole("button", { name: "Unlock the exam for MERN Stack" })).toBeEnabled();
   });
 });
 
-const domainExam = (id: string, domain: string, over: Partial<SkillExam> = {}) =>
-  exam({ id, scope: "domain", courseId: null, domain, targetTitle: domain, questionCount: 100, durationMinutes: 120, ...over });
-
-describe("Go to exam: choose a domain", () => {
-  it("lists every domain exam, then every course exam, and keeps the registration exam on the page", async () => {
+describe("Go to exam: choose a learning path, grouped by domain", () => {
+  it("lists one exam per path under its domain, ignores course and domain exams, and keeps the registration exam", async () => {
     server.use(
       http.get(`${API}/skill-exams`, () =>
         ok([
-          exam({ id: "c-py", courseId: "py", targetTitle: "Python" }),
-          domainExam("d-fs", "Full Stack Development"),
-          domainExam("d-ai", "AI Engineering", { state: "qualified", attemptId: "a1" }),
-          domainExam("d-ds", "Data Science"),
-          exam({ id: "c-java", courseId: "java", targetTitle: "Core Java" }),
+          pathExam("p-mern", "t1", "MERN Stack", "Full Stack Development"),
+          pathExam("p-mean", "t2", "MEAN Stack", "Full Stack Development", { state: "locked" }),
+          pathExam("p-ds", "t3", "Data Science", "Data Science", { state: "locked" }),
+          exam({ id: "c-html", courseId: "html", targetTitle: "HTML" }),
+          exam({ id: "d-fs", scope: "domain", courseId: null, domain: "Full Stack Development", targetTitle: "Full Stack Development" }),
         ]),
       ),
       http.get(`${API}/exams/current`, () => ok({ attemptId: "att-1", status: "link_issued", examUrl: "https://exam.test/start", completedAt: null })),
     );
     renderPortal(<Exam />, { pathname: "/exam", step: "exam_ready" });
 
-    const domains = await screen.findByRole("region", { name: "Which domain do you want to take test?" });
-    const domainNames = within(domains).getAllByRole("heading", { level: 3 }).map((h) => h.textContent);
-    expect(domainNames).toEqual(["AI Engineering", "Data Science", "Full Stack Development"]);
-    expect(within(domains).getByRole("link", { name: "Take exam for Data Science" })).toHaveAttribute("href", "/skill-exam/d-ds");
-    expect(within(domains).getByRole("link", { name: "View result for AI Engineering" })).toBeInTheDocument();
-    expect(within(domains).getAllByText(/^100 questions · 120 min$/)).toHaveLength(3);
-    expect(screen.queryByText(/pass mark/)).not.toBeInTheDocument();
-
-    const courses = screen.getByRole("region", { name: "Or test one course" });
-    expect(within(courses).getByRole("link", { name: "Take exam for Core Java" })).toHaveAttribute("href", "/skill-exam/c-java");
-    expect(within(courses).getByRole("link", { name: "Take exam for Python" })).toBeInTheDocument();
+    const chooser = await screen.findByRole("region", { name: "Which domain do you want to take test?" });
+    const fullStack = within(chooser).getByRole("group", { name: "Full Stack Development" });
+    expect(within(fullStack).getAllByRole("heading", { level: 4 }).map((h) => h.textContent)).toEqual(["MERN Stack", "MEAN Stack"]);
+    expect(within(fullStack).getByRole("link", { name: "Take exam for MERN Stack" })).toHaveAttribute("href", "/skill-exam/p-mern");
+    expect(within(fullStack).getByRole("button", { name: /Exam for MEAN Stack is locked/ })).toBeDisabled();
+    expect(within(chooser).getByRole("group", { name: "Data Science" })).toBeInTheDocument();
+    expect(within(chooser).getAllByText(/^100 questions · 120 min$/)).toHaveLength(3);
+    expect(screen.queryByRole("link", { name: /HTML/ })).not.toBeInTheDocument();
+    expect(screen.queryByText(/pass mark|Or test one course/)).not.toBeInTheDocument();
 
     const registration = screen.getByRole("region", { name: "Your registration exam" });
     expect(await within(registration).findByRole("link", { name: /Start exam/ })).toHaveAttribute("href", "https://exam.test/start");
   });
 
-  it("leaves out the exam of a course that is still coming soon", async () => {
-    server.use(
-      http.get(`${API}/skill-exams`, () => ok([exam({ id: "c-html", courseId: "html", targetTitle: "HTML" }), exam({ id: "c-css", courseId: "css", targetTitle: "CSS" })])),
-      http.get(`${API}/courses`, () => ok([course("html", "HTML"), { ...course("css", "CSS"), comingSoon: true, lessons: [], lessonCount: 0 }])),
-    );
-    renderPortal(<Exam />, { pathname: "/exam", step: "exam_ready" });
-    expect(await screen.findByRole("link", { name: "Take exam for HTML" })).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Take exam for CSS" })).not.toBeInTheDocument();
-  });
-
-  it("shows no exam button on a coming-soon course on the learning page", async () => {
-    server.use(
-      http.get(`${API}/tracks`, () => ok([])),
-      http.get(`${API}/courses`, () => ok([course("html", "HTML"), { ...course("css", "CSS"), comingSoon: true, lessons: [], lessonCount: 0 }])),
-      http.get(`${API}/skill-exams`, () => ok([exam({ id: "c-html", courseId: "html" }), exam({ id: "c-css", courseId: "css", targetTitle: "CSS" })])),
-    );
-    renderPortal(<Learning hub />, { pathname: "/learning", step: "exam_ready" });
-    expect(await screen.findByRole("link", { name: "Take exam for HTML" })).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Take exam for CSS" })).not.toBeInTheDocument();
-  });
-
   it("locks the exams before payment", async () => {
-    server.use(http.get(`${API}/skill-exams`, () => ok([domainExam("d-fs", "Full Stack Development", { unlocked: false })])));
+    server.use(http.get(`${API}/skill-exams`, () => ok([pathExam("p-mern", "t1", "MERN Stack", "Full Stack Development", { unlocked: false })])));
     renderPortal(<Exam />, { pathname: "/exam", step: "exam_ready" });
-    expect(await screen.findByRole("button", { name: "Unlock the exam for Full Stack Development" })).toBeEnabled();
+    expect(await screen.findByRole("button", { name: "Unlock the exam for MERN Stack" })).toBeEnabled();
     expect(screen.getByText(/unlocks after payment/)).toBeInTheDocument();
   });
+});
 
-  it("shows every domain on the learning page too, with the chosen pathway's domain first", async () => {
-    const track = { id: "t1", title: "Data path", slug: "data", description: "", position: 1, domain: "Data Science", domainPosition: 1, available: true, selected: true, courseCount: 2, lessonCount: 2, completedCount: 0, durationSeconds: 200, courses: [] };
+describe("My examinations", () => {
+  it("lists the exams the candidate has taken with Qualified or Disqualified and a link to the result", async () => {
     server.use(
-      http.get(`${API}/tracks`, () => ok([track])),
-      http.get(`${API}/courses`, () => ok([course("html", "HTML")])),
-      http.get(`${API}/skill-exams`, () => ok([domainExam("d-fs", "Full Stack Development"), domainExam("d-ds", "Data Science")])),
+      http.get(`${API}/exams/candidate-exams`, () => ok([])),
+      http.get(`${API}/skill-exam-attempts`, () =>
+        ok([
+          { attemptId: "a2", examId: "p-mern", title: "MERN Stack exam", targetTitle: "MERN Stack", state: "qualified", startedAt: "2026-11-19T05:00:00Z", completedAt: "2026-11-19T06:30:00Z" },
+          { attemptId: "a1", examId: "p-ds", title: "Data Science exam", targetTitle: "Data Science", state: "disqualified", startedAt: "2026-11-10T05:00:00Z", completedAt: "2026-11-10T06:30:00Z" },
+        ]),
+      ),
     );
-    renderPortal(<Learning hub />, { pathname: "/learning", step: "exam_ready" });
-    const cards = await screen.findAllByRole("region", { name: /domain exam$/ });
-    expect(cards.map((c) => c.getAttribute("aria-label"))).toEqual(["Data Science domain exam", "Full Stack Development domain exam"]);
+    renderPortal(<ManagedExamList />, { pathname: "/examinations", step: "exam_ready" });
+    const taken = await screen.findByRole("region", { name: "Exams you have taken" });
+    const items = within(taken).getAllByRole("listitem");
+    expect(items[0]).toHaveTextContent("MERN Stack exam");
+    expect(items[0]).toHaveTextContent("Qualified");
+    expect(items[1]).toHaveTextContent("Disqualified");
+    expect(within(items[0]!).getByRole("link", { name: "View result of MERN Stack exam" })).toHaveAttribute("href", "/skill-exam/p-mern");
+    expect(screen.queryByText(/%/)).not.toBeInTheDocument();
+  });
+
+  it("explains an empty page and links to the exam", async () => {
+    server.use(http.get(`${API}/exams/candidate-exams`, () => ok([])), http.get(`${API}/skill-exam-attempts`, () => ok([])));
+    renderPortal(<ManagedExamList />, { pathname: "/examinations", step: "exam_ready" });
+    expect(await screen.findByRole("heading", { name: "No examinations yet" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Go to exam" })).toHaveAttribute("href", "/exam");
   });
 });
 
