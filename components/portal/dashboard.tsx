@@ -3,7 +3,10 @@
 import * as React from "react";
 import Link from "next/link";
 import { ArrowRight, ClipboardList, Lock, PlayCircle, UserRound } from "lucide-react";
+import type { MySkillAttempt, OnboardingStep } from "@/types/api";
 import { LEARNING_PAGE, STAGES_MANUAL, STEP_ACTION, STEP_ROUTE, stepIndex } from "@/lib/journey";
+import { skillExamApi } from "@/lib/api/skill-exams";
+import { skillExamHref } from "@/components/learning/skill-exam-cards";
 import { usePaymentConfig } from "@/lib/use-payment-config";
 import { useSession } from "@/lib/session/session-provider";
 import { JourneyStepper } from "./journey-stepper";
@@ -43,11 +46,45 @@ function Tile({ href, icon: Icon, title, text }: { href: string; icon: React.Com
   );
 }
 
+/**
+ * The learning-path exam moves the Exam, Feedback and Result steps too: once it is finished the candidate gives
+ * feedback, then sees Qualified or Disqualified. Returns the journey step it stands for, and the next-step card.
+ */
+function pathExamStep(attempt: MySkillAttempt | undefined): { step: OnboardingStep; title: string; hint: string; href: string } | null {
+  if (!attempt || attempt.state === "in_progress") return null;
+  const href = skillExamHref(attempt.examId);
+  if (attempt.state === "terminated") {
+    return { step: "completed", title: "Your exam has ended", hint: "Your exam was ended because you left it. Please contact us for further process.", href };
+  }
+  if (!attempt.feedbackGiven) return { step: "exam_completed", title: "Give feedback", hint: `${attempt.title} completed. Tell us how it went.`, href };
+  return attempt.state === "qualified"
+    ? { step: "completed", title: "View result", hint: "Congratulations! You have qualified. Please visit our branch for further process on your placement offer.", href }
+    : { step: "completed", title: "View result", hint: "Don't worry. Contact our support team for further process.", href };
+}
+
 export function Dashboard() {
   const { candidate } = useSession();
   const { status } = useJourney();
   const { config } = usePaymentConfig();
-  const step = status.step;
+  const [latestExam, setLatestExam] = React.useState<MySkillAttempt | undefined>(undefined);
+  const paid = stepIndex(status.step) >= stepIndex("exam_ready");
+
+  React.useEffect(() => {
+    if (!paid) return;
+    let cancelled = false;
+    skillExamApi
+      .mine()
+      .then((list) => !cancelled && setLatestExam(list[0]))
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [paid]);
+
+  const path = pathExamStep(latestExam);
+  // The learning-path exam only ever moves the steps forward.
+  const fromPath = path && stepIndex(path.step) > stepIndex(status.step) ? path : null;
+  const step = fromPath?.step ?? status.step;
   const manual = config?.mode === "manual";
   const waiting = manual && WAITING_STEPS.includes(step);
   // The videos open once the fee is paid (reached exam_ready). In manual mode the first video of every course is a free preview, so they are open from registration on.
@@ -68,15 +105,15 @@ export function Dashboard() {
         <div className="max-w-2xl">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/80">Next step</p>
           <h2 id="next-step-title" className="mt-2 text-2xl font-extrabold sm:text-3xl">
-            {waiting ? "Start with the free videos" : STEP_ACTION[step]}
+            {waiting ? "Start with the free videos" : (fromPath?.title ?? STEP_ACTION[step])}
           </h2>
-          <p className="mt-3 text-base leading-relaxed text-white/90">{waiting ? MANUAL_HINT : HINTS[step]}</p>
+          <p className="mt-3 text-base leading-relaxed text-white/90">{waiting ? MANUAL_HINT : (fromPath?.hint ?? HINTS[step])}</p>
         </div>
         <Link
-          href={waiting ? LEARNING_PAGE : STEP_ROUTE[step]}
+          href={waiting ? LEARNING_PAGE : (fromPath?.href ?? STEP_ROUTE[step])}
           className="inline-flex h-12 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-white px-7 text-base font-semibold text-primary-blue shadow-sm transition-colors hover:bg-light-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary-blue"
         >
-          {waiting ? "Watch free videos" : STEP_ACTION[step]} <ArrowRight className="h-5 w-5" aria-hidden="true" />
+          {waiting ? "Watch free videos" : fromPath ? (fromPath.step === "exam_completed" ? "Give feedback" : "View result") : STEP_ACTION[step]} <ArrowRight className="h-5 w-5" aria-hidden="true" />
         </Link>
       </section>
 

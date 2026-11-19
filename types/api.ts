@@ -461,6 +461,7 @@ export interface MySkillAttempt {
   state: "in_progress" | "qualified" | "disqualified" | "terminated";
   startedAt: string;
   completedAt: string | null;
+  feedbackGiven: boolean;
 }
 
 export type SkillTerminationReason = "tab_hidden" | "fullscreen_exit" | "screen_share_stopped" | "face_violations" | "camera_lost" | "left_exam";
