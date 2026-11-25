@@ -73,13 +73,13 @@ describe("Exam (US6)", () => {
       expect(await screen.findByRole("link", { name: "Resume exam" })).toBeInTheDocument();
     });
 
-    it("explains an expired link and how to get a new one", async () => {
-      server.use(http.get(`${API}/exams/current`, () => ok({ ...MANAGED, linkStatus: "expired" })));
+    it("hides the registration exam when its link has expired (owner decision)", async () => {
+      let calls = 0;
+      server.use(http.get(`${API}/exams/current`, () => { calls += 1; return ok({ ...MANAGED, linkStatus: "expired" }); }));
       renderPortal(<Exam />, { pathname: "/exam", step: "exam_ready" });
-      const alert = await screen.findByRole("alert");
-      expect(alert).toHaveTextContent("Your exam link has expired");
-      expect(alert).toHaveTextContent("send you a new one");
-      expect(screen.queryByRole("link", { name: /Start exam/ })).not.toBeInTheDocument();
+      await waitFor(() => expect(calls).toBeGreaterThan(0));
+      expect(screen.queryByRole("region", { name: "Your registration exam" })).not.toBeInTheDocument();
+      expect(screen.getByText("Choose a domain for your exam.")).toBeInTheDocument();
     });
 
     it("waits while the exam is prepared and shows Start as soon as the link is issued", async () => {
@@ -91,8 +91,10 @@ describe("Exam (US6)", () => {
         }),
       );
       renderPortal(<Exam pendingPollMs={30} />, { pathname: "/exam", step: "exam_ready" });
-      expect(await screen.findByText(/Your exam is being prepared/)).toBeInTheDocument();
+      // While it is being prepared nothing is shown; the section appears once the link is issued.
+      expect(screen.queryByText(/Your exam is being prepared/)).not.toBeInTheDocument();
       expect(await screen.findByRole("link", { name: "Start exam" })).toBeInTheDocument();
+      expect(screen.getByRole("region", { name: "Your registration exam" })).toBeInTheDocument();
     });
 
     it("goes to feedback once the exam is submitted", async () => {
@@ -104,10 +106,13 @@ describe("Exam (US6)", () => {
     });
   });
 
-  it("shows an error if the exam cannot be loaded", async () => {
-    server.use(http.get(`${API}/exams/current`, () => fail(500, "INTERNAL_ERROR")));
+  it("shows no registration exam box when there is none to load", async () => {
+    let calls = 0;
+    server.use(http.get(`${API}/exams/current`, () => { calls += 1; return fail(500, "INTERNAL_ERROR"); }));
     renderPortal(<Exam />, { pathname: "/exam", step: "exam_ready" });
-    expect(await screen.findByRole("alert")).toHaveTextContent("Something went wrong on our side");
+    await waitFor(() => expect(calls).toBeGreaterThan(0));
+    expect(screen.queryByRole("region", { name: "Your registration exam" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Something went wrong/)).not.toBeInTheDocument();
   });
 });
 

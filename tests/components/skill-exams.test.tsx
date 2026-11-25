@@ -196,6 +196,33 @@ describe("Taking a course or domain exam (proctored, one attempt)", () => {
     await waitFor(() => expect(ended).toEqual({ reason: "tab_hidden" }));
   });
 
+  it("sends a heartbeat with the session key, and shows the end when the server already closed the exam", async () => {
+    const beats: (string | null)[] = [];
+    let closed = false;
+    server.use(
+      listWith(),
+      http.post(`${API}/skill-exams/ex1/start`, () => ok(attempt(), 201)),
+      http.post(`${API}/skill-exam-attempts/att1/heartbeat`, ({ request }) => {
+        beats.push(request.headers.get("X-Exam-Session"));
+        return closed ? fail(409, "EXAM_ENDED") : ok({ deadlineAt: attempt().deadlineAt });
+      }),
+      http.post(`${API}/skill-exam-attempts/att1/submit`, () => ok(result({ outcome: "terminated" }))),
+    );
+    const user = userEvent.setup();
+    render(<SkillExamRunner examId="ex1" />);
+    await getReady(user);
+    await screen.findByText("What does HTML stand for?");
+
+    window.dispatchEvent(new Event("online")); // a heartbeat is also sent as soon as the connection is back
+    await waitFor(() => expect(beats).toEqual(["key-1"]));
+    expect(screen.getByText("What does HTML stand for?")).toBeInTheDocument();
+
+    closed = true; // e.g. ended after 5 minutes without contact
+    window.dispatchEvent(new Event("online"));
+    expect(await screen.findByRole("heading", { name: "Your exam has ended" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Contact us" })).toBeInTheDocument();
+  });
+
   it("ends the exam when screen sharing stops", async () => {
     let ended: unknown = null;
     server.use(

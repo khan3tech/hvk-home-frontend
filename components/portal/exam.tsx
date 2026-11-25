@@ -109,6 +109,12 @@ export function Exam({ pollMs = COMPLETION_POLL_MS, pendingPollMs = PENDING_POLL
     }
   }
 
+  // The registration exam is only shown to a candidate who actually has one to open (owner decision): no
+  // "being prepared" or error box for everyone else.
+  const showRegistration = Boolean(
+    exam && (managed ? exam.linkStatus === "active" || exam.linkStatus === "started" || exam.linkStatus === "submitted" : exam.examUrl),
+  );
+
   const registrationIntro = managed
     ? "Your exam link is personal to you and works for 24 hours — we've also emailed it."
     : status.step === "exam_in_progress"
@@ -119,11 +125,12 @@ export function Exam({ pollMs = COMPLETION_POLL_MS, pendingPollMs = PENDING_POLL
     <PageShell
       eyebrow="Step 4 of 6"
       title="Choose your exam"
-      intro="Choose a domain for your exam. The registration exam is listed below."
+      intro={showRegistration ? "Choose a domain for your exam. The registration exam is listed below." : "Choose a domain for your exam."}
       width="max-w-5xl"
     >
       <ExamChooser />
 
+      {showRegistration ? (
       <section aria-labelledby="registration-exam-heading" className="mt-10 border-t border-slate-100 pt-8 dark:border-white/10">
         <h2 id="registration-exam-heading" className="text-lg font-bold text-navy dark:text-white">Your registration exam</h2>
         {exam ? <p className="mb-4 mt-1 text-sm text-muted dark:text-slate-400">{registrationIntro}</p> : null}
@@ -167,6 +174,7 @@ export function Exam({ pollMs = COMPLETION_POLL_MS, pendingPollMs = PENDING_POLL
 
         <FormMessage>{error}</FormMessage>
       </section>
+      ) : null}
     </PageShell>
   );
 }

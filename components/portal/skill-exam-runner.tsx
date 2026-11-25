@@ -26,6 +26,7 @@ export function formatClock(totalSeconds: number): string {
 const DASHBOARD = "/dashboard";
 const FACE_CHECK_MS = 3000;
 const RETRY_MS = 5000;
+const HEARTBEAT_MS = 30_000;
 
 /** Exam terms shown before the start (QA item 8). */
 export const EXAM_TERMS = [
@@ -34,7 +35,7 @@ export const EXAM_TERMS = [
   "Keep your camera on with only your face in view. After 3 warnings (no face, or more than one person) the exam ends.",
   'Share your entire screen when asked and keep sharing until you submit. Stopping the screen share ends the exam.',
   "Nothing is recorded or uploaded: the face checks run on your own device.",
-  "If your internet drops, stay on this page. The exam reconnects by itself and your timer keeps running.",
+  "If your internet drops, stay on this page. The exam reconnects by itself and your timer keeps running. If the exam cannot reach us for 5 minutes (no internet, power cut, browser or computer closed) it ends automatically.",
   "An exam that has ended cannot be continued. Contact us if you need help.",
 ];
 
@@ -45,6 +46,8 @@ const END_REASON: Record<SkillTerminationReason, string> = {
   face_violations: "Your face was not clearly visible, or someone else was seen, too many times.",
   camera_lost: "The camera was turned off.",
   left_exam: "You left the exam page.",
+  connection_lost: "We lost contact with your exam for more than 5 minutes (internet, power or the browser was closed).",
+  ended_by_staff: "Our team ended this exam.",
 };
 
 type Phase =
@@ -397,6 +400,32 @@ function Taking({ attempt, media, onResult, onEnded }: { attempt: SkillAttempt; 
       window.clearInterval(timer);
     };
   }, [flush]);
+
+  // Heartbeat: tells the server this window is still open. If the exam was ended meanwhile (for example after
+  // 5 minutes without a connection), show that at once.
+  React.useEffect(() => {
+    const beat = () => {
+      if (finished.current) return;
+      skillExamApi.heartbeat(attempt.id, attempt.sessionKey).catch((err: unknown) => {
+        if (finished.current || !(err instanceof ApiError)) return;
+        if (err.code === "EXAM_ENDED" || err.code === "ATTEMPT_CLOSED") {
+          finished.current = true;
+          release();
+          // The server already closed it: show its outcome (scored if time was up, otherwise ended).
+          skillExamApi
+            .submit(attempt.id, attempt.sessionKey)
+            .then(onResult)
+            .catch(() => onEnded("connection_lost"));
+        }
+      });
+    };
+    const timer = window.setInterval(beat, HEARTBEAT_MS);
+    window.addEventListener("online", beat);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("online", beat);
+    };
+  }, [attempt.id, attempt.sessionKey, onEnded, onResult, release]);
 
   // Leaving the exam ends it: other tab or app, fullscreen exit, screen share or camera stopped, page closed.
   React.useEffect(() => {
