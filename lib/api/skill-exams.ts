@@ -31,6 +31,9 @@ export const skillExamApi = {
     }),
   submit: (attemptId: string, sessionKey: string) =>
     apiFetch<SkillExamResult>(`/skill-exam-attempts/${enc(attemptId)}/submit`, { method: "POST", headers: { "X-Exam-Session": sessionKey } }),
+  /** "Still here", every 30 seconds; an exam silent for 5 minutes is ended by the server. */
+  heartbeat: (attemptId: string, sessionKey: string) =>
+    apiFetch<{ deadlineAt: string }>(`/skill-exam-attempts/${enc(attemptId)}/heartbeat`, { method: "POST", headers: { "X-Exam-Session": sessionKey } }),
   /** The exam window reports that the candidate left; keepalive lets it reach the API while the page closes. */
   terminate: (attemptId: string, reason: SkillTerminationReason) =>
     apiFetch<SkillExamResult>(`/skill-exam-attempts/${enc(attemptId)}/terminate`, { method: "POST", body: { reason }, keepalive: true }),

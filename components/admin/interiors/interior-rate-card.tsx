@@ -207,7 +207,7 @@ export function InteriorRateCard() {
             </div>
           </section>
 
-          <Button onClick={() => void save()} disabled={busy}>
+          <Button onClick={() => void save()} loading={busy}>
             {busy ? "Saving…" : "Save rate card"}
           </Button>
         </div>

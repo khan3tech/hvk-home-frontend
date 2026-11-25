@@ -69,4 +69,26 @@ describe("Staff: exam results (QA item 11)", () => {
     expect(await screen.findByText("Hari Kumar can now start one more exam.")).toBeInTheDocument();
     expect(await screen.findByText("New attempt allowed")).toBeInTheDocument();
   });
+
+  it("ends an exam stuck in progress and allows a new attempt, after asking", async () => {
+    let released = 0;
+    server.use(
+      http.get(`${API}/admin/skill-exam-attempts`, () => ok({ items: [row({ state: "in_progress", percentage: null, completedAt: null, feedback: null })], page: 1, limit: 20, total: 1 })),
+      http.post(`${API}/admin/skill-exam-attempts/att1/allow-new-attempt`, () => {
+        released += 1;
+        return ok({ id: "att1", releasedAt: "2026-11-19T07:00:00Z" });
+      }),
+    );
+    const confirm = vi.spyOn(window, "confirm").mockReturnValueOnce(false).mockReturnValueOnce(true);
+    const user = userEvent.setup();
+    renderPortal(<ExamResults />, { pathname: "/admin/exam-results", step: "completed", role: "admin", area: "admin" });
+    const button = await screen.findByRole("button", { name: "End exam and allow new attempt" });
+    await user.click(button);
+    expect(confirm).toHaveBeenCalledWith(expect.stringContaining("still marked in progress"));
+    expect(released).toBe(0); // cancelled
+    await user.click(button);
+    expect(await screen.findByText("Hari Kumar can now start one more exam.")).toBeInTheDocument();
+    expect(released).toBe(1);
+    confirm.mockRestore();
+  });
 });

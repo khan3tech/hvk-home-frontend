@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Mail, MessageSquareText, Phone } from "lucide-react";
+import { Mail, MessageSquareText, Phone, Loader2 } from "lucide-react";
 import type { AuthResult } from "@/types/api";
 import { RegistrationForm } from "@/components/home/registration-form";
 import { Input } from "@/components/ui/input";
@@ -163,7 +163,7 @@ function PasswordLogin({ onSignedIn }: { onSignedIn: (r: AuthResult) => void }) 
         </Link>
       </div>
       <button type="submit" disabled={isSubmitting} className={submitClass}>
-        {isSubmitting ? "Signing in..." : "Sign in"}
+        {isSubmitting ? <><Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" /> Signing in...</> : "Sign in"}
       </button>
       <FormMessage>{error}</FormMessage>
     </form>
@@ -237,7 +237,7 @@ function OtpLogin({ onSignedIn }: { onSignedIn: (r: AuthResult) => void }) {
         <Input id="otp-code" inputMode="numeric" maxLength={6} autoComplete="one-time-code" icon={MessageSquareText} placeholder="6 digit code" error={codeForm.formState.errors.otp?.message} {...codeForm.register("otp")} />
       </div>
       <button type="submit" disabled={codeForm.formState.isSubmitting} className={submitClass}>
-        {codeForm.formState.isSubmitting ? "Verifying..." : "Verify & sign in"}
+        {codeForm.formState.isSubmitting ? <><Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" /> Verifying...</> : "Verify & sign in"}
       </button>
       <div className="flex items-center justify-between text-sm">
         <button type="button" onClick={() => setChallenge(null)} className="font-semibold text-muted hover:text-navy dark:text-slate-400">

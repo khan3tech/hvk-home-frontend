@@ -112,7 +112,7 @@ export function Feedback() {
           />
           <p id="comments-count" className="mt-1 text-right text-xs text-muted">{comments.length}/{MAX_COMMENTS}</p>
         </div>
-        <Button type="submit" size="lg" className="w-full" disabled={submitting}>
+        <Button type="submit" size="lg" className="w-full" loading={submitting}>
           {submitting ? "Submitting..." : "Submit feedback"}
         </Button>
         <FormMessage>{error}</FormMessage>

@@ -41,7 +41,7 @@ export function AdminHeader() {
               <span className="block text-sm font-semibold text-navy dark:text-white">{candidate.fullName}</span>
               <span className="block text-xs text-muted dark:text-slate-400">{candidate.role === "admin" ? "Administrator" : "Talent acquisition"}</span>
             </span>
-            <Button variant="outline" size="sm" onClick={() => void leave()} disabled={busy}>
+            <Button variant="outline" size="sm" onClick={() => void leave()} loading={busy}>
               <LogOut className="h-4 w-4" aria-hidden="true" />
               Sign out
             </Button>

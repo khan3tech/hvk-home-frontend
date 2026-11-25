@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Mail } from "lucide-react";
+import { Mail, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { authApi } from "@/lib/api/auth";
 import { ApiError, errorMessage } from "@/lib/api/client";
@@ -62,7 +62,7 @@ export function ForgotPasswordForm() {
           <Input id="email" type="email" icon={Mail} autoComplete="email" error={errors.email?.message} {...register("email")} />
         </div>
         <button type="submit" disabled={isSubmitting} className={submitClass}>
-          {isSubmitting ? "Sending..." : "Send reset link"}
+          {isSubmitting ? <><Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" /> Sending...</> : "Send reset link"}
         </button>
         <FormMessage>{error}</FormMessage>
         <p className="text-center text-sm">
@@ -134,7 +134,7 @@ export function ResetPasswordForm() {
           <PasswordInput id="confirmPassword" autoComplete="new-password" error={errors.confirmPassword?.message} {...register("confirmPassword")} />
         </div>
         <button type="submit" disabled={isSubmitting} className={submitClass}>
-          {isSubmitting ? "Saving..." : "Update password"}
+          {isSubmitting ? <><Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" /> Saving...</> : "Update password"}
         </button>
         <FormMessage>{error}</FormMessage>
       </form>

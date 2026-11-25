@@ -464,7 +464,7 @@ export interface MySkillAttempt {
   feedbackGiven: boolean;
 }
 
-export type SkillTerminationReason = "tab_hidden" | "fullscreen_exit" | "screen_share_stopped" | "face_violations" | "camera_lost" | "left_exam";
+export type SkillTerminationReason = "tab_hidden" | "fullscreen_exit" | "screen_share_stopped" | "face_violations" | "camera_lost" | "left_exam" | "connection_lost" | "ended_by_staff";
 
 /** Staff view of one exam attempt (Exam results page). */
 export interface SkillExamAttemptAdmin {

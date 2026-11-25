@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Download, FileSpreadsheet, Loader2, Upload } from "lucide-react";
+import { Download, FileSpreadsheet, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FormMessage } from "@/components/portal/form-field";
 import { adminApi, type LeadImportResult } from "@/lib/api/admin";
@@ -122,8 +122,7 @@ export function LeadImport({ onImported }: { onImported: () => void }) {
         </label>
         {sheet ? (
           <>
-            <Button type="button" size="sm" disabled={busy} onClick={() => void upload()}>
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+            <Button type="button" size="sm" loading={busy} onClick={() => void upload()}>
               Import {sheet.rows.length} lead{sheet.rows.length === 1 ? "" : "s"}
             </Button>
             <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={reset}>

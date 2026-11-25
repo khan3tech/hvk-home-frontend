@@ -217,7 +217,7 @@ export function Payment({
       ) : null}
 
       {state.kind !== "error" || state.retry === "checkout" ? (
-        <Button size="lg" className="mt-6 w-full" onClick={() => void pay()} disabled={busy || !order}>
+        <Button size="lg" className="mt-6 w-full" onClick={() => void pay()} disabled={!order} loading={busy}>
           <CreditCard className="h-4 w-4" aria-hidden="true" />
           {state.kind === "checkout" ? "Opening secure payment..." : amount ? `Pay ${amount}` : "Pay"}
         </Button>

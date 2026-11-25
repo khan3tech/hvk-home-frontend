@@ -196,6 +196,33 @@ describe("Taking a course or domain exam (proctored, one attempt)", () => {
     await waitFor(() => expect(ended).toEqual({ reason: "tab_hidden" }));
   });
 
+  it("sends a heartbeat with the session key, and shows the end when the server already closed the exam", async () => {
+    const beats: (string | null)[] = [];
+    let closed = false;
+    server.use(
+      listWith(),
+      http.post(`${API}/skill-exams/ex1/start`, () => ok(attempt(), 201)),
+      http.post(`${API}/skill-exam-attempts/att1/heartbeat`, ({ request }) => {
+        beats.push(request.headers.get("X-Exam-Session"));
+        return closed ? fail(409, "EXAM_ENDED") : ok({ deadlineAt: attempt().deadlineAt });
+      }),
+      http.post(`${API}/skill-exam-attempts/att1/submit`, () => ok(result({ outcome: "terminated" }))),
+    );
+    const user = userEvent.setup();
+    render(<SkillExamRunner examId="ex1" />);
+    await getReady(user);
+    await screen.findByText("What does HTML stand for?");
+
+    window.dispatchEvent(new Event("online")); // a heartbeat is also sent as soon as the connection is back
+    await waitFor(() => expect(beats).toEqual(["key-1"]));
+    expect(screen.getByText("What does HTML stand for?")).toBeInTheDocument();
+
+    closed = true; // e.g. ended after 5 minutes without contact
+    window.dispatchEvent(new Event("online"));
+    expect(await screen.findByRole("heading", { name: "Your exam has ended" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Contact us" })).toBeInTheDocument();
+  });
+
   it("ends the exam when screen sharing stops", async () => {
     let ended: unknown = null;
     server.use(
@@ -357,6 +384,19 @@ describe("Go to exam: choose a learning path, grouped by domain", () => {
 
     const registration = screen.getByRole("region", { name: "Your registration exam" });
     expect(await within(registration).findByRole("link", { name: /Start exam/ })).toHaveAttribute("href", "https://exam.test/start");
+  });
+
+  it("shows a loader on Take exam and ignores further clicks while the exam opens", async () => {
+    server.use(http.get(`${API}/skill-exams`, () => ok([pathExam("p-mern", "t1", "MERN Stack", "Full Stack Development")])));
+    const user = userEvent.setup();
+    renderPortal(<Exam />, { pathname: "/exam", step: "exam_ready" });
+    const take = await screen.findByRole("link", { name: "Take exam for MERN Stack" });
+    await user.click(take);
+    expect(take).toHaveTextContent("Opening…");
+    expect(take).toHaveAttribute("aria-disabled", "true");
+    expect(take).toHaveAttribute("aria-busy", "true");
+    await user.click(take); // ignored
+    expect(take).toHaveTextContent("Opening…");
   });
 
   it("locks the exams before payment", async () => {

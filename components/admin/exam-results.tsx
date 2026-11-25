@@ -24,6 +24,8 @@ const REASON_LABEL: Record<SkillTerminationReason, string> = {
   face_violations: "Face warnings",
   camera_lost: "Camera turned off",
   left_exam: "Left or reloaded the page",
+  connection_lost: "Lost connection for 5+ minutes",
+  ended_by_staff: "Ended by staff",
 };
 
 /** Course and domain exam results (QA item 11): scores for staff only, and "Allow new attempt". */
@@ -54,6 +56,13 @@ export function ExamResults() {
   }, [status, search, page, reload]);
 
   async function allow(row: SkillExamAttemptAdmin) {
+    // An exam still "in progress" may be stuck after a crash, or the candidate may really be writing it: ask first.
+    if (
+      row.state === "in_progress" &&
+      !window.confirm(`${row.candidate?.fullName ?? "This candidate"}'s exam is still marked in progress. End it now and allow a new attempt?`)
+    ) {
+      return;
+    }
     setBusyId(row.id);
     setNotice(null);
     setError(null);
@@ -169,8 +178,8 @@ export function ExamResults() {
                     </td>
                     <td className="px-5 py-3">
                       {row.canAllowNewAttempt ? (
-                        <Button size="sm" variant="outline" disabled={busyId === row.id} onClick={() => void allow(row)}>
-                          Allow new attempt
+                        <Button size="sm" variant="outline" disabled={busyId !== null && busyId !== row.id} loading={busyId === row.id} onClick={() => void allow(row)}>
+                          {row.state === "in_progress" ? "End exam and allow new attempt" : "Allow new attempt"}
                         </Button>
                       ) : null}
                     </td>
