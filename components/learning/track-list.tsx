@@ -67,7 +67,7 @@ function TrackCards({ tracks, busyId, onChoose, Heading }: { tracks: LearningTra
                 </div>
               ) : null}
               <div className="mt-auto pt-5">
-                <Button size="sm" disabled={!track.available || busyId !== null} onClick={() => onChoose(track)} aria-label={track.available ? `${track.selected ? "Continue" : "Choose"} ${track.title}` : `${track.title} is coming soon`}>
+                <Button size="sm" disabled={!track.available || busyId !== null} loading={busyId === track.id} onClick={() => onChoose(track)} aria-label={track.available ? `${track.selected ? "Continue" : "Choose"} ${track.title}` : `${track.title} is coming soon`}>
                   {!track.available ? "Coming soon" : busyId === track.id ? "Opening..." : track.selected ? "Continue" : "Choose this track"}
                 </Button>
               </div>

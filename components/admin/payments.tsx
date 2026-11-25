@@ -122,7 +122,7 @@ function ApproveDialog({
           <Button type="button" variant="outline" onClick={onClose} disabled={busy}>
             Cancel
           </Button>
-          <Button type="submit" disabled={busy}>
+          <Button type="submit" loading={busy}>
             {busy ? "Approving…" : "Approve payment"}
           </Button>
         </div>

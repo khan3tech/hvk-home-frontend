@@ -256,17 +256,17 @@ function Gate({ exam, onStarted, onEnded, onLocked }: { exam: SkillExam; onStart
 
       <ol className="mt-5 grid gap-3 sm:grid-cols-3">
         <Step done={Boolean(camera && detector)} icon={<Camera className="h-5 w-5" aria-hidden="true" />} title="1. Camera">
-          <Button size="sm" variant="outline" onClick={() => void turnOnCamera()} disabled={Boolean(camera) || busy !== null}>
+          <Button size="sm" variant="outline" onClick={() => void turnOnCamera()} disabled={Boolean(camera) || busy !== null} loading={busy === "camera"}>
             {busy === "camera" ? "Checking camera…" : camera && detector ? "Camera ready" : "Turn on camera"}
           </Button>
         </Step>
         <Step done={Boolean(screen)} icon={<MonitorUp className="h-5 w-5" aria-hidden="true" />} title="2. Entire screen">
-          <Button size="sm" variant="outline" onClick={() => void shareScreen()} disabled={Boolean(screen) || busy !== null}>
+          <Button size="sm" variant="outline" onClick={() => void shareScreen()} disabled={Boolean(screen) || busy !== null} loading={busy === "screen"}>
             {screen ? "Screen shared" : "Share entire screen"}
           </Button>
         </Step>
         <Step done={false} icon={<Maximize className="h-5 w-5" aria-hidden="true" />} title="3. Fullscreen">
-          <Button size="sm" onClick={() => void start()} disabled={!ready || busy !== null}>
+          <Button size="sm" onClick={() => void start()} disabled={!ready || busy !== null} loading={busy === "start"}>
             {busy === "start" ? "Starting…" : "Start exam in fullscreen"}
           </Button>
         </Step>
@@ -534,7 +534,7 @@ function Taking({ attempt, media, onResult, onEnded }: { attempt: SkillAttempt; 
             Next <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Button>
         ) : (
-          <Button onClick={() => (unanswered > 0 ? setConfirming(true) : void submit())} disabled={busy}>
+          <Button onClick={() => (unanswered > 0 ? setConfirming(true) : void submit())} loading={busy}>
             Submit exam
           </Button>
         )}
@@ -667,7 +667,7 @@ function FeedbackForm({ attemptId, onDone }: { attemptId: string; onDone: () => 
         <textarea value={comments} onChange={(e) => setComments(e.target.value)} maxLength={2000} rows={3} className="mt-1 w-full rounded-lg border border-slate-200 p-2 text-sm font-normal dark:border-white/10 dark:bg-dark-surface" />
       </label>
       <FormMessage>{error}</FormMessage>
-      <Button type="submit" className="mt-3" disabled={busy}>
+      <Button type="submit" className="mt-3" loading={busy}>
         {busy ? "Sending…" : "Send feedback"}
       </Button>
     </form>

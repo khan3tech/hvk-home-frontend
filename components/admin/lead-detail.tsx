@@ -164,7 +164,7 @@ export function LeadDetail({ id }: { id: string }) {
           {c?.onboardingStep === "exam_ready" ? (
             <div className="mt-4 border-t border-slate-100 pt-4 dark:border-white/10">
               <p className="text-xs text-muted">Paid, exam not started. Exam links are valid for 24 hours.</p>
-              <Button type="button" variant="outline" size="sm" className="mt-2" disabled={saving} onClick={() => void reissueExamLink(c.id)}>
+              <Button type="button" variant="outline" size="sm" className="mt-2" loading={saving} onClick={() => void reissueExamLink(c.id)}>
                 Send a new exam link
               </Button>
             </div>
@@ -195,7 +195,7 @@ export function LeadDetail({ id }: { id: string }) {
                   ))}
                 </select>
                 {me && lead.assignedTo !== me.id ? (
-                  <Button type="button" variant="outline" size="sm" className="h-10" disabled={saving} onClick={() => void save({ assignedTo: me.id })}>
+                  <Button type="button" variant="outline" size="sm" className="h-10" loading={saving} onClick={() => void save({ assignedTo: me.id })}>
                     Assign to me
                   </Button>
                 ) : null}
@@ -221,7 +221,7 @@ export function LeadDetail({ id }: { id: string }) {
             />
           </label>
           <div className="mt-4 flex items-center gap-3">
-            <Button onClick={() => void save()} disabled={saving}>{saving ? "Saving..." : "Save changes"}</Button>
+            <Button onClick={() => void save()} loading={saving}>{saving ? "Saving..." : "Save changes"}</Button>
             {message ? <FormMessage tone={message.tone}>{message.text}</FormMessage> : null}
           </div>
 

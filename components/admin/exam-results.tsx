@@ -178,7 +178,7 @@ export function ExamResults() {
                     </td>
                     <td className="px-5 py-3">
                       {row.canAllowNewAttempt ? (
-                        <Button size="sm" variant="outline" disabled={busyId === row.id} onClick={() => void allow(row)}>
+                        <Button size="sm" variant="outline" disabled={busyId !== null && busyId !== row.id} loading={busyId === row.id} onClick={() => void allow(row)}>
                           {row.state === "in_progress" ? "End exam and allow new attempt" : "Allow new attempt"}
                         </Button>
                       ) : null}

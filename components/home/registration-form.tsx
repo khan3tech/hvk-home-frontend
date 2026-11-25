@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   User,
   X,
+  Loader2,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -308,7 +309,7 @@ export function RegistrationForm({
                   isDialog ? "col-span-full py-3" : "py-4",
                 )}
               >
-                {submitting ? "Creating your account..." : "Create Account & Continue"}
+                {submitting ? <><Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" /> Creating your account...</> : "Create Account & Continue"}
                 <span aria-hidden="true">→</span>
               </button>
 

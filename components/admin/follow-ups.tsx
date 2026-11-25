@@ -20,6 +20,7 @@ export function FollowUps() {
   const [error, setError] = React.useState<string | null>(null);
   const [closing, setClosing] = React.useState<string | null>(null);
   const [outcome, setOutcome] = React.useState("");
+  const [savingId, setSavingId] = React.useState<string | null>(null);
   const [version, setVersion] = React.useState(0);
 
   React.useEffect(() => {
@@ -38,7 +39,9 @@ export function FollowUps() {
   }, [tab, version]);
 
   async function update(fu: FollowUp, patch: Parameters<typeof adminApi.updateFollowUp>[1]) {
+    if (savingId) return;
     setError(null);
+    setSavingId(fu.id);
     try {
       await adminApi.updateFollowUp(fu.id, patch);
       setClosing(null);
@@ -46,6 +49,8 @@ export function FollowUps() {
       setVersion((v) => v + 1);
     } catch (err) {
       setError(errorMessage(err));
+    } finally {
+      setSavingId(null);
     }
   }
 
@@ -98,7 +103,7 @@ export function FollowUps() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {allowed.includes("in_progress") ? (
-                      <Button size="sm" variant="outline" onClick={() => void update(fu, { status: "in_progress", ...(me ? { assignedTo: me.id } : {}) })}>
+                      <Button size="sm" variant="outline" loading={savingId === fu.id} onClick={() => void update(fu, { status: "in_progress", ...(me ? { assignedTo: me.id } : {}) })}>
                         Start
                       </Button>
                     ) : null}
@@ -106,7 +111,7 @@ export function FollowUps() {
                       <Button size="sm" onClick={() => setClosing(fu.id)}>Mark done</Button>
                     ) : null}
                     {allowed.includes("cancelled") ? (
-                      <Button size="sm" variant="ghost" onClick={() => void update(fu, { status: "cancelled" })}>Cancel</Button>
+                      <Button size="sm" variant="ghost" disabled={savingId === fu.id} onClick={() => void update(fu, { status: "cancelled" })}>Cancel</Button>
                     ) : null}
                   </div>
                 </div>
@@ -128,7 +133,7 @@ export function FollowUps() {
                       onChange={(e) => setOutcome(e.target.value)}
                       className="h-10 flex-1 rounded-lg border border-slate-200 px-3 text-sm dark:border-white/10 dark:bg-dark-surface-alt"
                     />
-                    <Button size="sm" type="submit" className="h-10" disabled={!outcome.trim()}>Save outcome</Button>
+                    <Button size="sm" type="submit" className="h-10" disabled={!outcome.trim()} loading={savingId === fu.id}>Save outcome</Button>
                   </form>
                 ) : null}
               </li>

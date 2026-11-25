@@ -201,7 +201,7 @@ export function Learning({ hub = false }: { hub?: boolean } = {}) {
             </Link>
           </div>
         ) : (
-          <Button onClick={() => void proceed()} disabled={busy || !loaded}>
+          <Button onClick={() => void proceed()} disabled={!loaded} loading={busy}>
             {busy ? "Continuing..." : finished ? "Continue to payment" : "Skip to payment"}
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Button>

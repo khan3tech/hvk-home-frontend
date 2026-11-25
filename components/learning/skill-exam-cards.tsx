@@ -1,5 +1,8 @@
+"use client";
+
+import * as React from "react";
 import Link from "next/link";
-import { Award, Lock } from "lucide-react";
+import { Award, Loader2, Lock } from "lucide-react";
 import type { SkillExam } from "@/types/api";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { usePaymentPrompt } from "@/components/portal/payment-prompt";
@@ -39,6 +42,8 @@ export function ExamStatus({ exam }: { exam: SkillExam }) {
  */
 export function ExamAction({ exam, size = "sm", variant = "outline" }: { exam: SkillExam; size?: "sm" | "default"; variant?: "outline" | "primary" }) {
   const prompt = usePaymentPrompt();
+  // After the first click the button shows a loader and ignores further clicks while the exam page opens.
+  const [opening, setOpening] = React.useState(false);
   if (!exam.unlocked) {
     return (
       <Button size={size} variant="outline" onClick={prompt.open} aria-label={`Unlock the exam for ${exam.targetTitle}`}>
@@ -55,8 +60,27 @@ export function ExamAction({ exam, size = "sm", variant = "outline" }: { exam: S
   }
   const label = exam.state === "available" ? "Take exam" : "View result";
   return (
-    <Link href={skillExamHref(exam.id)} className={buttonVariants({ variant, size })} aria-label={`${label} for ${exam.targetTitle}`}>
-      {label}
+    <Link
+      href={skillExamHref(exam.id)}
+      className={cn(buttonVariants({ variant, size }), opening && "pointer-events-none opacity-80")}
+      aria-label={`${label} for ${exam.targetTitle}`}
+      aria-disabled={opening || undefined}
+      aria-busy={opening || undefined}
+      onClick={(e) => {
+        if (opening) {
+          e.preventDefault();
+          return;
+        }
+        setOpening(true);
+      }}
+    >
+      {opening ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Opening…
+        </>
+      ) : (
+        label
+      )}
     </Link>
   );
 }

@@ -386,6 +386,19 @@ describe("Go to exam: choose a learning path, grouped by domain", () => {
     expect(await within(registration).findByRole("link", { name: /Start exam/ })).toHaveAttribute("href", "https://exam.test/start");
   });
 
+  it("shows a loader on Take exam and ignores further clicks while the exam opens", async () => {
+    server.use(http.get(`${API}/skill-exams`, () => ok([pathExam("p-mern", "t1", "MERN Stack", "Full Stack Development")])));
+    const user = userEvent.setup();
+    renderPortal(<Exam />, { pathname: "/exam", step: "exam_ready" });
+    const take = await screen.findByRole("link", { name: "Take exam for MERN Stack" });
+    await user.click(take);
+    expect(take).toHaveTextContent("Opening…");
+    expect(take).toHaveAttribute("aria-disabled", "true");
+    expect(take).toHaveAttribute("aria-busy", "true");
+    await user.click(take); // ignored
+    expect(take).toHaveTextContent("Opening…");
+  });
+
   it("locks the exams before payment", async () => {
     server.use(http.get(`${API}/skill-exams`, () => ok([pathExam("p-mern", "t1", "MERN Stack", "Full Stack Development", { unlocked: false })])));
     renderPortal(<Exam />, { pathname: "/exam", step: "exam_ready" });

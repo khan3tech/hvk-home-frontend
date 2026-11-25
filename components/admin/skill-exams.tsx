@@ -196,7 +196,7 @@ export function SkillExams() {
             <QuestionEditor questions={editor.questions} onChange={(questions) => setEditor({ ...editor, questions })} />
           </div>
           <div className="mt-6 flex flex-wrap gap-2">
-            <Button onClick={() => void save(false)} disabled={busy || !editor.title.trim()}>
+            <Button onClick={() => void save(false)} disabled={!editor.title.trim()} loading={busy}>
               Save draft
             </Button>
             <Button variant="outline" onClick={() => void save(true)} disabled={busy || !editor.title.trim() || editor.questions.length === 0}>

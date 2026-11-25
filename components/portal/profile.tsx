@@ -111,7 +111,7 @@ export function Profile() {
             <Input id="pincode" inputMode="numeric" maxLength={6} icon={Lock} error={errors.pincode?.message} {...register("pincode")} />
           </div>
         </div>
-        <Button type="submit" disabled={isSubmitting || !isDirty}>
+        <Button type="submit" disabled={!isDirty} loading={isSubmitting}>
           {isSubmitting ? "Saving..." : "Save changes"}
         </Button>
         {message ? <FormMessage tone={message.tone}>{message.text}</FormMessage> : null}
