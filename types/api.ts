@@ -406,7 +406,8 @@ export interface SkillExamTargets {
 
 /** A published exam as a candidate sees it. */
 /** The candidate's state for one exam. One exam per candidate: others are "locked" once one is taken. */
-export type SkillExamState = "available" | "locked" | "in_progress" | "qualified" | "disqualified" | "terminated";
+/** No outcome for candidates: staff review the answers, decide Qualified or Disqualified and contact them. */
+export type SkillExamState = "available" | "locked" | "in_progress" | "submitted" | "terminated";
 
 export interface SkillExam {
   id: string;
@@ -440,29 +441,31 @@ export interface SkillAttempt {
   questions: { id: string; prompt: string; marks: number; options: { id: string; label: string }[] }[];
 }
 
-/** What the candidate sees after an exam: no score and no pass mark. */
+/** What the candidate sees after an exam: "thank you" only, no score and no outcome. */
 export interface SkillExamResult {
   attemptId: string;
   examId: string;
   title: string;
-  outcome: "qualified" | "disqualified" | "terminated";
+  outcome: "submitted" | "terminated";
   completedAt: string | null;
   feedbackGiven: boolean;
 }
 
 export type SkillAttemptView = { state: "submitted" | "terminated"; result: SkillExamResult };
 
-/** One exam the candidate has taken ("My examinations"): outcome only. */
+/** One exam the candidate has taken ("My examinations"): no outcome. */
 export interface MySkillAttempt {
   attemptId: string;
   examId: string;
   title: string;
   targetTitle: string;
-  state: "in_progress" | "qualified" | "disqualified" | "terminated";
+  state: "in_progress" | "submitted" | "terminated";
   startedAt: string;
   completedAt: string | null;
   feedbackGiven: boolean;
 }
+
+export type SkillExamDecision = "qualified" | "disqualified";
 
 export type SkillTerminationReason = "tab_hidden" | "fullscreen_exit" | "screen_share_stopped" | "face_violations" | "camera_lost" | "left_exam" | "connection_lost" | "ended_by_staff";
 
@@ -471,7 +474,10 @@ export interface SkillExamAttemptAdmin {
   id: string;
   candidate: { id: string; fullName: string; email: string; phone: string } | null;
   exam: { id: string; title: string } | null;
-  state: "in_progress" | "qualified" | "disqualified" | "terminated";
+  state: "in_progress" | "submitted" | "terminated";
+  /** Set by staff after reviewing the answers; null = awaiting decision. */
+  decision: SkillExamDecision | null;
+  decidedAt: string | null;
   percentage: number | null;
   correctCount: number | null;
   questionCount: number | null;

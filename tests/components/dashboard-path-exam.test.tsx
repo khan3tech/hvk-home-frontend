@@ -15,7 +15,7 @@ const taken = (over: Partial<MySkillAttempt> = {}): MySkillAttempt => ({
   examId: "p-mern",
   title: "MERN Stack exam",
   targetTitle: "MERN Stack",
-  state: "disqualified",
+  state: "submitted",
   startedAt: "2026-11-19T05:00:00Z",
   completedAt: "2026-11-19T06:30:00Z",
   feedbackGiven: false,
@@ -43,18 +43,13 @@ describe("Dashboard follows the learning-path exam (Exam → Feedback → Result
     expect(stageState("Result")).toBe("upcoming");
   });
 
-  it("after feedback, every step is done and the result is one click away (Disqualified wording)", async () => {
+  it("after feedback, every step is done and the candidate is thanked, with no outcome", async () => {
     server.use(http.get(`${API}/skill-exam-attempts`, () => ok([taken({ feedbackGiven: true })])));
     renderPortal(<Dashboard />, { pathname: "/dashboard", step: "exam_ready" });
-    expect(await screen.findByRole("link", { name: /View result/ })).toHaveAttribute("href", "/skill-exam/p-mern");
-    expect(screen.getByText("Don't worry. Contact our support team for further process.")).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: /View exam/ })).toHaveAttribute("href", "/skill-exam/p-mern");
+    expect(screen.getByText("Thank you for taking the exam. Our team will review your answers and contact you.")).toBeInTheDocument();
+    expect(screen.queryByText(/Congratulations|qualified/i)).not.toBeInTheDocument();
     for (const label of ["Exam", "Feedback", "Result"]) expect(stageState(label)).toBe("done");
-  });
-
-  it("uses the Qualified wording for a qualified candidate", async () => {
-    server.use(http.get(`${API}/skill-exam-attempts`, () => ok([taken({ state: "qualified", feedbackGiven: true })])));
-    renderPortal(<Dashboard />, { pathname: "/dashboard", step: "exam_ready" });
-    expect(await screen.findByText(/Congratulations! You have qualified. Please visit our branch/)).toBeInTheDocument();
   });
 
   it("keeps the usual Go to exam step before any exam is taken", async () => {

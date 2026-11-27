@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { AlertTriangle, ArrowLeft, ArrowRight, Camera, CheckCircle2, Clock, Maximize, MessageSquare, MonitorUp, PartyPopper, ShieldCheck, WifiOff } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, Camera, CheckCircle2, Clock, Maximize, MonitorUp, ShieldCheck, WifiOff } from "lucide-react";
 import type { SkillAttempt, SkillExam, SkillExamResult, SkillTerminationReason } from "@/types/api";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ContactMenu } from "@/components/layout/contact-menu";
@@ -589,37 +589,24 @@ function Taking({ attempt, media, onResult, onEnded }: { attempt: SkillAttempt; 
   );
 }
 
-/** Qualified or Disqualified, never a score (QA items 9, 10, 12). */
+/** After the exam the candidate only sees "thank you": staff review the answers and decide (owner decision). */
 function Result({ result }: { result: SkillExamResult }) {
-  const qualified = result.outcome === "qualified";
   const [feedbackOpen, setFeedbackOpen] = React.useState(false);
   const [given, setGiven] = React.useState(result.feedbackGiven);
   return (
-    <PageShell title={qualified ? "Qualified" : "Disqualified"} intro={result.title} width="max-w-2xl">
+    <PageShell title="Thank you" intro={result.title} width="max-w-2xl">
       <div className="text-center" role="status">
-        {qualified ? (
-          <>
-            <PartyPopper className="mx-auto h-16 w-16 text-amber-500" aria-hidden="true" />
-            <p className="mt-4 text-2xl font-extrabold text-navy dark:text-white">Congratulations!</p>
-            <p className="mt-2 text-sm text-ink dark:text-slate-200">You have qualified. Please visit our branch for further process on your placement offer.</p>
-          </>
-        ) : (
-          <>
-            <MessageSquare className="mx-auto h-14 w-14 text-primary-blue dark:text-bright-blue" aria-hidden="true" />
-            <p className="mt-4 text-xl font-bold text-navy dark:text-white">Don&apos;t worry.</p>
-            <p className="mt-2 text-sm text-ink dark:text-slate-200">Contact our support team for further process.</p>
-          </>
-        )}
-        <p className="mt-3 text-xs text-muted dark:text-slate-400">We have also emailed you this result.</p>
+        <CheckCircle2 className="mx-auto h-16 w-16 text-green-600" aria-hidden="true" />
+        <p className="mt-4 text-2xl font-extrabold text-navy dark:text-white">Thank you for taking the exam.</p>
+        <p className="mt-2 text-sm text-ink dark:text-slate-200">Your answers have been submitted. Our team will review them and contact you.</p>
       </div>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         {!given ? (
-          <Button onClick={() => setFeedbackOpen(true)} variant={qualified ? "outline" : "primary"}>
+          <Button onClick={() => setFeedbackOpen(true)} variant="outline">
             Feedback
           </Button>
         ) : null}
-        {qualified ? null : <ContactMenu label="Contact us" className={buttonVariants({ variant: "outline" })} />}
-        <Link href={DASHBOARD} className={buttonVariants({ variant: qualified ? "primary" : "outline" })}>
+        <Link href={DASHBOARD} className={buttonVariants({ variant: "primary" })}>
           Back to Dashboard
         </Link>
       </div>

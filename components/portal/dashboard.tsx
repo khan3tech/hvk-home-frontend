@@ -48,7 +48,7 @@ function Tile({ href, icon: Icon, title, text }: { href: string; icon: React.Com
 
 /**
  * The learning-path exam moves the Exam, Feedback and Result steps too: once it is finished the candidate gives
- * feedback, then sees Qualified or Disqualified. Returns the journey step it stands for, and the next-step card.
+ * feedback; staff then review it and contact them. Returns the journey step it stands for, and the next-step card.
  */
 function pathExamStep(attempt: MySkillAttempt | undefined): { step: OnboardingStep; title: string; hint: string; href: string } | null {
   if (!attempt || attempt.state === "in_progress") return null;
@@ -57,9 +57,7 @@ function pathExamStep(attempt: MySkillAttempt | undefined): { step: OnboardingSt
     return { step: "completed", title: "Your exam has ended", hint: "Your exam was ended because you left it. Please contact us for further process.", href };
   }
   if (!attempt.feedbackGiven) return { step: "exam_completed", title: "Give feedback", hint: `${attempt.title} completed. Tell us how it went.`, href };
-  return attempt.state === "qualified"
-    ? { step: "completed", title: "View result", hint: "Congratulations! You have qualified. Please visit our branch for further process on your placement offer.", href }
-    : { step: "completed", title: "View result", hint: "Don't worry. Contact our support team for further process.", href };
+  return { step: "completed", title: "Thank you", hint: "Thank you for taking the exam. Our team will review your answers and contact you.", href };
 }
 
 export function Dashboard() {
@@ -113,7 +111,7 @@ export function Dashboard() {
           href={waiting ? LEARNING_PAGE : (fromPath?.href ?? STEP_ROUTE[step])}
           className="inline-flex h-12 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-white px-7 text-base font-semibold text-primary-blue shadow-sm transition-colors hover:bg-light-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary-blue"
         >
-          {waiting ? "Watch free videos" : fromPath ? (fromPath.step === "exam_completed" ? "Give feedback" : "View result") : STEP_ACTION[step]} <ArrowRight className="h-5 w-5" aria-hidden="true" />
+          {waiting ? "Watch free videos" : fromPath ? (fromPath.step === "exam_completed" ? "Give feedback" : "View exam") : STEP_ACTION[step]} <ArrowRight className="h-5 w-5" aria-hidden="true" />
         </Link>
       </section>
 
