@@ -12,15 +12,14 @@ import type { ManagedExamInvite, MySkillAttempt } from "@/types/api";
 import { cn } from "@/lib/utils";
 
 const OUTCOME: Record<MySkillAttempt["state"], { label: string; className: string }> = {
-  qualified: { label: "Qualified", className: "bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-300" },
-  disqualified: { label: "Disqualified", className: "bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-300" },
+  submitted: { label: "Submitted", className: "bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-300" },
   terminated: { label: "Exam ended", className: "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-200" },
   in_progress: { label: "Exam ended", className: "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-200" },
 };
 
 const formatDate = (iso: string) => new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" }).format(new Date(iso));
 
-/** My examinations: the exams I have taken (Qualified or not), and any exam assigned to me by staff. */
+/** My examinations: the exams I have taken (no outcome: staff contact the candidate), and any exam assigned to me by staff. */
 export function ManagedExamList() {
   const [exams, setExams] = React.useState<ManagedExamInvite[]>([]);
   const [taken, setTaken] = React.useState<MySkillAttempt[]>([]);
@@ -58,7 +57,7 @@ export function ManagedExamList() {
         return <li key={t.attemptId} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-dark-surface-alt">
           <div className="flex items-start justify-between gap-3"><h3 className="text-lg font-bold text-navy dark:text-white">{t.title}</h3><span className={cn("rounded-full px-3 py-1 text-xs font-semibold", outcome.className)}>{outcome.label}</span></div>
           <p className="mt-3 inline-flex items-center gap-2 text-sm text-muted"><CalendarDays className="h-4 w-4" />{formatDate(t.completedAt ?? t.startedAt)} IST</p>
-          <div><Link href={skillExamHref(t.examId)} className={cn(buttonVariants({ variant: "outline", size: "sm" }), "mt-4")} aria-label={`View result of ${t.title}`}>View result</Link></div>
+          <div><Link href={skillExamHref(t.examId)} className={cn(buttonVariants({ variant: "outline", size: "sm" }), "mt-4")} aria-label={`View ${t.title}`}>View</Link></div>
         </li>;
       })}</ul>
     </section> : null}

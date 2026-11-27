@@ -62,7 +62,7 @@ const result = (over: Partial<SkillExamResult> = {}): SkillExamResult => ({
   attemptId: "att1",
   examId: "ex1",
   title: "HTML exam",
-  outcome: "qualified",
+  outcome: "submitted",
   completedAt: new Date().toISOString(),
   feedbackGiven: false,
   ...over,
@@ -105,7 +105,7 @@ describe("Taking a course or domain exam (proctored, one attempt)", () => {
     await user.click(start);
   }
 
-  it("shows the terms, needs camera, entire screen and fullscreen, then answers with the session key and shows Qualified", async () => {
+  it("shows the terms, needs camera, entire screen and fullscreen, then answers with the session key and only says thank you", async () => {
     const saved: unknown[] = [];
     server.use(
       listWith(),
@@ -130,24 +130,24 @@ describe("Taking a course or domain exam (proctored, one attempt)", () => {
     expect(saved).toEqual([["q1", "q1-a", "key-1"], ["q2", "q2-a", "key-1"]]);
 
     await user.click(screen.getByRole("button", { name: "Submit exam" }));
-    expect(await screen.findByRole("heading", { name: "Qualified" })).toBeInTheDocument();
-    expect(screen.getByText("Congratulations!")).toBeInTheDocument();
-    expect(screen.getByText(/Please visit our branch for further process on your placement offer/)).toBeInTheDocument();
-    expect(screen.queryByText(/%|Retake|retake/)).not.toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Thank you" })).toBeInTheDocument();
+    expect(screen.getByText("Thank you for taking the exam.")).toBeInTheDocument();
+    expect(screen.getByText(/Our team will review them and contact you/)).toBeInTheDocument();
+    expect(screen.queryByText(/%|Retake|retake|Qualified|Disqualified|Congratulations/)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Back to Dashboard" })).toHaveAttribute("href", "/dashboard");
     expect(screen.queryByRole("link", { name: /Back to my learning/ })).not.toBeInTheDocument();
     expect(media.camera.track.stopped || proctor.stop.mock.calls.length > 0).toBe(true);
   });
 
-  it("asks before submitting with unanswered questions, then shows Disqualified with Feedback", async () => {
+  it("asks before submitting with unanswered questions, then says thank you with Feedback", async () => {
     let feedback: unknown = null;
     server.use(
       listWith(),
       http.post(`${API}/skill-exams/ex1/start`, () => ok(attempt(), 201)),
-      http.post(`${API}/skill-exam-attempts/att1/submit`, () => ok(result({ outcome: "disqualified" }))),
+      http.post(`${API}/skill-exam-attempts/att1/submit`, () => ok(result())),
       http.post(`${API}/skill-exam-attempts/att1/feedback`, async ({ request }) => {
         feedback = await request.json();
-        return ok(result({ outcome: "disqualified", feedbackGiven: true }), 201);
+        return ok(result({ feedbackGiven: true }), 201);
       }),
     );
     const user = userEvent.setup();
@@ -159,10 +159,8 @@ describe("Taking a course or domain exam (proctored, one attempt)", () => {
     expect(await screen.findByRole("alertdialog")).toHaveTextContent("Submit with 2 unanswered?");
     await user.click(screen.getByRole("button", { name: "Submit now" }));
 
-    expect(await screen.findByRole("heading", { name: "Disqualified" })).toBeInTheDocument();
-    expect(screen.getByText("Don't worry.")).toBeInTheDocument();
-    expect(screen.getByText("Contact our support team for further process.")).toBeInTheDocument();
-    expect(screen.queryByText(/Attempt 1|Not passed|retake/i)).not.toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Thank you" })).toBeInTheDocument();
+    expect(screen.queryByText(/Attempt 1|Not passed|retake|qualified/i)).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Feedback" }));
     await user.click(screen.getByLabelText("4 out of 5"));
     await user.type(screen.getByLabelText(/Comments/), "Good questions");
@@ -265,10 +263,11 @@ describe("Taking a course or domain exam (proctored, one attempt)", () => {
     expect(screen.getByRole("link", { name: "Back to Dashboard" })).toBeInTheDocument();
   });
 
-  it("shows the outcome of a finished exam", async () => {
-    server.use(listWith({ state: "disqualified", attemptId: "att1" }), http.get(`${API}/skill-exam-attempts/att1`, () => ok({ state: "submitted", result: result({ outcome: "disqualified", feedbackGiven: true }) })));
+  it("shows only thank you for a finished exam, no outcome", async () => {
+    server.use(listWith({ state: "submitted", attemptId: "att1" }), http.get(`${API}/skill-exam-attempts/att1`, () => ok({ state: "submitted", result: result({ feedbackGiven: true }) })));
     render(<SkillExamRunner examId="ex1" />);
-    expect(await screen.findByRole("heading", { name: "Disqualified" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Thank you" })).toBeInTheDocument();
+    expect(screen.queryByText(/Qualified|Disqualified/)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Feedback" })).not.toBeInTheDocument();
   });
 
@@ -408,13 +407,13 @@ describe("Go to exam: choose a learning path, grouped by domain", () => {
 });
 
 describe("My examinations", () => {
-  it("lists the exams the candidate has taken with Qualified or Disqualified and a link to the result", async () => {
+  it("lists the exams the candidate has taken, without an outcome, and a link to each", async () => {
     server.use(
       http.get(`${API}/exams/candidate-exams`, () => ok([])),
       http.get(`${API}/skill-exam-attempts`, () =>
         ok([
-          { attemptId: "a2", examId: "p-mern", title: "MERN Stack exam", targetTitle: "MERN Stack", state: "qualified", startedAt: "2026-11-19T05:00:00Z", completedAt: "2026-11-19T06:30:00Z" },
-          { attemptId: "a1", examId: "p-ds", title: "Data Science exam", targetTitle: "Data Science", state: "disqualified", startedAt: "2026-11-10T05:00:00Z", completedAt: "2026-11-10T06:30:00Z" },
+          { attemptId: "a2", examId: "p-mern", title: "MERN Stack exam", targetTitle: "MERN Stack", state: "submitted", startedAt: "2026-11-19T05:00:00Z", completedAt: "2026-11-19T06:30:00Z" },
+          { attemptId: "a1", examId: "p-ds", title: "Data Science exam", targetTitle: "Data Science", state: "terminated", startedAt: "2026-11-10T05:00:00Z", completedAt: "2026-11-10T06:30:00Z" },
         ]),
       ),
     );
@@ -422,9 +421,10 @@ describe("My examinations", () => {
     const taken = await screen.findByRole("region", { name: "Exams you have taken" });
     const items = within(taken).getAllByRole("listitem");
     expect(items[0]).toHaveTextContent("MERN Stack exam");
-    expect(items[0]).toHaveTextContent("Qualified");
-    expect(items[1]).toHaveTextContent("Disqualified");
-    expect(within(items[0]!).getByRole("link", { name: "View result of MERN Stack exam" })).toHaveAttribute("href", "/skill-exam/p-mern");
+    expect(items[0]).toHaveTextContent("Submitted");
+    expect(items[1]).toHaveTextContent("Exam ended");
+    expect(taken).not.toHaveTextContent(/Qualified|Disqualified/);
+    expect(within(items[0]!).getByRole("link", { name: "View MERN Stack exam" })).toHaveAttribute("href", "/skill-exam/p-mern");
     expect(screen.queryByText(/%/)).not.toBeInTheDocument();
   });
 

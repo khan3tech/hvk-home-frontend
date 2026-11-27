@@ -1,17 +1,4 @@
-import type {
-  MySkillAttempt,
-  Page,
-  SkillAttempt,
-  SkillExamAttemptAdmin,
-  SkillTerminationReason,
-  SkillAttemptView,
-  SkillExam,
-  SkillExamAdmin,
-  SkillExamAdminDetail,
-  SkillExamInput,
-  SkillExamResult,
-  SkillExamTargets,
-} from "@/types/api";
+import type { MySkillAttempt, Page, SkillAttempt, SkillAttemptView, SkillExam, SkillExamAdmin, SkillExamAdminDetail, SkillExamAttemptAdmin, SkillExamDecision, SkillExamInput, SkillExamResult, SkillExamTargets, SkillTerminationReason } from "@/types/api";
 import { apiFetch } from "./client";
 
 const enc = encodeURIComponent;
@@ -46,6 +33,8 @@ export const adminSkillExamApi = {
   targets: () => apiFetch<SkillExamTargets>("/admin/skill-exams/targets"),
   attempts: (q: { status?: string; q?: string; page?: number; limit?: number }) =>
     apiFetch<Page<SkillExamAttemptAdmin>>("/admin/skill-exam-attempts", { query: { ...q } }),
+  decide: (attemptId: string, decision: SkillExamDecision) =>
+    apiFetch<{ id: string; decision: SkillExamDecision; decidedAt: string | null }>(`/admin/skill-exam-attempts/${enc(attemptId)}/decision`, { method: "POST", body: { decision } }),
   allowNewAttempt: (attemptId: string) =>
     apiFetch<{ id: string; releasedAt: string | null }>(`/admin/skill-exam-attempts/${enc(attemptId)}/allow-new-attempt`, { method: "POST" }),
   list: () => apiFetch<SkillExamAdmin[]>("/admin/skill-exams"),

@@ -15,7 +15,9 @@ const row = (over: Partial<SkillExamAttemptAdmin> = {}): SkillExamAttemptAdmin =
   id: "att1",
   candidate: { id: "c1", fullName: "Hari Kumar", email: "hari@example.com", phone: "+919812345678" },
   exam: { id: "ex1", title: "Full Stack Development exam" },
-  state: "disqualified",
+  state: "submitted",
+  decision: null,
+  decidedAt: null,
   percentage: 64,
   correctCount: 64,
   questionCount: 100,
@@ -54,7 +56,8 @@ describe("Staff: exam results (QA item 11)", () => {
 
     const first = (await screen.findAllByText("Hari Kumar"))[0]!.closest("tr")!;
     expect(first).toHaveTextContent("hari@example.com");
-    expect(first).toHaveTextContent("Disqualified");
+    expect(first).toHaveTextContent("Awaiting decision");
+    expect(first).toHaveTextContent("64 of 100 correct");
     expect(first).toHaveTextContent("64%");
     expect(first).toHaveTextContent("4/5");
     expect(screen.getByText("Switched tab or app")).toBeInTheDocument();
@@ -68,6 +71,41 @@ describe("Staff: exam results (QA item 11)", () => {
     await user.click(within(first).getByRole("button", { name: "Allow new attempt" }));
     expect(await screen.findByText("Hari Kumar can now start one more exam.")).toBeInTheDocument();
     expect(await screen.findByText("New attempt allowed")).toBeInTheDocument();
+  });
+
+  it("lets staff mark a finished exam Qualified or Disqualified, asking before a change", async () => {
+    let decision: string | null = null;
+    const bodies: unknown[] = [];
+    server.use(
+      http.get(`${API}/admin/skill-exam-attempts`, () => ok({ items: [row({ decision: decision as SkillExamAttemptAdmin["decision"] })], page: 1, limit: 20, total: 1 })),
+      http.post(`${API}/admin/skill-exam-attempts/att1/decision`, async ({ request }) => {
+        const body = (await request.json()) as { decision: string };
+        bodies.push(body);
+        decision = body.decision;
+        return ok({ id: "att1", decision, decidedAt: "2026-11-19T08:00:00Z" });
+      }),
+    );
+    const confirm = vi.spyOn(window, "confirm").mockReturnValueOnce(false).mockReturnValueOnce(true);
+    const user = userEvent.setup();
+    renderPortal(<ExamResults />, { pathname: "/admin/exam-results", step: "completed", role: "admin", area: "admin" });
+
+    await user.click(await screen.findByRole("button", { name: "Qualify Hari Kumar" }));
+    expect(await screen.findByText("Hari Kumar is marked Qualified and has been emailed.")).toBeInTheDocument();
+    expect(bodies).toEqual([{ decision: "qualified" }]);
+    const tr = (await screen.findAllByText("Hari Kumar"))[0]!.closest("tr")!;
+    expect(await within(tr).findByText("Qualified")).toBeInTheDocument();
+    expect(within(tr).queryByRole("button", { name: "Qualify Hari Kumar" })).not.toBeInTheDocument();
+
+    const change = within(tr).getByRole("button", { name: "Disqualify Hari Kumar" });
+    await user.click(change);
+    expect(confirm).toHaveBeenCalledWith(expect.stringContaining("Change Hari Kumar's result to Disqualified"));
+    expect(bodies).toHaveLength(1); // cancelled
+    await user.click(change);
+    expect(await screen.findByText("Hari Kumar is marked Disqualified and has been emailed.")).toBeInTheDocument();
+    expect(bodies).toEqual([{ decision: "qualified" }, { decision: "disqualified" }]);
+
+    await user.selectOptions(screen.getByLabelText("Result"), "awaiting_decision");
+    confirm.mockRestore();
   });
 
   it("ends an exam stuck in progress and allows a new attempt, after asking", async () => {

@@ -14,13 +14,12 @@ export const skillExamHref = (examId: string) => `/skill-exam/${encodeURICompone
 export const examFacts = (exam: SkillExam) => `${exam.questionCount} questions · ${exam.durationMinutes} min`;
 
 const STATE_LABEL: Partial<Record<SkillExam["state"], string>> = {
-  qualified: "Qualified",
-  disqualified: "Disqualified",
+  submitted: "Submitted",
   terminated: "Exam ended",
   in_progress: "Exam ended",
 };
 
-/** Outcome chip once the candidate has taken this exam: Qualified, Disqualified or Exam ended. */
+/** Chip once the candidate has taken this exam: Submitted or Exam ended (staff decide the outcome). */
 export function ExamStatus({ exam }: { exam: SkillExam }) {
   const label = STATE_LABEL[exam.state];
   if (!label) return null;
@@ -28,7 +27,7 @@ export function ExamStatus({ exam }: { exam: SkillExam }) {
     <span
       className={cn(
         "text-xs font-semibold",
-        exam.state === "qualified" ? "text-green-700 dark:text-green-400" : exam.state === "disqualified" ? "text-red-700 dark:text-red-400" : "text-amber-700 dark:text-amber-400",
+        exam.state === "submitted" ? "text-green-700 dark:text-green-400" : "text-amber-700 dark:text-amber-400",
       )}
     >
       {label}
@@ -38,7 +37,7 @@ export function ExamStatus({ exam }: { exam: SkillExam }) {
 
 /**
  * The button of one exam. One exam per candidate: once one is taken, the others show "Locked" (disabled);
- * the taken one shows "View result". Before the payment it opens the payment popup.
+ * the taken one shows "View". Before the payment it opens the payment popup.
  */
 export function ExamAction({ exam, size = "sm", variant = "outline" }: { exam: SkillExam; size?: "sm" | "default"; variant?: "outline" | "primary" }) {
   const prompt = usePaymentPrompt();
@@ -58,7 +57,7 @@ export function ExamAction({ exam, size = "sm", variant = "outline" }: { exam: S
       </Button>
     );
   }
-  const label = exam.state === "available" ? "Take exam" : "View result";
+  const label = exam.state === "available" ? "Take exam" : "View";
   return (
     <Link
       href={skillExamHref(exam.id)}
